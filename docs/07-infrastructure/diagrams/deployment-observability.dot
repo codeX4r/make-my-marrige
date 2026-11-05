@@ -10,9 +10,10 @@ digraph G {
  mongo [label="MongoDB Atlas\nBackups • indexes • transactions", shape=cylinder, fillcolor="#E8F5E9"];
  redis [label="Managed Redis\nQueue transport • counters", shape=cylinder, fillcolor="#FFF4E5"];
  r2 [label="Private R2 bucket\nPhoto objects"];
- providers [label="External providers\nOTP/email • Places • UPI"];
+ providers [label="External providers\nBrevo - Google Places - Razorpay UPI"];
  obs [label="Observability platform\nStructured logs • metrics • traces\nDashboards • alerting", fillcolor="#DCEBFA"];
- internet -> cf -> web -> api;
+ internet -> cf -> web;
+ web -> api [label="BFF server-side REST /v1"];
  api -> mongo; api -> redis; api -> r2; api -> providers;
  mongo -> worker [label="outbox"];
  worker -> redis [label="consume"];

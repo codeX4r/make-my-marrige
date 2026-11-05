@@ -8,10 +8,14 @@ digraph G {
  weddings [label="{weddings|_id PK\\lweddingDate YYYY-MM-DD\\ltimezone\\llifecycleStatus\\l}"];
  memberships [label="{weddingMemberships|_id PK\\lweddingId FK\\luserId FK\\lmemberType / status\\l}"];
  invites [label="{invitations|_id PK\\lweddingId FK\\linvitedEmailNormalized\\ltokenHash UQ\\lstatus / expiresAt\\l}"];
+ guest_invites [label="{guestAccessInvitations|_id PK\\lweddingId FK\\lguestId FK\\linvitedEmail\\ltokenHash UQ\\lstatus / expiresAt\\l}"];
+ guest_auth [label="{guestOtpChallenges + guestSessions|weddingId / invitationId / guestId\\lchallenge/session token hashes\\lexpiresAt / revokedAt\\l}"];
  periods [label="{membershipPeriodEvents|_id PK\\lweddingId FK\\lmembershipId FK\\levent / occurredAt\\l}"];
  users -> sessions [label="1:N"];
  users -> memberships [label="1:N history"];
  weddings -> memberships [label="1:N"];
  weddings -> invites [label="1:N"];
+ weddings -> guest_invites [label="1:N"];
+ guest_invites -> guest_auth [label="1:N challenges / sessions"];
  memberships -> periods [label="1:N"];
 }
