@@ -11,7 +11,9 @@ digraph G {
  media [label="Media boundary\nPrivate R2 • short-lived signed URLs\nRe-authorise every read/download"];
  provider [label="Provider boundary\nWebhook signature + replay checks\nIdempotency + reconciliation"];
  ops [label="Operations boundary\nSecrets manager • least privilege\nRedacted logs • alerts • incident response", fillcolor="#E8F5E9"];
- client -> edge_layer -> api -> auth -> tenant -> data;
+ bff [label="Next.js BFF\nSecure cookie - CSRF - no domain authorization", fillcolor="#DCEBFA"];
+ client -> edge_layer -> bff -> api [label="trusted server-side /v1"];
+ api -> auth -> tenant -> data;
  tenant -> media;
  api -> provider;
  data -> ops [style=dashed];

@@ -2,13 +2,13 @@
   "openapi": "3.1.0",
   "info": {
     "title": "MakeMyMarrige API",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "REST API contract baseline for MakeMyMarrige. The API is versioned under /v1. All tenant access is server-resolved and permission-checked. This specification is a design contract and must be validated against implementation before release."
   },
   "servers": [
     {
       "url": "https://api.example.com",
-      "description": "Production placeholder \u2014 replace with deployed API origin"
+      "description": "Production placeholder — replace with deployed API origin"
     },
     {
       "url": "https://staging-api.example.com",
@@ -171,7 +171,7 @@
           "Authentication"
         ],
         "summary": "Exchange Google OAuth credential/code for an application session",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "Member Google OAuth capability is documented; production enablement and client configuration remain unspecified. Google OAuth is not a guest authentication method. Tenant context and permissions are resolved and enforced by the API; never trust client-supplied weddingId as authority.",
         "operationId": "post_v1_auth_google",
         "responses": {
           "200": {
@@ -1481,7 +1481,9 @@
           "Invitations"
         ],
         "summary": "Create invitation after eligibility/governance checks",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "BLOCKED contract: existing sources do not define the create-invitation request payload, invitation types/roles or permission-grant shape. Do not implement or call until product owner approves the schema. Tenant context must remain server-resolved; never trust client-supplied weddingId.",
+        "x-implementation-status": "BLOCKED",
+        "x-contract-gap": "Request schema reference was unresolved in the prior OpenAPI and no authoritative payload was found in PRD, architecture, database or UI workflow sources.",
         "operationId": "post_v1_workspaces_current_invitations",
         "responses": {
           "200": {
@@ -1523,17 +1525,7 @@
           {
             "cookieAuth": []
           }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateInvitationRequest"
-              }
-            }
-          }
-        }
+        ]
       }
     },
     "/v1/workspaces/current/invitations/{invitationId}/revoke": {
@@ -2511,7 +2503,9 @@
           "Functions"
         ],
         "summary": "Cancel function using dual approval",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "BLOCKED contract: prior OpenAPI references missing GovernanceActionRequest; current workflow requires dual approval but does not define this operation payload or transition details. Do not implement until approved. Tenant context remains server-resolved.",
+        "x-implementation-status": "BLOCKED",
+        "x-contract-gap": "GovernanceActionRequest schema was unresolved; do not infer reason, expectedVersion or approval token fields.",
         "operationId": "post_v1_functions_functionId_cancel",
         "responses": {
           "200": {
@@ -2554,16 +2548,6 @@
             "cookieAuth": []
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GovernanceActionRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "functionId",
@@ -3036,6 +3020,173 @@
             "description": "Opaque resource identifier."
           }
         ]
+      }
+    },
+    "/v1/tasks/{taskId}/dependencies": {
+      "get": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "List prerequisite task dependencies",
+        "operationId": "get_v1_tasks_taskId_dependencies",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dependency list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Atomically replace prerequisite task dependencies",
+        "description": "Same-wedding active task-management permission required. Reject self-dependencies, cross-wedding links and cycles. expectedVersion prevents lost updates; a wedding-scoped graph guard serializes edge changes and completion validation against concurrent cycle creation. Identical desired-state retries are idempotent.",
+        "operationId": "put_v1_tasks_taskId_dependencies",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceTaskDependenciesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dependencies replaced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Remove all prerequisite task dependencies",
+        "description": "Same-wedding active task-management permission required; expectedVersion prevents lost updates.",
+        "operationId": "delete_v1_tasks_taskId_dependencies",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "expectedVersion",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dependencies cleared",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
       }
     },
     "/v1/tasks/{taskId}/checklist-items": {
@@ -4083,12 +4234,60 @@
       }
     },
     "/v1/guests/{guestId}/correction-requests": {
+      "get": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "List guest correction requests",
+        "description": "Requester may view own requests; co-owner or scoped organiser may review tenant requests. All reads are tenant-scoped.",
+        "operationId": "get_v1_guests_guestId_correction_requests",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "guestCookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "guestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Correction requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Guests"
         ],
         "summary": "Submit profile correction request",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "Guest may submit only for the authenticated guest matching guestId; an authorised member may submit via assisted workflow if permission allows. Requests use an allowlisted change set, are tenant-scoped and audited. Never trust client-supplied weddingId as authority.",
         "operationId": "post_v1_guests_guestId_correction_requests",
         "responses": {
           "200": {
@@ -4129,6 +4328,9 @@
         "security": [
           {
             "cookieAuth": []
+          },
+          {
+            "guestCookieAuth": []
           }
         ],
         "requestBody": {
@@ -4143,6 +4345,14 @@
         },
         "parameters": [
           {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "guestId",
             "in": "path",
             "required": true,
@@ -4153,6 +4363,137 @@
             "description": "Opaque resource identifier."
           }
         ]
+      }
+    },
+    "/v1/guests/{guestId}/correction-requests/{requestId}": {
+      "get": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "Get guest correction request status",
+        "description": "Requesting guest may read only their own request; co-owner or scoped organiser may read within the wedding. NestJS enforces identity and tenant scope.",
+        "operationId": "get_v1_guests_guestId_correction_requests_requestId",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "guestCookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "guestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Correction request status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/v1/guests/{guestId}/correction-requests/{requestId}/review": {
+      "post": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "Review a guest correction request",
+        "description": "Co-owner or organiser with guest-correction review scope may approve/reject. The requester cannot review their own request. Requires expectedVersion; decision, reason and resulting guest update are atomic and audited.",
+        "operationId": "post_v1_guests_guestId_correction_requests_requestId_review",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "guestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewGuestCorrectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
       }
     },
     "/v1/guests/{guestId}/merge-requests": {
@@ -4445,23 +4786,20 @@
           "Guest Authentication"
         ],
         "summary": "Request guest OTP",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "Invitation-bound email OTP only. The opaque invitation token resolves the intended guest and wedding; delivery uses Brevo. OTP proves invited-email control, not legal identity. Numeric expiry, resend and attempt values remain unresolved pending approval. Never trust client-supplied weddingId as authority.",
         "operationId": "post_v1_guest_auth_otp_request",
         "responses": {
           "200": {
-            "description": "Successful response",
+            "description": "Generic accepted response; must not disclose whether the invitation or email is valid.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenericSuccess"
+                  "$ref": "#/components/schemas/GuestOtpChallengeResponse"
                 }
               }
             }
           },
           "400": {
-            "$ref": "#/components/responses/StandardError"
-          },
-          "404": {
             "$ref": "#/components/responses/StandardError"
           },
           "429": {
@@ -4492,6 +4830,14 @@
         "responses": {
           "200": {
             "description": "Successful response",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Secure HttpOnly SameSite guest session cookie; exact topology is deployment configuration.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -7888,11 +8234,11 @@
           "Digital Shagun"
         ],
         "summary": "Create provider payment intent for authenticated guest",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "Razorpay UPI-only intent created server-side. Persist amount, INR currency, recipient and idempotency before provider handoff; only verified signature, webhook and reconciliation establish success. Redirect, screenshot or client reference is not proof. Never trust client-supplied weddingId as authority.",
         "operationId": "post_v1_shagun_payment_intents",
         "responses": {
           "200": {
-            "description": "Successful response",
+            "description": "Intent state envelope. Provider checkout handoff fields remain blocked pending provider-tested contract and must not be inferred from this schema.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7929,6 +8275,18 @@
         "security": [
           {
             "guestCookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
           }
         ],
         "requestBody": {
@@ -8101,6 +8459,53 @@
         ]
       }
     },
+    "/v1/shagun/payment-intents/{intentId}": {
+      "get": {
+        "tags": [
+          "Digital Shagun"
+        ],
+        "summary": "Get own Shagun intent status",
+        "description": "Guest may read only their own wedding-scoped intent. Provider redirects do not establish success; state is server verified.",
+        "operationId": "get_v1_shagun_payment_intents_intentId",
+        "security": [
+          {
+            "guestCookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "intentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current verified intent state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShagunIntentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
     "/v1/shagun/payment-intents/{intentId}/reconcile": {
       "post": {
         "tags": [
@@ -8180,7 +8585,7 @@
           "Webhooks"
         ],
         "summary": "Receive signed payment-provider event",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "description": "Razorpay-only webhook in the approved deployment. Verify the raw request signature using the configured webhook secret, enforce freshness/replay protection, persist a deduplicated inbox event before acknowledgement, then asynchronously reconcile intent, amount, INR currency and recipient. Webhooks are not authenticated by user cookies.",
         "operationId": "post_v1_webhooks_payments_providerId",
         "responses": {
           "200": {
@@ -8227,9 +8632,21 @@
             "required": true,
             "schema": {
               "type": "string",
+              "enum": [
+                "razorpay"
+              ]
+            },
+            "description": "Only the approved Razorpay provider is enabled by this contract."
+          },
+          {
+            "name": "X-Razorpay-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
               "minLength": 1
             },
-            "description": "Opaque resource identifier."
+            "description": "Provider signature over the exact raw request body; verify server-side before processing."
           }
         ]
       }
@@ -8407,16 +8824,16 @@
         "tags": [
           "Photos"
         ],
-        "summary": "Create upload reservation and presigned R2 URL",
-        "description": "Tenant context and permissions are resolved and enforced by the API. Never trust client-supplied weddingId as authority.",
+        "summary": "Create upload reservations for a role-limited photo batch",
+        "description": "Accept JPG/JPEG or PNG only, at most 5 MB per file. Per upload batch limits are 5 guest photos or 10 co-owner/organiser photos. Server verifies extension, MIME and content signature, then strips GPS EXIF. Dimensions and workspace quota are deferred and unspecified. Never trust client-supplied weddingId as authority.",
         "operationId": "post_v1_photos_upload_intents",
         "responses": {
           "200": {
-            "description": "Successful response",
+            "description": "Per-file upload reservations for the accepted batch.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenericSuccess"
+                  "$ref": "#/components/schemas/PhotoUploadBatchIntentResponse"
                 }
               }
             }
@@ -8451,12 +8868,22 @@
             "cookieAuth": []
           }
         ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PhotoUploadIntentRequest"
+                "$ref": "#/components/schemas/PhotoUploadBatchIntentRequest"
               }
             }
           }
@@ -10182,7 +10609,59 @@
       },
       "ShagunIntentResponse": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "intentId",
+              "provider",
+              "paymentMethod",
+              "amountPaise",
+              "currency",
+              "state"
+            ],
+            "properties": {
+              "intentId": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string",
+                "const": "RAZORPAY"
+              },
+              "paymentMethod": {
+                "type": "string",
+                "const": "UPI"
+              },
+              "amountPaise": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "currency": {
+                "type": "string",
+                "const": "INR"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "SUCCESSFUL",
+                  "FAILED",
+                  "RECONCILIATION_REQUIRED",
+                  "REFUNDED",
+                  "REVERSED"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        }
       },
       "WebhookAck": {
         "type": "object",
@@ -10551,6 +11030,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "responsibleMembershipId": {
+            "type": "string",
+            "description": "Optional accountable active assignment in the same wedding."
+          },
           "priority": {
             "type": "string",
             "enum": [
@@ -10587,6 +11070,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "responsibleMembershipId": {
+            "type": "string",
+            "description": "Optional accountable active assignment for this task."
+          },
           "expectedVersion": {
             "type": "integer"
           }
@@ -10606,6 +11093,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "responsibleMembershipId": {
+            "type": "string",
+            "description": "Must be one of membershipIds; only one responsible membership is permitted."
           }
         },
         "additionalProperties": false
@@ -10756,11 +11247,78 @@
         "properties": {
           "requestedChanges": {
             "type": "object",
-            "additionalProperties": true
+            "minProperties": 1,
+            "properties": {
+              "fullName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 180
+              },
+              "phone": {
+                "type": "string",
+                "maxLength": 40
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "maxLength": 254
+              }
+            },
+            "additionalProperties": false
           },
           "reason": {
             "type": "string",
             "maxLength": 500
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReviewGuestCorrectionRequest": {
+        "type": "object",
+        "required": [
+          "decision",
+          "reason",
+          "expectedVersion"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReplaceTaskDependenciesRequest": {
+        "type": "object",
+        "required": [
+          "dependencyTaskIds",
+          "expectedVersion"
+        ],
+        "properties": {
+          "dependencyTaskIds": {
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0
           }
         },
         "additionalProperties": false
@@ -10823,18 +11381,43 @@
       "GuestOtpRequest": {
         "type": "object",
         "required": [
-          "weddingAccessCode",
-          "phone"
+          "invitationToken"
         ],
         "properties": {
-          "weddingAccessCode": {
-            "type": "string"
-          },
-          "phone": {
+          "invitationToken": {
             "type": "string"
           }
         },
         "additionalProperties": false
+      },
+      "GuestOtpChallengeResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "challengeId",
+              "expiresAt"
+            ],
+            "properties": {
+              "challengeId": {
+                "type": "string"
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "additionalProperties": false
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        }
       },
       "GuestOtpVerifyRequest": {
         "type": "object",
@@ -11410,19 +11993,95 @@
             "type": "string",
             "enum": [
               "image/jpeg",
-              "image/png",
-              "image/webp"
+              "image/png"
             ]
           },
           "byteSize": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 5000000,
+            "description": "Maximum 5 MB (5,000,000 bytes) per file."
           },
           "checksum": {
             "type": "string"
           }
         },
         "additionalProperties": false
+      },
+      "PhotoUploadBatchIntentRequest": {
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "properties": {
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "description": "Server enforces maximum 5 for a guest actor and maximum 10 for co-owner/organiser, per request batch.",
+            "items": {
+              "$ref": "#/components/schemas/PhotoUploadIntentRequest"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhotoUploadBatchIntentResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "batchId",
+              "uploads"
+            ],
+            "properties": {
+              "batchId": {
+                "type": "string"
+              },
+              "uploads": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "uploadId",
+                    "uploadUrl",
+                    "requiredHeaders",
+                    "expiresAt"
+                  ],
+                  "properties": {
+                    "uploadId": {
+                      "type": "string"
+                    },
+                    "uploadUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "requiredHeaders": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "expiresAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        }
       },
       "PhotoUploadCompleteRequest": {
         "type": "object",

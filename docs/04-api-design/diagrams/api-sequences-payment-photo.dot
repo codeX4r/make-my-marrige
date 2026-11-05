@@ -6,12 +6,12 @@ digraph G {
   label="Digital Shagun"; color="#9CB6CC"; style="rounded";
   guest [label="Verified guest"];
   api [label="API"];
-  provider [label="UPI provider"];
+  provider [label="Razorpay (UPI only)"];
   inbox [label="Webhook inbox"];
   worker [label="Worker / domain handler"];
   ledger [label="Contribution ledger"];
   guest -> api [label="create payment intent"];
-  api -> provider [label="initiate checkout"];
+  api -> provider [label="server-side intent/order; UPI only"];
   provider -> guest [label="QR / deep link"];
   provider -> inbox [label="signed webhook"];
   inbox -> worker [label="deduplicated event"];

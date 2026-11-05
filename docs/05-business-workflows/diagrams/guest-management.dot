@@ -6,7 +6,7 @@ digraph G {
  contact [label="Assign primary contact\nMust be active guest in same household"];
  tags [label="Relationship tags\nOne active primary + multiple secondary\nTemporary untagged state allowed"];
  invite [label="Function invitation\nGuest eligibility is individual\nNew household members not auto-invited"];
- otp [label="Guest verifies phone\nOTP proves phone control,\nnot every person's identity"];
+ otp [label="Invitation-bound guest email OTP (Brevo)\nVerifies email-channel control,\nnot legal identity"];
  rsvp [label="Self RSVP\nIndividual response per function\nEditable until deadline"];
  request [label="Correction / merge / transfer\nReview workflow + audit\nMerge requires both co-owners"];
  create -> contact -> tags -> invite -> otp -> rsvp;

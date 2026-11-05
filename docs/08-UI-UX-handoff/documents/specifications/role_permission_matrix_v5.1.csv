@@ -1,0 +1,13 @@
+Module,Co-owner,Organiser,Treasurer,Unauthenticated visitor,Invited guest
+Dashboard,Own role-specific overview,Own role-specific overview,Finance-focused overview,No workspace dashboard,Guest home only
+Functions,Create/edit/propose publish/cancel; co-approve,Only explicitly granted scopes,Read finance-independent data if granted; no default function authority,No,Published functions invited to
+Tasks,Full workspace task authority; one accountable responsible assignee distinct from collaborators; required timing unresolved.,Only assigned/granted task scopes; may manage assignments/dependencies where task scope grants.,No default task authority,No,No
+Guests/households,Full directory and household authority; correction review allowed.,Only granted guest-management scope; correction review only with explicit scope and not own request.,No default guest authority,No,View own details; submit and view own correction request; cannot review own request.
+RSVP,View/manage per permission,Only granted scope,No default RSVP authority,No,Respond for self per invitation
+Budget/expenses,Full finance oversight; dual approvals where required,No default finance access,Finance operations; normal expense approval,No,No
+Vendors,Select/remove selected vendor; other actions per policy,Discovery/operational tasks only if granted,No default vendor authority,No,No
+Gallery,"Moderate/remove permanent content; upload JPG/JPEG or PNG, max 5 MB/file, batch cap 10.","Upload JPG/JPEG or PNG, max 5 MB/file, batch cap 10; moderation only if explicitly granted.",No default authority,No,"Upload only to invited function; JPG/JPEG or PNG, max 5 MB/file, batch cap 5; view/download approved content."
+Shagun,Dual-approve destination; view finance-sensitive data,No default authority,No default Shagun destination authority,No,Own provider-verified contribution status only; Razorpay UPI-only. Checkout handoff/refunds remain blocked.
+Governance/audit,Co-owner-only governance; two active co-owners and one active Treasurer per wedding; dual approval and audit. Treasurer bootstrap is unresolved.,No,No,No,No
+Settings/security,Workspace settings; own account security,Own account security,Own account security,No,Guest session only
+Support recovery,No direct break-glass authority.,No platform support authority.,No platform support authority.,No.,No.

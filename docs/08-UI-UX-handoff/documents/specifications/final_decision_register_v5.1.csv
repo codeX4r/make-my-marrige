@@ -1,0 +1,23 @@
+Decision,Value,Status,UX / implementation consequence
+Email OTP provider,Brevo,Approved by product owner,"Approved for guest email OTP. Scope for other transactional email is to confirm. Sender configuration and deliverability remain operational gates."
+Shagun provider,Razorpay; UPI only,Approved by product owner,"Server-side intent/order, signature and webhook verification, idempotency, replay defense, deduplication and reconciliation. Checkout handoff/refund workflow and compliance verification remain release gates."
+Gallery formats,JPG/JPEG and PNG only,Approved by product owner,"Validate extension, declared MIME and file signature; reject WebP and other formats unless separately approved."
+Per-file upload size,"5 MB (5,000,000 bytes) maximum",Approved by product owner,Enforce server-side and verify actual object size before acceptance.
+Image dimensions,No approved maximum; deferred,Deferred / UNSPECIFIED,Do not present or enforce 6000x6000 px or 24 MP as an approved policy.
+Upload count,Guest: 5; co-owner/organiser: 10 per upload batch,Approved by product owner,"Server checks role-specific batch cap; these are per-batch limits, not lifetime limits."
+Workspace storage quota,No approved quota; deferred,Deferred / UNSPECIFIED,Do not present 5 GB as an approved limit.
+Photo retention,Retain approved gallery media until workspace lifecycle deletion; no separate arbitrary gallery expiry,Recommendation aligned to current lifecycle policy,"Post-wedding workspace deletion remains scheduled for 00:00 IST on day 31 after wedding date, with 7-day notice, subject to legal/operational review."
+Backup retention,Existing proposal: backups expire within 30 days after deletion,Pending legal/operational review,"Do not present this as legally approved. Document backup expiry, restore suppression/tombstones and payment/audit retention with counsel and providers."
+Brand assets,Temporary wordmark and visual treatment,Selected,Replaceable without redesigning component system.
+Vendor discovery,Google Places + manually maintained vendor records,Selected,Clearly distinguish sourced listing data from manually verified vendor data.
+Deletion policy,Legal/operational review before launch,Selected release gate,"Do not launch irreversible deletion until legal basis, notice, payment records, audit retention, backups and restore behaviour are approved."
+Guest authentication,Email OTP only; Brevo,Approved by product owner,"Member and guest authentication are separate. Invitation lifecycle, shared-email resolution, OTP controls and session lifecycle are proposed technical policy; see technical-policy-register-v1.0.md."
+Canonical API and browser boundary,NestJS REST `/v1`; Browser -> Next.js BFF -> NestJS,Approved by product owner,"NestJS alone authenticates, resolves tenant, authorizes and applies domain state. BFF does transport/session handling only. Direct browser access to privileged NestJS routes is unsupported."
+Governance cardinality,Exactly two active co-owners and exactly one active Treasurer,Approved by product owner,Setup remains non-operational before second co-owner. Treasurer bootstrap before second co-owner is unresolved; no role bypass may be shown.
+Responsible task owner,One accountable active task assignee,Field approved; required timing unresolved,Distinguish the responsible membership from collaborators. Product owner must confirm whether mandatory at creation or before work starts.
+Guest invitation issuance,Create/resend/revoke API and expiry policy,Blocked,Do not show invitation management as implemented; no issue/revoke operation exists in the approved API contract.
+Member invitation contract,"Invitation type, role and permission payload",Blocked,OpenAPI create operation is marked blocked because its request schema and supported payload were undefined.
+Function cancellation contract,Dual approval required; payload/effects unresolved,Blocked,"Do not expose a complete cancellation flow until effects, payload and transition behavior are approved."
+Support recovery,"Break-glass actor, approval, evidence and scope",Blocked,No support route or implicit platform tenant access; keep case-bound/read-only/audited requirements.
+Shagun checkout/refunds,Provider-tested handoff and refund authority,Blocked,Do not invent checkout response fields or refund capability/policy; pending until provider/product gates close.
+Member Google OAuth,Production enablement/configuration,Unspecified,Email/password is separately specified; Google client configuration and enablement require an explicit decision.

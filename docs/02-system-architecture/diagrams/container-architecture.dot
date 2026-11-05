@@ -9,9 +9,9 @@ digraph G {
  mongo [label="MongoDB Atlas\nAuthoritative business state\nTransactions • outbox / inbox", shape=cylinder, fillcolor="#E8F5E9"];
  redis [label="Managed Redis\nBullMQ transport • rate counters\nEphemeral coordination", shape=cylinder, fillcolor="#FFF4E5"];
  r2 [label="Private Cloudflare R2\nOriginals • derivatives"];
- providers [label="External providers\nPlaces • OTP/email • UPI"];
+ providers [label="External providers\nBrevo - Google Places - Razorpay UPI"];
  browser -> web [label="HTTPS"];
- web -> api [label="REST / JSON"];
+ web -> api [label="Server-side REST /v1\ntrusted origin and request ID"];
  api -> mongo [label="read / write"];
  api -> redis [label="rate limit / enqueue dispatch"];
  api -> providers [label="provider adapters"];

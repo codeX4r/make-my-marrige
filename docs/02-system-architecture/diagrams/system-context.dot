@@ -8,12 +8,12 @@ digraph G {
  browser [label="Web browser / PWA\nResponsive client"];
  system [label="MakeMyMarrige platform\nWedding planning workspace\nTenant-scoped access control", shape=box3d, fillcolor="#D7E8F7", penwidth=2, fontsize=13];
  places [label="Google Places API\nVendor discovery"];
- otp [label="OTP / email provider\nVerification and account email"];
- upi [label="UPI payment provider\nPayment status + signed webhooks"];
+ otp [label="Brevo\nGuest email OTP\nOther transactional email scope unspecified"];
+ upi [label="Razorpay\nUPI-only Shagun + signed webhooks"];
  storage [label="Private Cloudflare R2\nPhoto objects"];
  ops [label="Platform operations\nSupport / monitoring", fillcolor="#FFF4E5"];
  co -> browser; org -> browser; guest -> browser;
- browser -> system [label="HTTPS / session"];
+ browser -> system [label="HTTPS via Next.js BFF to NestJS /v1\nNestJS owns auth, tenant and authorization"];
  system -> places [dir=both, label="provider adapter"];
  system -> otp [dir=both, label="provider adapter"];
  system -> upi [dir=both, label="payment intent / webhook"];
