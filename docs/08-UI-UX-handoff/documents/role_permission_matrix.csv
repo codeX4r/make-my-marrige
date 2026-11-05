@@ -1,0 +1,12 @@
+﻿Module,Co-owner,Organiser,Treasurer,Unauthenticated visitor,Invited guest
+Dashboard,Own role-specific overview,Own role-specific overview,Finance-focused overview,No workspace dashboard,Guest home only
+Functions,Create/edit/propose publish/cancel; co-approve,Only explicitly granted scopes,Read finance-independent data if granted; no default function authority,No,Published functions invited to
+Tasks,Full workspace task authority,Only assigned/granted scopes,No default task authority,No,No
+Guests/households,Full directory and household authority,Only granted guest-management scopes,No default guest authority,No,View own details; submit correction request
+RSVP,View/manage per permission,Only granted scope,No default RSVP authority,No,Respond for self per invitation
+Budget/expenses,Full finance oversight; dual approvals where required,No default finance access,Finance operations; normal expense approval,No,No
+Vendors,Select/remove selected vendor; other actions per policy,Discovery/operational tasks only if granted,No default vendor authority,No,No
+Gallery,Approve/remove permanent content,Upload auto-approved after technical validation; moderation only if granted,No default authority,No,Upload only to invited function; view/download approved
+Shagun,Dual-approve destination; view finance-sensitive data,No default authority,No default Shagun destination authority,No,Provider-verified contribution flow
+Governance/audit,Co-owner-only governance; dual approval and audit export,No,No,No,No
+Settings/security,Workspace settings; own account security,Own account security,Own account security,No,Guest session only

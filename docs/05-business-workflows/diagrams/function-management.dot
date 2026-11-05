@@ -1,0 +1,18 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.6", labelloc=t, label="Function Publication and Task Management — WF03", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.14,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ draft [label="Function DRAFT\nEditable function details"];
+ approval [label="Both co-owners approve\nPublication / cancellation"];
+ snapshot [label="Immutable publication snapshot\nVersioned guest-visible details", fillcolor="#E8F5E9"];
+ published [label="PUBLISHED\nGuests see approved snapshot only"];
+ tasks [label="Tasks\nWedding-wide or function-specific\nMultiple assignees • checklist • dependencies"];
+ complete [label="Completion\nMandatory checklist + dependencies met"];
+ cancel [label="CANCELLED\nPreserve RSVP/task history\nFlag affected tasks for review", fillcolor="#FFF4E5"];
+ reopen [label="Reopen task\nReason + scoped authority\nFlag dependent tasks"];
+ draft -> approval -> snapshot -> published;
+ published -> tasks;
+ tasks -> complete;
+ published -> cancel [label="dual approval"];
+ complete -> reopen [style=dashed];
+}

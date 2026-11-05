@@ -1,0 +1,14 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.6", labelloc=t, label="Vendor Discovery and Booking Lifecycle — WF07", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.14,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ discover [label="Discover vendor\nGoogle Places adapter or manual record"];
+ shortlist [label="Workspace shortlist\nCo-owner / authorised organiser"];
+ enquiry [label="Enquiry status\nNot contacted → contacted → response\n→ negotiating → selected / rejected"];
+ quote [label="Estimates and vendor quote\nInclusions • exclusions • tax\nTerms • validity"];
+ availability [label="Manual availability check\nExplicit confirmed / tentative / unknown\nNever infer from listing or opening hours", fillcolor="#FFF4E5"];
+ selection [label="Co-owner selects vendor\nOne selected vendor per service by default"];
+ booking [label="Separate booking record\nNOT_BOOKED → PENDING → BOOKED / CONTRACTED"];
+ expense [label="Expense created separately\nSelection does not auto-create expense", fillcolor="#E8F5E9"];
+ discover -> shortlist -> enquiry -> quote -> availability -> selection -> booking -> expense;
+}

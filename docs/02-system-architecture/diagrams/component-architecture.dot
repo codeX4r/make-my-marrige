@@ -1,0 +1,24 @@
+digraph G {
+ graph [rankdir=TB, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.55", labelloc=t, label="Backend Component Architecture — Modular Monolith", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.13,0.09", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ http [label="HTTP boundary\nControllers • DTO validation • response mapping", fillcolor="#DCEBFA"];
+ policy [label="Identity & Access\nAuthentication • membership • permission policy", fillcolor="#DCEBFA"];
+ subgraph cluster_domains {
+  label="Domain modules — same NestJS application"; color="#9CB6CC"; style="rounded";
+  workspace [label="Workspace & Governance\nWeddings • memberships • invitations • approvals"];
+  planning [label="Planning\nFunctions • tasks • checklists • dependencies"];
+  guest [label="Guest Operations\nHouseholds • guests • invitations • RSVP"];
+  finance [label="Finance\nBudgets • expenses • approvals • payments"];
+  vendor [label="Vendor Discovery\nPlaces adapter • shortlist • enquiries • quotes"];
+  shagun [label="Digital Shagun\nIntents • webhook inbox • contributions"];
+  memories [label="Memories\nAlbums • uploads • moderation • downloads"];
+  platform [label="Platform Operations\nNotifications • audit • lifecycle • outbox"];
+ }
+ ports [label="Application ports / domain events\nUse cases • transactions • outbox contracts", fillcolor="#E8F5E9"];
+ infra [label="Infrastructure adapters\nMongoDB • Redis/BullMQ • R2 • email/OTP • Places • UPI", fillcolor="#FFF4E5"];
+ http -> policy;
+ policy -> workspace; policy -> planning; policy -> guest; policy -> finance; policy -> vendor; policy -> shagun; policy -> memories; policy -> platform;
+ workspace -> ports; planning -> ports; guest -> ports; finance -> ports; vendor -> ports; shagun -> ports; memories -> ports; platform -> ports;
+ ports -> infra;
+}

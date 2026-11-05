@@ -1,0 +1,13 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.4", ranksep="0.75", labelloc=t, label="User Roles and Permission Model", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, margin="0.15,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=9, color="#607D8B", arrowsize=0.7];
+ co [label="Co-owner (exactly two)\nEqual authority\nGovernance • dual approvals\nWorkspace-wide authority", fillcolor="#DCEBFA"];
+ org [label="Organiser\nCustom action grants\nResource / function scopes\nNo implicit finance access", fillcolor="#E8F1FB"];
+ tr [label="Treasurer\nOne active Treasurer\nFinance operations\nExpense approvals (subject to exceptions)", fillcolor="#FFF4E5"];
+ guest [label="Verified guest\nHousehold-scoped session\nOwn RSVP • permitted uploads\nOwn Shagun history", fillcolor="#E8F5E9"];
+ policy [label="Central policy evaluation\nActor + action + resource + wedding context\nMembership state + permission + scope\nDefault deny", shape=box3d, penwidth=2, fillcolor="#D7E8F7"];
+ data [label="Protected resources\nAPI • reports • exports • R2 objects\nEvery request re-authorised"];
+ co -> policy; org -> policy; tr -> policy; guest -> policy;
+ policy -> data [label="allow / deny"];
+}

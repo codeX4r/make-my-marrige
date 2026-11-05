@@ -1,0 +1,20 @@
+
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.35", ranksep="0.65", label="Photos, Audit, Notifications and Lifecycle ERD", labelloc=t, fontsize=18, fontname="Arial"];
+ node [shape=record, style="rounded,filled", fillcolor="#EEF4FA", color="#315A7D", fontname="Arial", fontsize=8.5];
+ edge [color="#607D8B", fontname="Arial", fontsize=8, arrowsize=0.7];
+ weddings [label="{weddings|_id PK}"];
+ albums [label="{photoAlbums|_id PK\\lweddingId FK\\lfunctionId UQ\\l}"];
+ photos [label="{weddingPhotos|_id PK\\lalbumId FK\\lobjectKey\\lmoderationStatus\\l}"];
+ reports [label="{photoReports|_id PK\\lphotoId FK\\lreporter / status\\l}"];
+ removals [label="{photoRemovalRequests|_id PK\\lphotoId FK\\lrequester / status\\l}"];
+ notify [label="{notifications|_id PK\\lrecipient\\lseverity / readAt\\l}"];
+ audit [label="{auditEvents|_id PK\\lactor / entity / action\\loccurredAt\\l}"];
+ incident [label="{securityIncidents|_id PK\\lseverity / status\\l}"];
+ deletion [label="{weddingDeletions|_id PK\\lweddingId UQ\\lstatus / stepStates\\l}"];
+ tomb [label="{weddingDeletionTombstones|_id PK\\lweddingId UQ\\ldeletedAt\\l}"];
+ outbox [label="{outboxEvents|_id PK\\leventType / status\\lnextAttemptAt\\l}"];
+ weddings -> albums; albums -> photos; photos -> reports; photos -> removals;
+ weddings -> notify; weddings -> audit; weddings -> incident; weddings -> deletion; deletion -> tomb;
+ audit -> outbox [label="events"];
+}

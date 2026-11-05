@@ -1,0 +1,35 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.65", labelloc=t, label="API Sequences — Shagun Verification and Photo Upload", fontsize=21, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, margin="0.13,0.09", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8, color="#607D8B", arrowsize=0.7];
+ subgraph cluster_pay {
+  label="Digital Shagun"; color="#9CB6CC"; style="rounded";
+  guest [label="Verified guest"];
+  api [label="API"];
+  provider [label="UPI provider"];
+  inbox [label="Webhook inbox"];
+  worker [label="Worker / domain handler"];
+  ledger [label="Contribution ledger"];
+  guest -> api [label="create payment intent"];
+  api -> provider [label="initiate checkout"];
+  provider -> guest [label="QR / deep link"];
+  provider -> inbox [label="signed webhook"];
+  inbox -> worker [label="deduplicated event"];
+  worker -> provider [label="status reconciliation", style=dashed];
+  worker -> ledger [label="verified success only"];
+  ledger -> guest [label="own contribution view", style=dashed];
+ }
+ subgraph cluster_photo {
+  label="Photo upload"; color="#9CB6CC"; style="rounded";
+  uploader [label="Authorised uploader"];
+  api2 [label="API upload session"];
+  r2 [label="Private R2"];
+  proc [label="Photo worker"];
+  review [label="Moderation state"];
+  uploader -> api2 [label="request upload"];
+  api2 -> r2 [label="short-lived presigned URL"];
+  uploader -> r2 [label="direct upload"];
+  r2 -> proc [label="object-ready job"];
+  proc -> review [label="validate • decode • strip GPS EXIF\ncreate derivatives"];
+ }
+}

@@ -1,0 +1,20 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.4", ranksep="0.7", labelloc=t, label="Logical Multi-Tenant Isolation", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, margin="0.15,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=9, color="#607D8B", arrowsize=0.7];
+ actor [label="Authenticated account\nSession / member identity"];
+ resolve [label="NestJS tenant resolver\nLoad current membership\nACTIVE or SUSPENDED checks", fillcolor="#DCEBFA"];
+ policy [label="Policy guard\nRole + action + resource scope\nLifecycle + ownership checks", fillcolor="#DCEBFA"];
+ ctx [label="Trusted WeddingContext\nResolved server-side\nNever accepted from request as authority", fillcolor="#E8F5E9"];
+ subgraph cluster_db {
+  label="MongoDB Atlas — shared database / shared collections"; color="#9CB6CC"; style="rounded";
+  tenantA [label="Tenant A documents\nweddingId = A", fillcolor="#E8F1FB"];
+  tenantB [label="Tenant B documents\nweddingId = B", fillcolor="#E8F1FB"];
+  global [label="Global records\nusers • sessions • token records", fillcolor="#FFF4E5"];
+ }
+ repo [label="Tenant-aware repository\nEvery query includes trusted weddingId\nValidate referenced records belong to same tenant", fillcolor="#DCEBFA"];
+ actor -> resolve -> policy -> ctx -> repo;
+ repo -> tenantA [label="scoped query"];
+ repo -> tenantB [label="only if context permits"];
+ actor -> global [style=dashed, label="global identity"];
+}

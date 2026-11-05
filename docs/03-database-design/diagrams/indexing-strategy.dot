@@ -1,0 +1,16 @@
+digraph G {
+ graph [rankdir=TB, bgcolor="white", pad="0.3", nodesep="0.4", ranksep="0.55", labelloc=t, label="MongoDB Indexing Strategy — Query-Driven", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, margin="0.15,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=9, color="#607D8B", arrowsize=0.7];
+ query [label="Observed access pattern\nFilter • sort • uniqueness • tenant boundary", fillcolor="#DCEBFA"];
+ classify [label="Classify index purpose"];
+ unique [label="Uniqueness constraints\nusers.emailNormalized\n(weddingId, functionId, guestId) RSVP / invitation\nprovider event + idempotency keys", fillcolor="#E8F5E9"];
+ tenant [label="Tenant-first compound indexes\n(weddingId, status, createdAt, _id)\n(weddingId, householdId, status)\n(weddingId, functionId, status)", fillcolor="#E8F1FB"];
+ queue [label="Worker / operational indexes\n(status, nextAttemptAt)\n(processingStatus, receivedAt)\nTTL only for expiring temporary records", fillcolor="#FFF4E5"];
+ validate [label="Validate with explain('executionStats')\nRepresentative data + real sort order\nCheck selectivity, scan ratio, index size"];
+ monitor [label="Monitor in production\nSlow queries • index usage\nWrite amplification • growth"];
+ query -> classify;
+ classify -> unique; classify -> tenant; classify -> queue;
+ unique -> validate; tenant -> validate; queue -> validate;
+ validate -> monitor;
+}

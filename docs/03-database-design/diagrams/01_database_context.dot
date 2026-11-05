@@ -1,0 +1,29 @@
+
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.35", ranksep="0.7", label="MakeMyMarrige — Database Context", labelloc=t, fontsize=20, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fillcolor="#EEF4FA", color="#315A7D", fontname="Arial", fontsize=10, margin="0.12,0.08"];
+ edge [color="#607D8B", fontname="Arial", fontsize=8, arrowsize=0.7];
+ User [label="Global Identity\\nusers • sessions • auth tokens", fillcolor="#E8F1FB"];
+ Wedding [label="Workspace Root\\nweddings", fillcolor="#DCEBFA"];
+ Membership [label="Tenant Access\\nweddingMemberships • invitations"];
+ Planning [label="Planning\\nfunctions • tasks"];
+ Guests [label="Guest Management\\nhouseholds • guests"];
+ RSVP [label="RSVP\\nrsvps • request history"];
+ Finance [label="Finance\\nbudgets • expenses • payments"];
+ Vendors [label="Vendors\\nreferences • enquiries • quotes"];
+ Shagun [label="Digital Shagun\\nintents • contributions • provider events"];
+ Photos [label="Photos\\nalbums • photos • moderation"];
+ Notify [label="Notifications\\nnotifications • preferences"];
+ Governance [label="Governance & Audit\\napprovals • audit • incidents"];
+ Infra [label="Infrastructure\\noutbox • inbox • idempotency • migrations", fillcolor="#F4F0FA"];
+ R2 [label="Cloudflare R2\\nprivate image objects", fillcolor="#E9F5EC"];
+ Redis [label="Redis / BullMQ\\nqueues + cache only", fillcolor="#FFF4E5"];
+ User -> Membership [label="account"];
+ Wedding -> Membership [label="tenant"];
+ Wedding -> Planning; Wedding -> Guests; Wedding -> RSVP; Wedding -> Finance; Wedding -> Vendors; Wedding -> Shagun; Wedding -> Photos; Wedding -> Notify; Wedding -> Governance;
+ Photos -> R2 [label="object keys"];
+ Infra -> Redis [label="job dispatch"];
+ Governance -> Infra [label="domain events"];
+ Finance -> Infra [label="outbox"];
+ Shagun -> Infra [label="webhook events"];
+}

@@ -1,0 +1,20 @@
+digraph G {
+ graph [rankdir=TB, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.55", labelloc=t, label="Security Architecture and Trust Boundaries", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.14,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ client [label="Untrusted browser / guest device\nAll input is untrusted", fillcolor="#FCE8E6"];
+ edge_layer [label="Cloudflare edge\nWAF • DDoS • coarse IP controls", fillcolor="#FFF4E5"];
+ api [label="API trust boundary\nTLS • CORS allowlist • CSRF\nDTO validation • rate limiting", fillcolor="#DCEBFA"];
+ auth [label="Authentication boundary\nSecure HttpOnly cookies\nSession rotation • revocation"];
+ tenant [label="Authorisation boundary\nTrusted WeddingContext\nMembership + action + resource policy\nDefault deny", fillcolor="#DCEBFA"];
+ data [label="Data boundary\nTenant-scoped repositories\nMongoDB transactions • audit/outbox"];
+ media [label="Media boundary\nPrivate R2 • short-lived signed URLs\nRe-authorise every read/download"];
+ provider [label="Provider boundary\nWebhook signature + replay checks\nIdempotency + reconciliation"];
+ ops [label="Operations boundary\nSecrets manager • least privilege\nRedacted logs • alerts • incident response", fillcolor="#E8F5E9"];
+ client -> edge_layer -> api -> auth -> tenant -> data;
+ tenant -> media;
+ api -> provider;
+ data -> ops [style=dashed];
+ media -> ops [style=dashed];
+ provider -> ops [style=dashed];
+}

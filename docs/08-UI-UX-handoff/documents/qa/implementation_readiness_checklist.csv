@@ -1,0 +1,22 @@
+﻿Area,Acceptance criterion,Verification method,Priority
+Design completeness,"Every screen has route, persona, purpose, hierarchy, fields, actions, states and acceptance criteria",Design review,P0
+Tenant safety,No screen trusts client weddingId; tenant scope comes from authenticated session,API + E2E test,P0
+Role safety,"Co-owner, Treasurer, organiser and guest views show only authorised information/actions",Role matrix tests,P0
+Dual approval,Two distinct co-owner accounts; initiator counts as first; duplicate identity blocked,E2E test,P0
+Membership conflict,ACTIVE/SUSPENDED membership elsewhere returns conflict without consuming invitation,E2E test,P0
+Function publication,Guests see published snapshot only; stale proposal cannot publish,E2E test,P0
+Task integrity,"Function or General scope, one responsible owner, mandatory checklist, no dependency cycles",Form + API test,P0
+RSVP integrity,One response per guest per function; partial household; extra guest request does not create guest,E2E test,P0
+Finance access,Only co-owners/Treasurer; Treasurer-created/beneficiary expense requires co-owner dual approval,Role + API test,P0
+Money correctness,Amounts persisted in integer paise; formatting and rounding tested,Unit + integration test,P0
+Shagun security,Razorpay UPI only; verify signature/webhook; idempotency; pending state until confirmed,Provider sandbox + API test,P0
+OTP security,"Brevo OTP expiry, attempt limit, resend cooldown, anti-enumeration, secret handling",Integration + security test,P0
+Gallery validation,"JPG/PNG, 5 MB max, signature/MIME validation, dimension limit, EXIF GPS stripped",Upload security test,P1
+Gallery access,Guest upload only to invited function; guest views approved photos only; private signed URLs,Permission + E2E test,P1
+Responsive,Desktop/tablet/mobile at target breakpoints; no core horizontal overflow,Visual QA,P0
+Accessibility,"WCAG 2.2 AA contrast, keyboard, focus, labels, screen reader, zoom/reflow",Accessibility audit,P0
+Error resilience,"Retry, offline, stale/conflict, provider outage, partial failure and duplicate submission handled",E2E test,P0
+Audit,Append-only audit; export dual co-owner; no secrets/OTP/payment secrets in logs,Security test,P1
+Deletion,Legal/operational policy signed; tombstone and restore suppression tested; backup expiry validated,Release review,P0 blocker
+Usability,Representative users complete top workflows without facilitator rescue,Moderated usability test,P1
+Visual regression,Approved reference states captured and compared at each viewport,Visual regression,P1

@@ -1,0 +1,22 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.6", labelloc=t, label="Budget and Expense Approval — WF06", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.14,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ draft [label="Expense DRAFT\nCreator enters amountPaise"];
+ route [label="Approval route decision", shape=diamond, fillcolor="#FFF4E5"];
+ treasurer [label="Normal expense\nTreasurer approval\nNo Treasurer → remains pending"];
+ dual [label="Treasurer is creator or beneficiary\nBoth co-owners approve"];
+ approved [label="APPROVED\nCommitment recorded\nAudit + outbox"];
+ payment [label="Treasurer records payments\nMultiple entries • no silent edits"];
+ settled [label="SETTLED\nOutstanding = commitment − payments", fillcolor="#E8F5E9"];
+ reject [label="REJECTED / CANCELLED\nHistory retained"];
+ reserve [label="Reserve transfer\nExplicit allocation history\nThreshold / aggregate checks"];
+ draft -> route;
+ route -> treasurer [label="Ordinary"];
+ route -> dual [label="Treasurer exception"];
+ treasurer -> approved [label="Approve"];
+ dual -> approved [label="Both approve"];
+ treasurer -> reject [label="Reject"];
+ approved -> payment -> settled;
+ reserve -> approved [style=dashed, label="separate governance"];
+}

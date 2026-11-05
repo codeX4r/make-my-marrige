@@ -1,0 +1,21 @@
+
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.3", ranksep="0.6", label="Finance, Vendors and Digital Shagun ERD", labelloc=t, fontsize=18, fontname="Arial"];
+ node [shape=record, style="rounded,filled", fillcolor="#EEF4FA", color="#315A7D", fontname="Arial", fontsize=8.5];
+ edge [color="#607D8B", fontname="Arial", fontsize=8, arrowsize=0.7];
+ weddings [label="{weddings|_id PK}"];
+ budget [label="{weddingBudgets|_id PK\\lweddingId UQ\\ltotalBudgetPaise\\lreservePaise\\l}"];
+ cats [label="{budgetCategories|_id PK\\lweddingId FK\\lallocatedPaise\\l}"];
+ exp [label="{expenses|_id PK\\lweddingId FK\\lcategoryId FK\\lamountPaise\\lstatus / version\\l}"];
+ pay [label="{expensePayments|_id PK\\lexpenseId FK\\lamountPaise\\lpaidAt\\l}"];
+ adj [label="{expenseAdjustments|_id PK\\lexpenseId FK\\lamountPaise\\lreason / approvals\\l}"];
+ vendors [label="{weddingVendors|_id PK\\lweddingId FK\\ldisplayNameSnapshot\\l}"];
+ quotes [label="{vendorQuotes|_id PK\\lvendorId FK\\lterms / validity\\l}"];
+ shset [label="{shagunSettings|_id PK\\lweddingId UQ\\lencryptedDestination\\l}"];
+ intent [label="{shagunPaymentIntents|_id PK\\lweddingId FK\\lamountPaise / status\\l}"];
+ contrib [label="{shagunContributions|_id PK\\lpaymentIntentId FK\\lproviderPaymentId\\lverifiedAt\\l}"];
+ events [label="{shagunProviderEvents|_id PK\\lproviderEventId UQ\\lprocessingStatus\\l}"];
+ weddings -> budget; weddings -> cats; cats -> exp; exp -> pay; exp -> adj;
+ weddings -> vendors; vendors -> quotes;
+ weddings -> shset; weddings -> intent; intent -> contrib; events -> intent [label="provider event"];
+}

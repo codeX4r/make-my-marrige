@@ -1,0 +1,16 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.6", labelloc=t, label="Invitation and Membership — WF01 / WF02", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.14,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ create [label="First co-owner\ncreates account + workspace"];
+ invite [label="Invite second co-owner\nToken hash • invited email\n7-day expiry", fillcolor="#DCEBFA"];
+ verify [label="Invitee authenticates\nExact verified invited email"];
+ check [label="Check global membership slot\nNo ACTIVE or SUSPENDED elsewhere?", shape=diamond, fillcolor="#FFF4E5"];
+ reject [label="409 Conflict\nDo not consume invitation\nDo not remove existing membership", fillcolor="#FCE8E6"];
+ accept [label="Transaction\nCreate/reactivate membership\nAccept invitation + audit/outbox", fillcolor="#E8F5E9"];
+ joined [label="Two co-owners established\nOrganiser invites require both approvals"];
+ create -> invite -> verify -> check;
+ check -> reject [label="No"];
+ check -> accept [label="Yes"];
+ accept -> joined;
+}

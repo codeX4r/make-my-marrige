@@ -1,0 +1,53 @@
+{
+  "name": "MakeMyMarrige Modern Indian Minimalism",
+  "colors": {
+    "background": "#FAF8F4",
+    "surface": "#FFFFFF",
+    "primary": "#7A2E42",
+    "accent": "#BD9560",
+    "text": "#282522",
+    "muted": "#77716B",
+    "border": "#EAE4DA",
+    "success": "#287A52",
+    "warning": "#A96816",
+    "danger": "#B33A36",
+    "info": "#356B9A"
+  },
+  "typography": {
+    "ui": "Inter",
+    "editorial": "Playfair Display",
+    "devanagari": "Noto Sans Devanagari"
+  },
+  "radii": {
+    "sm": 6,
+    "md": 10,
+    "lg": 16,
+    "xl": 22
+  },
+  "spacing_scale_px": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64
+  ],
+  "breakpoints_px": {
+    "mobile": 360,
+    "mobile_large": 390,
+    "tablet": 768,
+    "desktop_small": 1024,
+    "desktop": 1280,
+    "wide": 1440
+  },
+  "accessibility": {
+    "target": "WCAG 2.2 AA",
+    "focus_visible": true,
+    "reduced_motion": true,
+    "minimum_touch_target_recommendation_px": 44
+  }
+}

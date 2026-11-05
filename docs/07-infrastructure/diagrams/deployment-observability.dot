@@ -1,0 +1,27 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.4", ranksep="0.7", labelloc=t, label="Deployment Topology and Observability", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.15,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ internet [label="Users / browsers"];
+ cf [label="Cloudflare\nDNS • TLS • WAF • rate controls", fillcolor="#FFF4E5"];
+ web [label="Web deployment\nNext.js PWA"];
+ api [label="API deployment\nNestJS REST"];
+ worker [label="Worker deployment\nBullMQ processors", fillcolor="#E8F5E9"];
+ mongo [label="MongoDB Atlas\nBackups • indexes • transactions", shape=cylinder, fillcolor="#E8F5E9"];
+ redis [label="Managed Redis\nQueue transport • counters", shape=cylinder, fillcolor="#FFF4E5"];
+ r2 [label="Private R2 bucket\nPhoto objects"];
+ providers [label="External providers\nOTP/email • Places • UPI"];
+ obs [label="Observability platform\nStructured logs • metrics • traces\nDashboards • alerting", fillcolor="#DCEBFA"];
+ internet -> cf -> web -> api;
+ api -> mongo; api -> redis; api -> r2; api -> providers;
+ mongo -> worker [label="outbox"];
+ worker -> redis [label="consume"];
+ worker -> mongo [label="state / checkpoints"];
+ worker -> r2 [label="process / delete"];
+ worker -> providers [label="deliver / reconcile"];
+ web -> obs [style=dashed, label="telemetry"];
+ api -> obs [style=dashed, label="requestId / traceId"];
+ worker -> obs [style=dashed, label="jobId / traceId"];
+ mongo -> obs [style=dashed, label="DB metrics"];
+ redis -> obs [style=dashed, label="queue metrics"];
+}

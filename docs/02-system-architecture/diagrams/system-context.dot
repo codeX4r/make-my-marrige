@@ -1,0 +1,22 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.45", ranksep="0.8", labelloc=t, label="MakeMyMarrige — System Context", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11, margin="0.18,0.12", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=9, color="#607D8B", arrowsize=0.75];
+ co [label="Co-owners\nWorkspace governance\nBudget • approvals • settings", fillcolor="#DCEBFA"];
+ org [label="Organisers / Treasurer\nScoped operations\nTasks • guests • expenses", fillcolor="#E8F1FB"];
+ guest [label="Wedding guests\nOTP-verified access\nRSVP • photos • Shagun", fillcolor="#E8F5E9"];
+ browser [label="Web browser / PWA\nResponsive client"];
+ system [label="MakeMyMarrige platform\nWedding planning workspace\nTenant-scoped access control", shape=box3d, fillcolor="#D7E8F7", penwidth=2, fontsize=13];
+ places [label="Google Places API\nVendor discovery"];
+ otp [label="OTP / email provider\nVerification and account email"];
+ upi [label="UPI payment provider\nPayment status + signed webhooks"];
+ storage [label="Private Cloudflare R2\nPhoto objects"];
+ ops [label="Platform operations\nSupport / monitoring", fillcolor="#FFF4E5"];
+ co -> browser; org -> browser; guest -> browser;
+ browser -> system [label="HTTPS / session"];
+ system -> places [dir=both, label="provider adapter"];
+ system -> otp [dir=both, label="provider adapter"];
+ system -> upi [dir=both, label="payment intent / webhook"];
+ system -> storage [dir=both, label="authorised object access"];
+ ops -> system [label="restricted, audited access"];
+}

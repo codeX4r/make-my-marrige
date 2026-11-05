@@ -1,0 +1,24 @@
+﻿Category,Component,Specification,Responsive behaviour,Variants/states,Accessibility/implementation notes
+Navigation,WorkspaceSidebar,Desktop persistent navigation; active item; collapsible groups; role-aware items; unread badges,Desktop >=1280; tablet collapsible; mobile drawer/bottom nav,"Active, collapsed, expanded, forbidden route, offline","Keyboard navigation, aria-current, focus visible"
+Navigation,GuestBottomNav,"Home, Events, Gallery, More; active state; safe-area inset",Mobile-first,"Active, hidden when auth incomplete",44x44 target; labels remain visible
+Data display,MetricCard,"Label, value, delta/context, optional trend, permission gate, destination",All,"Loading, zero, unavailable, restricted",Value has accessible label; trend not colour-only
+Data display,StatusBadge,Text + icon for state; semantic variants,All,"Success, warning, danger, info, neutral",Never communicate state by colour alone
+Data display,DataTable,"Column sorting, filters, cursor pagination, row actions, selection only when safe",Desktop/tablet; cards on mobile,"Loading, empty, error, stale, no permission",Header associations; row actions labelled
+Forms,TextField,"Label, hint, required marker, validation, character count",All,"Default, focus, filled, invalid, disabled, read-only",Persistent label; error linked via aria-describedby
+Forms,CurrencyField,"INR prefix, decimal input, paise-safe parsing, min/max and helper",All,"Invalid decimal, over limit, duplicate submit",Never use floating point for persisted amount
+Forms,DateTimeField,"Date, time, Asia/Kolkata timezone label, locale-aware picker",All,"Invalid/past date, DST irrelevant to IST, unavailable",Timezone explicit; keyboard operable
+Forms,SearchFilterBar,"Search, chips, filter drawer, clear all, result count",All,"No filter, applied filters, no results",Filter state shareable in URL when safe
+Forms,OTPInput,"Six digits, paste, auto advance, backspace, resend countdown",Mobile-first,"Invalid, expired, locked, resend, delivery delay",One accessible input group; paste supported
+Overlay,Dialog,"Title, consequence, body, actions, close policy",All,"Open, submitting, failure",Focus trap; escape behaviour; focus return
+Overlay,Drawer,Contextual detail/edit panel,Desktop/tablet; full-screen mobile,"Open, dirty form, submit",Focus management; no hidden action
+Feedback,Toast,Short success/info; non-critical errors only,All,"Success, info, warning",Do not use for critical or persistent errors
+Feedback,InlineBanner,Persistent error/warning/info with next action,All,"Provider outage, offline, stale version",Text explains impact and recovery
+Feedback,Skeleton,Shape-matched placeholders,All,Loading,Avoid layout shift; announce busy state
+Feedback,EmptyState,"Reason, concise explanation, next permitted action",All,"No records, filtered empty, first-use",Distinguish empty from forbidden
+Gallery,UploadDropzone,"File picker, previews, role cap, per-file size/type, progress/retry",Mobile-first,"Rejected, queued, uploading, failed, scanning, pending moderation",No client-only security validation
+Governance,ApprovalTimeline,"Proposal snapshot, initiator, approval events, expiry, outcome",All,"Awaiting first/second, rejected, expired, stale",Approver identity and timestamps visible
+Governance,PermissionScopeEditor,Resource → action → optional function scope; effective access preview,Co-owner only,"Draft, invalid scope, saved, revoked",No ambiguous wildcard grants; explicit review
+Finance,ExpenseSummary,"Planned, committed, paid, remaining; currency",Co-owner/Treasurer,"Loading, no budget, partial data",Role gate enforced by API
+Payment,PaymentStatusPanel,Pending/success/failed/reversed; provider-confirmed receipt,Guest/co-owner as allowed,"Pending verification, mismatch, retry",Only server-verified state can show success
+System,OfflineBanner,Connectivity state and queued-safe action note,All,"Offline, reconnecting, online",Never imply unsafe actions were saved offline
+System,PermissionDenied,"Requested resource, reason category, safe navigation",All,"No membership, no scope, ended membership",Avoid leaking resource existence when sensitive

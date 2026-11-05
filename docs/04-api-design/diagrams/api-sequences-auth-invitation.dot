@@ -1,0 +1,24 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.35", ranksep="0.65", labelloc=t, label="API Sequence — Authentication and Invitation Acceptance", fontsize=21, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, margin="0.13,0.09", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8, color="#607D8B", arrowsize=0.7];
+ client [label="Web client"];
+ api [label="NestJS API"];
+ auth [label="Auth / session service"];
+ db [label="MongoDB"];
+ mail [label="Email provider"];
+ client -> api [label="POST /auth/login"];
+ api -> auth [label="validate credentials"];
+ auth -> db [label="read user + session state"];
+ db -> auth [label="account status"];
+ auth -> db [label="persist session / token hashes"];
+ auth -> api [label="Set-Cookie (HttpOnly, Secure)"];
+ api -> client [label="200 + CSRF bootstrap"];
+ client -> api [label="POST invitation accept + CSRF"];
+ api -> auth [label="authenticate exact verified email"];
+ auth -> db [label="transaction: membership slot + invite"];
+ db -> auth [label="commit or 409"];
+ auth -> api [label="result"];
+ api -> client [label="success / conflict"];
+ api -> mail [style=dashed, label="outbox-driven email"];
+}

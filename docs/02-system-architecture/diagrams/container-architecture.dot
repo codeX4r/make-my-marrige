@@ -1,0 +1,24 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.45", ranksep="0.75", labelloc=t, label="Container Architecture — Runtime Deployables", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, margin="0.16,0.12", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=9, color="#607D8B", arrowsize=0.75];
+ browser [label="Browser / PWA"];
+ web [label="Web container\nNext.js + TypeScript\nUI • route handlers / BFF", fillcolor="#DCEBFA"];
+ api [label="API container\nNestJS REST API\nDomain modules • policy checks", fillcolor="#DCEBFA"];
+ worker [label="Worker container\nNestJS process + BullMQ consumers\nRetries • scheduled work", fillcolor="#E8F5E9"];
+ mongo [label="MongoDB Atlas\nAuthoritative business state\nTransactions • outbox / inbox", shape=cylinder, fillcolor="#E8F5E9"];
+ redis [label="Managed Redis\nBullMQ transport • rate counters\nEphemeral coordination", shape=cylinder, fillcolor="#FFF4E5"];
+ r2 [label="Private Cloudflare R2\nOriginals • derivatives"];
+ providers [label="External providers\nPlaces • OTP/email • UPI"];
+ browser -> web [label="HTTPS"];
+ web -> api [label="REST / JSON"];
+ api -> mongo [label="read / write"];
+ api -> redis [label="rate limit / enqueue dispatch"];
+ api -> providers [label="provider adapters"];
+ api -> r2 [label="presigned upload / signed download"];
+ mongo -> worker [label="outbox polling"];
+ worker -> redis [label="consume / schedule"];
+ worker -> mongo [label="idempotent updates"];
+ worker -> r2 [label="validate / transform / delete"];
+ worker -> providers [label="email / reconciliation"];
+}

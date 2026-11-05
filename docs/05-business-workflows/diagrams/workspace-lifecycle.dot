@@ -1,0 +1,23 @@
+digraph G {
+ graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.4", ranksep="0.65", labelloc=t, label="Workspace Lifecycle — WF12", fontsize=22, fontname="Arial"];
+ node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9.5, margin="0.15,0.1", color="#315A7D", fillcolor="#EEF4FA"];
+ edge [fontname="Arial", fontsize=8.5, color="#607D8B", arrowsize=0.7];
+ active [label="ACTIVE\nNormal workspace operations", fillcolor="#E8F5E9"];
+ post [label="POST_WEDDING\nBegins after wedding date"];
+ due [label="Deletion due\n00:00 IST on day 31\nafter wedding date", fillcolor="#FFF4E5"];
+ queue [label="QUEUED\nFreeze/revoke + deletion manifest"];
+ work [label="IN_PROGRESS\nIdempotent deletion steps"];
+ retry [label="RETRY_PENDING / BLOCKED\nKeep tenant inaccessible"];
+ done [label="COMPLETED\nVerified cleanup + tombstone", fillcolor="#E8F5E9"];
+ cancel [label="CANCELLED\nBoth co-owners approve\nSecond approval is final", fillcolor="#FCE8E6"];
+ notice [label="7-day generic notice\nPrivate workspace inaccessible immediately"];
+ active -> post [label="wedding date passes"];
+ post -> due [label="scheduled deadline"];
+ due -> queue;
+ active -> cancel [label="dual approval"];
+ cancel -> notice -> queue;
+ queue -> work;
+ work -> retry [label="retryable failure"];
+ retry -> work [label="retry"];
+ work -> done [label="all required steps verified"];
+}

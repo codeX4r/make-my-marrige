@@ -1,0 +1,353 @@
+﻿Screen,State,Required UX behaviour
+Workspace shell,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Workspace shell,Empty,Explain why empty; show only role-permitted next action
+Workspace shell,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Workspace shell,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Workspace shell,Permission denied,Do not render protected data; explain access boundary and safe route
+Workspace shell,Offline,Show connection state; do not claim high-risk writes succeeded
+Workspace shell,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Workspace shell,Success,Confirm completed action and next state; server response is source of truth
+Login / register / verification / recovery,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Login / register / verification / recovery,Empty,Explain why empty; show only role-permitted next action
+Login / register / verification / recovery,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Login / register / verification / recovery,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Login / register / verification / recovery,Permission denied,Do not render protected data; explain access boundary and safe route
+Login / register / verification / recovery,Offline,Show connection state; do not claim high-risk writes succeeded
+Login / register / verification / recovery,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Login / register / verification / recovery,Success,Confirm completed action and next state; server response is source of truth
+Invitation acceptance,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Invitation acceptance,Empty,Explain why empty; show only role-permitted next action
+Invitation acceptance,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Invitation acceptance,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Invitation acceptance,Permission denied,Do not render protected data; explain access boundary and safe route
+Invitation acceptance,Offline,Show connection state; do not claim high-risk writes succeeded
+Invitation acceptance,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Invitation acceptance,Success,Confirm completed action and next state; server response is source of truth
+Co-owner dashboard,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Co-owner dashboard,Empty,Explain why empty; show only role-permitted next action
+Co-owner dashboard,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Co-owner dashboard,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Co-owner dashboard,Permission denied,Do not render protected data; explain access boundary and safe route
+Co-owner dashboard,Offline,Show connection state; do not claim high-risk writes succeeded
+Co-owner dashboard,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Co-owner dashboard,Success,Confirm completed action and next state; server response is source of truth
+Organiser dashboard,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Organiser dashboard,Empty,Explain why empty; show only role-permitted next action
+Organiser dashboard,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Organiser dashboard,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Organiser dashboard,Permission denied,Do not render protected data; explain access boundary and safe route
+Organiser dashboard,Offline,Show connection state; do not claim high-risk writes succeeded
+Organiser dashboard,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Organiser dashboard,Success,Confirm completed action and next state; server response is source of truth
+Treasurer dashboard,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Treasurer dashboard,Empty,Explain why empty; show only role-permitted next action
+Treasurer dashboard,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Treasurer dashboard,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Treasurer dashboard,Permission denied,Do not render protected data; explain access boundary and safe route
+Treasurer dashboard,Offline,Show connection state; do not claim high-risk writes succeeded
+Treasurer dashboard,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Treasurer dashboard,Success,Confirm completed action and next state; server response is source of truth
+Function list,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Function list,Empty,Explain why empty; show only role-permitted next action
+Function list,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Function list,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Function list,Permission denied,Do not render protected data; explain access boundary and safe route
+Function list,Offline,Show connection state; do not claim high-risk writes succeeded
+Function list,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Function list,Success,Confirm completed action and next state; server response is source of truth
+Create / edit function,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Create / edit function,Empty,Explain why empty; show only role-permitted next action
+Create / edit function,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Create / edit function,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Create / edit function,Permission denied,Do not render protected data; explain access boundary and safe route
+Create / edit function,Offline,Show connection state; do not claim high-risk writes succeeded
+Create / edit function,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Create / edit function,Success,Confirm completed action and next state; server response is source of truth
+Function detail / guest assignment,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Function detail / guest assignment,Empty,Explain why empty; show only role-permitted next action
+Function detail / guest assignment,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Function detail / guest assignment,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Function detail / guest assignment,Permission denied,Do not render protected data; explain access boundary and safe route
+Function detail / guest assignment,Offline,Show connection state; do not claim high-risk writes succeeded
+Function detail / guest assignment,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Function detail / guest assignment,Success,Confirm completed action and next state; server response is source of truth
+Publish / cancel review,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Publish / cancel review,Empty,Explain why empty; show only role-permitted next action
+Publish / cancel review,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Publish / cancel review,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Publish / cancel review,Permission denied,Do not render protected data; explain access boundary and safe route
+Publish / cancel review,Offline,Show connection state; do not claim high-risk writes succeeded
+Publish / cancel review,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Publish / cancel review,Success,Confirm completed action and next state; server response is source of truth
+Task board,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Task board,Empty,Explain why empty; show only role-permitted next action
+Task board,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Task board,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Task board,Permission denied,Do not render protected data; explain access boundary and safe route
+Task board,Offline,Show connection state; do not claim high-risk writes succeeded
+Task board,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Task board,Success,Confirm completed action and next state; server response is source of truth
+Task list / calendar,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Task list / calendar,Empty,Explain why empty; show only role-permitted next action
+Task list / calendar,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Task list / calendar,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Task list / calendar,Permission denied,Do not render protected data; explain access boundary and safe route
+Task list / calendar,Offline,Show connection state; do not claim high-risk writes succeeded
+Task list / calendar,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Task list / calendar,Success,Confirm completed action and next state; server response is source of truth
+Task create / detail,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Task create / detail,Empty,Explain why empty; show only role-permitted next action
+Task create / detail,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Task create / detail,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Task create / detail,Permission denied,Do not render protected data; explain access boundary and safe route
+Task create / detail,Offline,Show connection state; do not claim high-risk writes succeeded
+Task create / detail,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Task create / detail,Success,Confirm completed action and next state; server response is source of truth
+Guest directory,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest directory,Empty,Explain why empty; show only role-permitted next action
+Guest directory,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest directory,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest directory,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest directory,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest directory,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest directory,Success,Confirm completed action and next state; server response is source of truth
+Guest create / edit,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest create / edit,Empty,Explain why empty; show only role-permitted next action
+Guest create / edit,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest create / edit,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest create / edit,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest create / edit,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest create / edit,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest create / edit,Success,Confirm completed action and next state; server response is source of truth
+Household detail / transfer,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Household detail / transfer,Empty,Explain why empty; show only role-permitted next action
+Household detail / transfer,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Household detail / transfer,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Household detail / transfer,Permission denied,Do not render protected data; explain access boundary and safe route
+Household detail / transfer,Offline,Show connection state; do not claim high-risk writes succeeded
+Household detail / transfer,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Household detail / transfer,Success,Confirm completed action and next state; server response is source of truth
+Guest correction review,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest correction review,Empty,Explain why empty; show only role-permitted next action
+Guest correction review,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest correction review,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest correction review,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest correction review,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest correction review,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest correction review,Success,Confirm completed action and next state; server response is source of truth
+RSVP overview,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+RSVP overview,Empty,Explain why empty; show only role-permitted next action
+RSVP overview,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+RSVP overview,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+RSVP overview,Permission denied,Do not render protected data; explain access boundary and safe route
+RSVP overview,Offline,Show connection state; do not claim high-risk writes succeeded
+RSVP overview,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+RSVP overview,Success,Confirm completed action and next state; server response is source of truth
+Guest response detail,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest response detail,Empty,Explain why empty; show only role-permitted next action
+Guest response detail,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest response detail,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest response detail,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest response detail,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest response detail,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest response detail,Success,Confirm completed action and next state; server response is source of truth
+Extra guest request review,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Extra guest request review,Empty,Explain why empty; show only role-permitted next action
+Extra guest request review,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Extra guest request review,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Extra guest request review,Permission denied,Do not render protected data; explain access boundary and safe route
+Extra guest request review,Offline,Show connection state; do not claim high-risk writes succeeded
+Extra guest request review,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Extra guest request review,Success,Confirm completed action and next state; server response is source of truth
+Budget overview,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Budget overview,Empty,Explain why empty; show only role-permitted next action
+Budget overview,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Budget overview,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Budget overview,Permission denied,Do not render protected data; explain access boundary and safe route
+Budget overview,Offline,Show connection state; do not claim high-risk writes succeeded
+Budget overview,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Budget overview,Success,Confirm completed action and next state; server response is source of truth
+Expense list,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Expense list,Empty,Explain why empty; show only role-permitted next action
+Expense list,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Expense list,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Expense list,Permission denied,Do not render protected data; explain access boundary and safe route
+Expense list,Offline,Show connection state; do not claim high-risk writes succeeded
+Expense list,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Expense list,Success,Confirm completed action and next state; server response is source of truth
+Create / edit expense,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Create / edit expense,Empty,Explain why empty; show only role-permitted next action
+Create / edit expense,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Create / edit expense,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Create / edit expense,Permission denied,Do not render protected data; explain access boundary and safe route
+Create / edit expense,Offline,Show connection state; do not claim high-risk writes succeeded
+Create / edit expense,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Create / edit expense,Success,Confirm completed action and next state; server response is source of truth
+Expense approval detail,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Expense approval detail,Empty,Explain why empty; show only role-permitted next action
+Expense approval detail,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Expense approval detail,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Expense approval detail,Permission denied,Do not render protected data; explain access boundary and safe route
+Expense approval detail,Offline,Show connection state; do not claim high-risk writes succeeded
+Expense approval detail,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Expense approval detail,Success,Confirm completed action and next state; server response is source of truth
+Vendor discovery / list,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Vendor discovery / list,Empty,Explain why empty; show only role-permitted next action
+Vendor discovery / list,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Vendor discovery / list,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Vendor discovery / list,Permission denied,Do not render protected data; explain access boundary and safe route
+Vendor discovery / list,Offline,Show connection state; do not claim high-risk writes succeeded
+Vendor discovery / list,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Vendor discovery / list,Success,Confirm completed action and next state; server response is source of truth
+Vendor comparison,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Vendor comparison,Empty,Explain why empty; show only role-permitted next action
+Vendor comparison,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Vendor comparison,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Vendor comparison,Permission denied,Do not render protected data; explain access boundary and safe route
+Vendor comparison,Offline,Show connection state; do not claim high-risk writes succeeded
+Vendor comparison,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Vendor comparison,Success,Confirm completed action and next state; server response is source of truth
+Vendor detail / booking record,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Vendor detail / booking record,Empty,Explain why empty; show only role-permitted next action
+Vendor detail / booking record,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Vendor detail / booking record,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Vendor detail / booking record,Permission denied,Do not render protected data; explain access boundary and safe route
+Vendor detail / booking record,Offline,Show connection state; do not claim high-risk writes succeeded
+Vendor detail / booking record,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Vendor detail / booking record,Success,Confirm completed action and next state; server response is source of truth
+Gallery overview,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Gallery overview,Empty,Explain why empty; show only role-permitted next action
+Gallery overview,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Gallery overview,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Gallery overview,Permission denied,Do not render protected data; explain access boundary and safe route
+Gallery overview,Offline,Show connection state; do not claim high-risk writes succeeded
+Gallery overview,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Gallery overview,Success,Confirm completed action and next state; server response is source of truth
+Upload / moderation,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Upload / moderation,Empty,Explain why empty; show only role-permitted next action
+Upload / moderation,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Upload / moderation,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Upload / moderation,Permission denied,Do not render protected data; explain access boundary and safe route
+Upload / moderation,Offline,Show connection state; do not claim high-risk writes succeeded
+Upload / moderation,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Upload / moderation,Success,Confirm completed action and next state; server response is source of truth
+Destination setup / approval,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Destination setup / approval,Empty,Explain why empty; show only role-permitted next action
+Destination setup / approval,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Destination setup / approval,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Destination setup / approval,Permission denied,Do not render protected data; explain access boundary and safe route
+Destination setup / approval,Offline,Show connection state; do not claim high-risk writes succeeded
+Destination setup / approval,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Destination setup / approval,Success,Confirm completed action and next state; server response is source of truth
+Guest contribution flow,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest contribution flow,Empty,Explain why empty; show only role-permitted next action
+Guest contribution flow,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest contribution flow,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest contribution flow,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest contribution flow,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest contribution flow,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest contribution flow,Success,Confirm completed action and next state; server response is source of truth
+Membership & organiser list,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Membership & organiser list,Empty,Explain why empty; show only role-permitted next action
+Membership & organiser list,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Membership & organiser list,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Membership & organiser list,Permission denied,Do not render protected data; explain access boundary and safe route
+Membership & organiser list,Offline,Show connection state; do not claim high-risk writes succeeded
+Membership & organiser list,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Membership & organiser list,Success,Confirm completed action and next state; server response is source of truth
+Approval inbox / proposal detail,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Approval inbox / proposal detail,Empty,Explain why empty; show only role-permitted next action
+Approval inbox / proposal detail,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Approval inbox / proposal detail,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Approval inbox / proposal detail,Permission denied,Do not render protected data; explain access boundary and safe route
+Approval inbox / proposal detail,Offline,Show connection state; do not claim high-risk writes succeeded
+Approval inbox / proposal detail,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Approval inbox / proposal detail,Success,Confirm completed action and next state; server response is source of truth
+Notification centre,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Notification centre,Empty,Explain why empty; show only role-permitted next action
+Notification centre,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Notification centre,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Notification centre,Permission denied,Do not render protected data; explain access boundary and safe route
+Notification centre,Offline,Show connection state; do not claim high-risk writes succeeded
+Notification centre,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Notification centre,Success,Confirm completed action and next state; server response is source of truth
+Audit log / event detail,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Audit log / event detail,Empty,Explain why empty; show only role-permitted next action
+Audit log / event detail,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Audit log / event detail,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Audit log / event detail,Permission denied,Do not render protected data; explain access boundary and safe route
+Audit log / event detail,Offline,Show connection state; do not claim high-risk writes succeeded
+Audit log / event detail,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Audit log / event detail,Success,Confirm completed action and next state; server response is source of truth
+Workspace settings,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Workspace settings,Empty,Explain why empty; show only role-permitted next action
+Workspace settings,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Workspace settings,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Workspace settings,Permission denied,Do not render protected data; explain access boundary and safe route
+Workspace settings,Offline,Show connection state; do not claim high-risk writes succeeded
+Workspace settings,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Workspace settings,Success,Confirm completed action and next state; server response is source of truth
+Profile / sessions / security,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Profile / sessions / security,Empty,Explain why empty; show only role-permitted next action
+Profile / sessions / security,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Profile / sessions / security,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Profile / sessions / security,Permission denied,Do not render protected data; explain access boundary and safe route
+Profile / sessions / security,Offline,Show connection state; do not claim high-risk writes succeeded
+Profile / sessions / security,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Profile / sessions / security,Success,Confirm completed action and next state; server response is source of truth
+Guest wedding home,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest wedding home,Empty,Explain why empty; show only role-permitted next action
+Guest wedding home,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest wedding home,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest wedding home,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest wedding home,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest wedding home,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest wedding home,Success,Confirm completed action and next state; server response is source of truth
+Function detail / schedule,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Function detail / schedule,Empty,Explain why empty; show only role-permitted next action
+Function detail / schedule,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Function detail / schedule,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Function detail / schedule,Permission denied,Do not render protected data; explain access boundary and safe route
+Function detail / schedule,Offline,Show connection state; do not claim high-risk writes succeeded
+Function detail / schedule,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Function detail / schedule,Success,Confirm completed action and next state; server response is source of truth
+Individual RSVP,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Individual RSVP,Empty,Explain why empty; show only role-permitted next action
+Individual RSVP,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Individual RSVP,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Individual RSVP,Permission denied,Do not render protected data; explain access boundary and safe route
+Individual RSVP,Offline,Show connection state; do not claim high-risk writes succeeded
+Individual RSVP,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Individual RSVP,Success,Confirm completed action and next state; server response is source of truth
+Guest correction request,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest correction request,Empty,Explain why empty; show only role-permitted next action
+Guest correction request,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest correction request,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest correction request,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest correction request,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest correction request,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest correction request,Success,Confirm completed action and next state; server response is source of truth
+Guest gallery,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest gallery,Empty,Explain why empty; show only role-permitted next action
+Guest gallery,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest gallery,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest gallery,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest gallery,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest gallery,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest gallery,Success,Confirm completed action and next state; server response is source of truth
+Guest Shagun status,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Guest Shagun status,Empty,Explain why empty; show only role-permitted next action
+Guest Shagun status,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Guest Shagun status,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Guest Shagun status,Permission denied,Do not render protected data; explain access boundary and safe route
+Guest Shagun status,Offline,Show connection state; do not claim high-risk writes succeeded
+Guest Shagun status,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Guest Shagun status,Success,Confirm completed action and next state; server response is source of truth
+Global empty/error/loading/offline patterns,Loading,Shape-matched skeleton; disable duplicate submit; announce busy
+Global empty/error/loading/offline patterns,Empty,Explain why empty; show only role-permitted next action
+Global empty/error/loading/offline patterns,Validation error,Inline field-level error; preserve safe inputs; focus first invalid field
+Global empty/error/loading/offline patterns,Server/provider error,"Actionable message, requestId for support, retry only if idempotent"
+Global empty/error/loading/offline patterns,Permission denied,Do not render protected data; explain access boundary and safe route
+Global empty/error/loading/offline patterns,Offline,Show connection state; do not claim high-risk writes succeeded
+Global empty/error/loading/offline patterns,Conflict/stale,Show current version and refresh/review path; no silent overwrite
+Global empty/error/loading/offline patterns,Success,Confirm completed action and next state; server response is source of truth

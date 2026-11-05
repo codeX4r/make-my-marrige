@@ -1,0 +1,21 @@
+﻿ID,Decision,Recommendation / rule,Classification,Needs user decision
+D-01,Desktop workspace navigation,Persistent left sidebar; collapses at tablet; mobile uses drawer/bottom navigation based on primary action density.,Design default,No
+D-02,Mobile primary navigation,Use bottom navigation for 4–5 top-level destinations; overflow drawer for secondary modules; retain clear active state.,Design default,No
+D-03,Guest portal,"Mobile-first, lightweight, invitation-led, published data only.",Product rule already established,No
+D-04,Design language,"Modern Indian Minimalism: warm ivory, burgundy, restrained brass/terracotta, sans-serif operational UI, selective serif editorial accents.",Approved direction,No
+D-05,Forms,Use progressive disclosure; split long creation flows into short steps only when task complexity justifies it; preserve drafts.,Design recommendation,No
+D-06,Tables on mobile,Convert to stacked rows/cards with essential fields and action menu; do not force horizontal scrolling for primary tasks.,Design recommendation,No
+D-07,Destructive actions,"Confirmation dialog with consequence, target and recovery/irreversibility; require typed confirmation for irreversible workspace cancellation.",Design recommendation,No
+D-08,Dual approval,"Display proposal snapshot, initiator, first approval, second approver requirement, expiry and audit trail; enforce distinct co-owner identities.",Product rule already established,No
+D-09,Finance visibility,Hide finance navigation and data unless role policy grants access; never rely on frontend hiding as security enforcement.,Product rule already established,No
+D-10,Organiser permission catalogue,Resource + action + optional function-level scope. UI renders capabilities returned by the server; function scope narrows access where applicable.,User-approved product decision,No
+D-11,Shagun provider,"Provider not selected. Keep provider-neutral destination approval, hosted handoff, pending/verified/failed/reversed states; no provider-specific UI assumptions.",Unresolved release dependency,Yes
+D-12,OTP provider,Provider not selected. Design email OTP states and provider-neutral delivery/error handling; final provider constraints to be confirmed.,Unresolved release dependency,Yes
+D-13,Photo limits,"Maximum upload batch: 5 photos per guest; 10 photos per co-owner or organiser. Backend-configured enforcement; file size, dimensions, formats, quotas and retention remain unresolved.",User-approved cap; technical limits unresolved,Yes
+D-14,Guest access,Invitation link followed by email OTP verification. Guest session remains wedding-scoped; only invited/published content is accessible.,User-approved product decision,No
+D-15,Currency/date,Display INR; exact backend money stored in paise; render dates in Asia/Kolkata while preserving UTC instants.,Product/architecture rule,No
+D-16,Accessibility,"Target WCAG 2.2 AA; keyboard, focus, contrast, labels, error association and reduced-motion support.",Design recommendation,No
+D-17,Breakpoints,"Start with 360, 390, 768, 1024, 1280 and 1440 px test widths; adjust after usability testing.",Design recommendation,No
+D-18,Brand assets,Use a temporary text wordmark and the approved Modern Indian Minimalism visual direction. Replace logo/brand assets later without changing layout tokens or component architecture.,Temporary default approved,No
+D-19,Vendor discovery,Use Google Places for discovery and support manually maintained vendor records where needed.,User-approved product decision,No
+D-20,Deletion policy review,"Deletion and retention wording, backup windows and irreversible cancellation language require legal/operational review before launch.",User-approved release gate,No

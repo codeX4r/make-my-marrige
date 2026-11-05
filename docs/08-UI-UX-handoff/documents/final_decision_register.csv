@@ -1,0 +1,13 @@
+﻿Decision,Value,Status,UX / implementation consequence
+Email OTP provider,Brevo,Selected by product owner,"Use adapter; send invitations and guest/member verification OTP; enforce expiry, resend cooldown, attempt limits, anti-enumeration and delivery observability."
+Shagun provider,Razorpay,Selected by product owner; UPI only,"Enable only UPI payment method after Razorpay account/product approval. Server-side order creation, signature verification, webhook verification, reconciliation and idempotency required."
+Gallery formats,JPG/JPEG and PNG,Selected by product owner,"Validate extension, MIME and file signature; reject SVG, HEIC, GIF, PDF and other formats."
+Per-file upload size,5 MB maximum,Selected by product owner,Enforce at API and object-storage upload policy; show size before upload and actionable validation errors.
+Image dimensions,Recommended: maximum 6000 × 6000 px and 24 MP,Recommended default; confirm before implementation,Reject extreme pixel dimensions even if compressed file is below 5 MB; decode safely and re-encode derivatives.
+Upload count,Guest: max 5; co-owner/organiser: max 10,Selected values; interpreted per upload batch from prior decision,"Batch cap only; separately enforce storage quota. If intended as lifetime/per-function cap, revise before build."
+Workspace storage quota,"Recommended: 5 GB per wedding workspace soft quota, 90% warning, hard stop at 100%",Recommended default; confirm before implementation,Quota applies to original + derivatives. Co-owner sees usage and can request increase; never silently delete content to free space.
+Photo retention,Retain approved gallery media until workspace lifecycle deletion; no separate arbitrary gallery expiry,Recommendation aligned to current lifecycle policy,"Post-wedding workspace deletion remains scheduled for 00:00 IST on day 31 after wedding date, with 7-day notice, subject to legal/operational review."
+Backup retention,Existing proposal: backups expire within 30 days after deletion,Pending legal/operational review,"Do not present this as legally approved. Document backup expiry, restore suppression/tombstones and payment/audit retention with counsel and providers."
+Brand assets,Temporary wordmark and visual treatment,Selected,Replaceable without redesigning component system.
+Vendor discovery,Google Places + manually maintained vendor records,Selected,Clearly distinguish sourced listing data from manually verified vendor data.
+Deletion policy,Legal/operational review before launch,Selected release gate,"Do not launch irreversible deletion until legal basis, notice, payment records, audit retention, backups and restore behaviour are approved."
