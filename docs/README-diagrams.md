@@ -2,6 +2,9 @@
 
 This pack contains new architecture, workflow, security, API-sequence and deployment diagrams based on the approved PRD v2.0, System Design & Architecture v2.0, Database Design v1.0, workflow decisions WF01-WF12, and API Documentation v1.0.
 
+## Reconciliation status
+The editable diagram sources in the repository are now being reconciled against PRD reconciliation v2.1, Architecture Decision Register v2.1, Database Schema reconciliation v1.1, API contract v1.1 and UI/UX reconciliation v5.1. Updated sources are listed in the ADR register. Historical `.png`/`.svg` renderings are preserved and may not reflect the latest `.dot` source because Graphviz was not available during reconciliation; regenerate and visually review renders before distribution. This pack remains a historical v1.0 index and does not claim its listed paths match the current repository layout.
+
 ## Included diagrams
 - `01-product-architecture/system-context.dot` — editable Graphviz source; `.svg` and `.png` are rendered versions.
 - `01-product-architecture/container-architecture.dot` — editable Graphviz source; `.svg` and `.png` are rendered versions.

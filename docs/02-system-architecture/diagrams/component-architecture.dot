@@ -16,7 +16,7 @@ digraph G {
   platform [label="Platform Operations\nNotifications • audit • lifecycle • outbox"];
  }
  ports [label="Application ports / domain events\nUse cases • transactions • outbox contracts", fillcolor="#E8F5E9"];
- infra [label="Infrastructure adapters\nMongoDB • Redis/BullMQ • R2 • email/OTP • Places • UPI", fillcolor="#FFF4E5"];
+ infra [label="Infrastructure adapters\nMongoDB - Redis/BullMQ - private R2 - Brevo - Places - Razorpay UPI", fillcolor="#FFF4E5"];
  http -> policy;
  policy -> workspace; policy -> planning; policy -> guest; policy -> finance; policy -> vendor; policy -> shagun; policy -> memories; policy -> platform;
  workspace -> ports; planning -> ports; guest -> ports; finance -> ports; vendor -> ports; shagun -> ports; memories -> ports; platform -> ports;
