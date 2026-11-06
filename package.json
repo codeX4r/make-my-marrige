@@ -1,0 +1,41 @@
+{
+  "name": "makemymarrige",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=22.12.0 <23",
+    "pnpm": ">=12.18.0 <13"
+  },
+  "scripts": {
+    "dev": "corepack pnpm@12.18.0 run build:packages && corepack pnpm@12.18.0 --parallel --filter @makemymarrige/web --filter @makemymarrige/api --filter @makemymarrige/worker dev",
+    "dev:web": "corepack pnpm@12.18.0 run build:packages && corepack pnpm@12.18.0 --filter @makemymarrige/web dev",
+    "dev:api": "corepack pnpm@12.18.0 run build:packages && corepack pnpm@12.18.0 --filter @makemymarrige/api dev",
+    "dev:worker": "corepack pnpm@12.18.0 run build:packages && corepack pnpm@12.18.0 --filter @makemymarrige/worker dev",
+    "build:packages": "corepack pnpm@12.18.0 --filter @makemymarrige/config --filter @makemymarrige/logger --filter @makemymarrige/observability --sort build",
+    "build": "corepack pnpm@12.18.0 --recursive --sort build",
+    "typecheck": "corepack pnpm@12.18.0 run build:packages && corepack pnpm@12.18.0 --recursive --sort typecheck && tsc -p tests/tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "corepack pnpm@12.18.0 run build:packages && vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:watch": "vitest",
+    "check": "corepack pnpm@12.18.0 run format:check && corepack pnpm@12.18.0 run lint && corepack pnpm@12.18.0 run typecheck && corepack pnpm@12.18.0 run test && corepack pnpm@12.18.0 run build"
+  },
+  "devDependencies": {
+    "bullmq": "6.7.0",
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.0",
+    "eslint": "10.14.0",
+    "eslint-config-next": "16.4.5",
+    "globals": "16.5.0",
+    "ioredis": "6.0.0",
+    "mongoose": "9.12.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.1.0"
+  }
+}

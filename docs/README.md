@@ -1,4 +1,4 @@
-# MakeMyWedding Documentation
+# MakeMyMarrige Documentation
 
 ## Documentation Index
 
@@ -10,6 +10,9 @@
 | 04 | API Design | REST APIs and OpenAPI specifications |
 | 05 | Business Workflows | Wedding planning workflows |
 | 06 | Architecture Compendium | Consolidated architecture diagrams |
+| 07 | Infrastructure | Deployment and infrastructure documentation |
+| 08 | UI/UX Handoff | Screen specifications, flows, and design handoff |
+| 09 | Reference Contracts | Reference product, architecture, database, and API packages |
 
 ## Documentation Standards
 

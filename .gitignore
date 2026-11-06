@@ -1,0 +1,16 @@
+node_modules/
+.next/
+apps/web/next-env.d.ts
+dist/
+coverage/
+.turbo/
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
