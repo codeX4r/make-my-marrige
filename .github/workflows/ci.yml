@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -40,3 +40,7 @@ jobs:
       - run: pnpm test
       - run: pnpm test:integration
       - run: pnpm build
+
+      - name: Stop infrastructure
+        if: always()
+        run: docker compose -f infrastructure/docker/docker-compose.yml down -v
