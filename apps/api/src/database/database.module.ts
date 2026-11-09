@@ -1,4 +1,4 @@
-import { DynamicModule, Module, OnApplicationShutdown, OnModuleInit } from "@nestjs/common";
+import { DynamicModule, Global, Module, OnApplicationShutdown, OnModuleInit } from "@nestjs/common";
 import mongoose, { type Connection } from "mongoose";
 import type { AppLogger } from "@makemymarrige/logger";
 
@@ -92,6 +92,7 @@ class MongoConnectionLifecycle implements OnApplicationShutdown, OnModuleInit {
   }
 }
 
+@Global()
 @Module({})
 export class DatabaseModule {
   static register(uri: string, logger: AppLogger): DynamicModule {
@@ -114,7 +115,7 @@ export class DatabaseModule {
           inject: [MONGO_CONNECTION, MongoReadiness],
         },
       ],
-      exports: [MongoReadiness],
+      exports: [MongoReadiness, MONGO_CONNECTION],
     };
   }
 }

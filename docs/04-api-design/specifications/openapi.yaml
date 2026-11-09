@@ -93,8 +93,8 @@ paths:
     post:
       tags:
       - Authentication
-      summary: Exchange Google OAuth credential/code for an application session
-      description: Member Google OAuth capability is documented; production enablement and client configuration remain unspecified. Google OAuth is not a guest authentication method. Tenant context and permissions are resolved and enforced by the API; never trust client-supplied weddingId as authority.
+      summary: Complete BFF-held Google Authorization Code + PKCE sign-in
+      description: The Next.js BFF validates OAuth state, nonce and PKCE and keeps provider credentials/tokens server-side. This operation accepts only the BFF's authorization-code handoff; it is not an implicit flow or browser-managed provider credential. Google OAuth is not guest authentication. Production client/redirect configuration remains a release gate. Tenant context and permissions are resolved and enforced by the API; never trust client-supplied weddingId as authority.
       operationId: post_v1_auth_google
       responses:
         '200':
@@ -197,7 +197,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListResponse'
+                $ref: '#/components/schemas/AuthResponse'
         '400':
           $ref: '#/components/responses/StandardError'
         '401':
@@ -6817,12 +6817,11 @@ components:
     GoogleAuthRequest:
       type: object
       required:
-      - credential
+      - authorizationCode
       properties:
-        credential:
-          type: string
         authorizationCode:
           type: string
+          minLength: 1
       additionalProperties: false
     TokenRequest:
       type: object

@@ -26,7 +26,13 @@
 
 ## 3. Authentication and actor contexts
 ### Member sessions
-Email/password is the documented member authentication path. Google OAuth is a separately documented API capability; production enablement is unspecified and must not be inferred from the route. Access and refresh credentials, cookie details and CSRF behavior require the implementation security specification. Member authentication is distinct from guest OTP.
+Email/password is the documented member authentication path. Google OAuth uses Authorization Code + PKCE through the Next.js BFF; state, nonce and PKCE are validated server-side and provider credentials/tokens never reach the browser. Google production client registration, redirect origins and deployment configuration remain release/security gates. Access tokens last 15 minutes; refresh tokens expire after seven days of inactivity, rotate on every successful refresh, and token-family reuse revokes the family. Production cookies are Secure and HttpOnly; unsafe requests require synchronizer-token and Origin validation. Exact cookie names/scope, token persistence, concurrent-refresh handling, synchronizer-token transport and BFF-to-Nest forwarding remain implementation design. Account linking requires authentication to the existing account and explicit confirmation; matching email alone is insufficient. Brevo is the adapter provider for member email verification and password reset. Member authentication and verification are distinct from guest OTP.
+
+### Member session technical contract
+
+The proposed implementation uses host-only `__Host-mmm_access` and `__Host-mmm_refresh` Secure/HttpOnly/Lax cookies at `Path=/`; local HTTP uses distinct non-`__Host-` names with `Secure=false`. The BFF forwards required cookies and `X-CSRF-Token` only to Nest. `GET /v1/auth/me` is the authenticated CSRF-token bootstrap response; its returned synchronizer token is submitted on every unsafe member request and Nest validates both the token/session binding and an allowlisted Origin. Exact deployed cookie host topology, token persistence shape and BFF-to-Nest credential transport remain implementation design, not browser API fields.
+
+`POST /v1/auth/sessions/revoke-all` is the proposed sign-out-all operation: it requires the current member session and CSRF validation, accepts an empty request body, returns `GenericSuccess`, transactionally revokes all active refresh-token families for the authenticated user, and writes audit/outbox events. The Next.js BFF clears browser cookies on success using matching attributes; NestJS does not manage browser `Set-Cookie` headers. It does not promise immediate invalidation of already-issued 15-minute access tokens. Missing/invalid session returns generic 401; invalid CSRF/origin returns 403. The active OpenAPI YAML/JSON must add this operation with the next approved contract publication; no endpoint implementation exists.
 ### Guest sessions
 Guests use email OTP only and do not use member email/password or Google OAuth authentication. Brevo is the approved OTP provider. The invitation-linked guest session model is documented, while exact identity resolution (including shared email addresses), invitation token issue/re-send/revoke rules, OTP thresholds and session lifecycle details are proposals/open contract details; see `docs/02-system-architecture/documents/technical-policy-register-v1.0.md`. Do not treat a proposed response shape, expiry or revocation behavior as an approved product rule until the contract is reviewed.
 
@@ -179,6 +185,7 @@ Stable machine-readable `code` is the contract. Human-readable messages may evol
 - `GET /v1/auth/me` — Get current account and active membership.
 - `GET /v1/auth/sessions` — List account sessions.
 - `POST /v1/auth/sessions/{sessionId}/revoke` — Revoke one account session.
+- Sign-out-all is approved but has no API operation until cookie/session-family transport is specified; do not infer a route or payload.
 - `POST /v1/auth/email/verify` — Consume email verification token.
 - `POST /v1/auth/email/resend` — Resend verification email.
 - `POST /v1/auth/password/forgot` — Request password reset.
