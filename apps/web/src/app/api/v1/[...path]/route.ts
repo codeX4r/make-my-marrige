@@ -14,7 +14,7 @@ type RouteContext = { params: Promise<{ path: string[] }> };
 type RoutePolicy = {
   upstreamPath: string;
   methods: readonly string[];
-  authentication?: "refresh" | "logout" | "resend";
+  authentication?: "refresh" | "logout" | "resend" | "verify";
 };
 
 // Foundation-only routes. Add product operations only after their contracts are approved.
@@ -24,6 +24,7 @@ const routePolicies: Record<string, RoutePolicy> = {
   "auth/refresh": { upstreamPath: "/v1/auth/refresh", methods: ["POST"], authentication: "refresh" },
   "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
   "email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"], authentication: "resend" },
+  "email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"], authentication: "verify" },
 };
 
 function jsonError(status: number, code: string): Response {
