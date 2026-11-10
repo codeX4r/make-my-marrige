@@ -36,3 +36,9 @@ export class ResendEmailDto {
   @IsNotEmpty()
   email!: string;
 }
+
+export class RevokeSessionDto {
+  @IsString()
+  @IsNotEmpty()
+  sessionId!: string;
+}

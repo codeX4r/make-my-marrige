@@ -189,6 +189,33 @@ export class MemberSessionService {
     return Boolean(session && hashesMatch(session.csrfTokenHash, csrfToken));
   }
 
+  async getUserById(userId: string): Promise<{ userId: string; emailNormalized: string; displayName: string; emailVerificationStatus: string }> {
+    const user = await this.models.User.findOne({ _id: userId }).lean();
+    if (!user) throw unauthorized();
+    return { userId: user._id.toString(), emailNormalized: user.emailNormalized, displayName: user.displayName, emailVerificationStatus: user.emailVerificationStatus };
+  }
+
+  async listUserSessions(userId: string): Promise<Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }>> {
+    const sessions = await this.models.MemberRefreshSession.find({ userId, status: "ACTIVE" }).lean();
+    return sessions.map(s => ({ sessionId: s.sessionId, issuedAt: s.issuedAt, lastUsedAt: s.lastUsedAt, expiresAt: s.expiresAt }));
+  }
+
+  async revokeSession(userId: string, sessionId: string, now = new Date()): Promise<void> {
+    const databaseSession = await this.connection.startSession();
+    try {
+      await databaseSession.withTransaction(async () => {
+        const session = await this.models.MemberRefreshSession.findOne({ sessionId, userId }).session(databaseSession);
+        if (!session) throw unauthorized();
+        const family = await this.models.MemberSessionFamily.findOne({ familyId: session.familyId, userId, status: "ACTIVE" }).session(databaseSession);
+        if (family) {
+          await this.revokeFamily(family.familyId, family.userId, "SINGLE_SESSION_REVOKE", now, databaseSession, sessionId);
+        }
+      });
+    } finally {
+      await databaseSession.endSession();
+    }
+  }
+
   async findActiveSessionIdForRefresh(refreshToken: string, now = new Date()): Promise<string> {
     const session = await this.models.MemberRefreshSession.findOne({
       refreshTokenHash: hashToken(refreshToken),

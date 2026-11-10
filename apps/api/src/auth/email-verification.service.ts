@@ -33,6 +33,13 @@ function newEmailVerificationToken(now: Date): EmailVerificationTokenMaterial {
   };
 }
 
+interface TransactionResult {
+  shouldSend: boolean;
+  email?: string;
+  token?: string;
+  expiresAt?: Date;
+}
+
 @Injectable()
 export class EmailVerificationService {
   private readonly models;
@@ -119,13 +126,13 @@ export class EmailVerificationService {
     const databaseSession = await this.connection.startSession();
 
     try {
-      return await databaseSession.withTransaction(async () => {
+      const result: TransactionResult = await databaseSession.withTransaction(async () => {
         const user = await this.models.User.findOne({ emailNormalized, emailVerificationStatus: "UNVERIFIED" })
           .select("_id emailNormalized")
           .session(databaseSession);
 
         if (!user) {
-          return { resent: true };
+          return { shouldSend: false };
         }
 
         const existingToken = await this.models.EmailVerificationToken.findOne({
@@ -156,10 +163,13 @@ export class EmailVerificationService {
             { session: databaseSession },
           );
 
-          await this.sendVerificationEmail(user.emailNormalized, newTokenMaterial.token, newTokenMaterial.expiresAt);
-
           this.logger.debug({ userId: user._id.toString(), resendCount: existingToken.resendCount + 1 }, "verification_email_resent");
-          return { resent: true };
+          return {
+            shouldSend: true,
+            email: user.emailNormalized,
+            token: newTokenMaterial.token,
+            expiresAt: newTokenMaterial.expiresAt,
+          };
         }
 
         const tokenMaterial = newEmailVerificationToken(now);
@@ -177,12 +187,21 @@ export class EmailVerificationService {
           { session: databaseSession },
         );
 
-        await this.sendVerificationEmail(user.emailNormalized, tokenMaterial.token, tokenMaterial.expiresAt);
-
         this.logger.debug({ userId: user._id.toString() }, "verification_email_sent");
-
-        return { resent: true };
+        return {
+          shouldSend: true,
+          email: user.emailNormalized,
+          token: tokenMaterial.token,
+          expiresAt: tokenMaterial.expiresAt,
+        };
       });
+
+      // Send verification email outside the transaction
+      if (result.shouldSend && result.email && result.token && result.expiresAt) {
+        await this.sendVerificationEmail(result.email, result.token, result.expiresAt);
+      }
+
+      return { resent: true };
     } finally {
       await databaseSession.endSession();
     }

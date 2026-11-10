@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { RegistrationService } from "./registration.service.js";
 import { PasswordHashService } from "./password-hash.service.js";
+import { BrevoEmailAdapter } from "./email.adapter.js";
 import { MONGO_CONNECTION } from "../database/database.module.js";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
@@ -23,6 +24,10 @@ const createMockConnection = (models: any) => ({
   model: vi.fn(() => models.User),
 });
 
+const createMockEmailAdapter = () => ({
+  sendVerificationEmail: vi.fn().mockResolvedValue({ accepted: true }),
+});
+
 describe("RegistrationService", () => {
   let service: RegistrationService;
   let mockConnection: any;
@@ -36,6 +41,7 @@ describe("RegistrationService", () => {
       providers: [
         RegistrationService,
         PasswordHashService,
+        { provide: BrevoEmailAdapter, useFactory: createMockEmailAdapter },
         { provide: MONGO_CONNECTION, useValue: mockConnection },
       ],
     }).compile();

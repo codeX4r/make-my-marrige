@@ -14,7 +14,7 @@ type RouteContext = { params: Promise<{ path: string[] }> };
 type RoutePolicy = {
   upstreamPath: string;
   methods: readonly string[];
-  authentication?: "refresh" | "logout" | "resend" | "verify";
+  authentication?: "refresh" | "logout" | "resend" | "verify" | "login";
 };
 
 // Foundation-only routes. Add product operations only after their contracts are approved.
@@ -23,6 +23,8 @@ const routePolicies: Record<string, RoutePolicy> = {
   "health/ready": { upstreamPath: "/health/ready", methods: ["GET"] },
   "auth/refresh": { upstreamPath: "/v1/auth/refresh", methods: ["POST"], authentication: "refresh" },
   "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
+  "auth/register": { upstreamPath: "/v1/auth/register", methods: ["POST"] },
+  "auth/login": { upstreamPath: "/v1/auth/login", methods: ["POST"], authentication: "login" },
   "email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"], authentication: "resend" },
   "email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"], authentication: "verify" },
 };
@@ -124,6 +126,9 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     } else if (policy.authentication === "logout") {
       const accessToken = request.cookies.get(cookieConfiguration.accessName)?.value;
       if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
+    } else if (policy.authentication === "login") {
+      // Login: no cookies yet, forward credentials as-is (no auth headers needed)
+      // NestJS will validate credentials and return tokens in headers
     } else if (policy.authentication) {
       // For other authenticated requests, forward access token as Bearer for NestJS guard
       const accessToken = request.cookies.get(cookieConfiguration.accessName)?.value;
@@ -156,6 +161,16 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     if (value) responseHeaders.set(name, value);
   }
   if (policy.authentication === "refresh" && upstream.ok && cookieConfiguration) {
+    const accessToken = upstream.headers.get("x-mmm-access-token");
+    const refreshToken = upstream.headers.get("x-mmm-refresh-token");
+    const csrfToken = upstream.headers.get("x-mmm-csrf-token");
+    if (!accessToken || !refreshToken || !csrfToken) return jsonError(502, "UPSTREAM_ERROR");
+    for (const cookie of sessionCookieHeaders(accessToken, refreshToken, cookieConfiguration)) {
+      responseHeaders.append("set-cookie", cookie);
+    }
+    responseHeaders.set("x-csrf-token", csrfToken);
+  }
+  if (policy.authentication === "login" && upstream.ok && cookieConfiguration) {
     const accessToken = upstream.headers.get("x-mmm-access-token");
     const refreshToken = upstream.headers.get("x-mmm-refresh-token");
     const csrfToken = upstream.headers.get("x-mmm-csrf-token");

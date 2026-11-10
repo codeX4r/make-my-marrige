@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -76,7 +75,7 @@ export class LoginService {
       parsedHash = null;
     }
 
-    if (!parsedHash || !this.passwordHash.verify(input.password, parsedHash)) {
+    if (!parsedHash || !(await this.passwordHash.verify(input.password, parsedHash))) {
       throw new UnauthorizedException("Invalid email or password.");
     }
 

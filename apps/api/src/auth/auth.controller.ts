@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
+  Param,
   Post,
   Req,
   Res,
@@ -58,7 +60,6 @@ export class AuthController {
   @HttpCode(201)
   async register(
     @Body() dto: RegisterDto,
-    @Res({ passthrough: true }) response: Response,
   ): Promise<{ data: { user: { userId: string; email: string; displayName: string; emailVerificationStatus: string } } }> {
     const result = await this.registration.register({
       email: dto.email,
@@ -111,6 +112,37 @@ export class AuthController {
       request.header("origin"),
     );
     await this.sessions.revokeCurrentFamily(principal.userId, principal.sessionId);
+    return { data: { revoked: true } };
+  }
+
+  @Get("me")
+  @HttpCode(200)
+  @UseGuards(AccessTokenAuthGuard)
+  async me(
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+  ): Promise<{ data: { user: { userId: string; email: string; displayName: string; emailVerificationStatus: string } } }> {
+    const user = await this.sessions.getUserById(principal.userId);
+    return { data: { user: { userId: principal.userId, email: user.emailNormalized, displayName: user.displayName, emailVerificationStatus: user.emailVerificationStatus } } };
+  }
+
+  @Get("sessions")
+  @HttpCode(200)
+  @UseGuards(AccessTokenAuthGuard)
+  async listSessions(
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+  ): Promise<{ data: { sessions: Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }> } }> {
+    const sessions = await this.sessions.listUserSessions(principal.userId);
+    return { data: { sessions } };
+  }
+
+  @Post("sessions/:sessionId/revoke")
+  @HttpCode(200)
+  @UseGuards(AccessTokenAuthGuard)
+  async revokeSession(
+    @Param("sessionId") sessionId: string,
+    @CurrentPrincipal() principal: AuthenticatedPrincipal,
+  ): Promise<{ data: { revoked: true } }> {
+    await this.sessions.revokeSession(principal.userId, sessionId);
     return { data: { revoked: true } };
   }
 }

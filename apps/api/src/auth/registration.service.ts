@@ -6,11 +6,12 @@ import {
   UnprocessableEntityException,
 } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
-import type { ClientSession, Connection, Types } from "mongoose";
+import type { Connection } from "mongoose";
 import { MONGO_CONNECTION } from "../database/database.module.js";
 import { registerIdentityModels } from "../identity/persistence/index.js";
 import { PasswordHashService } from "./password-hash.service.js";
 import { hashToken } from "./token-secrets.js";
+import { BrevoEmailAdapter, type VerificationEmailPayload } from "./email.adapter.js";
 
 export const EMAIL_VERIFICATION_TOKEN_LIFETIME_MS = 24 * 60 * 60 * 1000;
 export const MAX_RESENDS_PER_TOKEN = 5;
@@ -60,6 +61,7 @@ export class RegistrationService {
   constructor(
     @Inject(MONGO_CONNECTION) private readonly connection: Connection,
     private readonly passwordHash: PasswordHashService,
+    private readonly emailAdapter: BrevoEmailAdapter,
   ) {
     this.models = registerIdentityModels(connection);
   }
@@ -78,11 +80,11 @@ export class RegistrationService {
       throw new UnprocessableEntityException("Invalid password.");
     }
 
-    const passwordHash = this.passwordHash.hash(input.password);
+    const passwordHash = await this.passwordHash.hash(input.password);
 
     const databaseSession = await this.connection.startSession();
     try {
-      return await databaseSession.withTransaction(async () => {
+      const result = await databaseSession.withTransaction(async () => {
         const existing = await this.models.User.findOne({ emailNormalized })
           .select("_id")
           .session(databaseSession);
@@ -90,7 +92,7 @@ export class RegistrationService {
           throw new ConflictException("An account with that email address already exists.");
         }
 
-                const created = await this.models.User.create(
+        const created = await this.models.User.create(
           [
             {
               emailNormalized,
@@ -126,16 +128,43 @@ export class RegistrationService {
           "member_registered",
         );
 
+        // Return data needed for email delivery outside the transaction
         return {
           userId: createdUser._id.toString(),
           emailNormalized: createdUser.emailNormalized,
           displayName: createdUser.displayName,
-          emailVerificationStatus: "UNVERIFIED",
-          emailVerificationRequired: true,
+          emailVerificationStatus: "UNVERIFIED" as const,
+          emailVerificationRequired: true as const,
+          verificationToken: tokenMaterial.token,
+          verificationTokenExpiresAt: tokenMaterial.expiresAt,
         };
       });
+
+      // Send verification email outside the transaction
+      await this.sendVerificationEmail(
+        result.emailNormalized,
+        result.verificationToken,
+        result.verificationTokenExpiresAt,
+      );
+
+      return {
+        userId: result.userId,
+        emailNormalized: result.emailNormalized,
+        displayName: result.displayName,
+        emailVerificationStatus: result.emailVerificationStatus,
+        emailVerificationRequired: result.emailVerificationRequired,
+      };
     } finally {
       await databaseSession.endSession();
+    }
+  }
+
+  private async sendVerificationEmail(email: string, token: string, expiresAt: Date): Promise<void> {
+    const payload: VerificationEmailPayload = { to: email, token, expiresAt };
+    const result = await this.emailAdapter.sendVerificationEmail(payload);
+
+    if (!result.accepted) {
+      this.logger.error({ email, providerResponse: result.providerResponse }, "verification_email_delivery_failed");
     }
   }
 

@@ -13,6 +13,8 @@ export interface EmailDeliveryResult {
   providerResponse?: unknown;
 }
 
+const BREVO_REQUEST_TIMEOUT_MS = 10_000;
+
 @Injectable()
 export class BrevoEmailAdapter {
   private readonly logger = new Logger(BrevoEmailAdapter.name);
@@ -43,6 +45,9 @@ export class BrevoEmailAdapter {
     };
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), BREVO_REQUEST_TIMEOUT_MS);
+
       const response = await fetch(this.baseUrl, {
         method: "POST",
         headers: {
@@ -51,19 +56,42 @@ export class BrevoEmailAdapter {
           Accept: "application/json",
         },
         body: JSON.stringify(body),
+        signal: controller.signal,
       });
 
-      const result = await response.json();
+      clearTimeout(timeoutId);
+
+      let result: unknown;
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        result = await response.json();
+      } else {
+        result = await response.text();
+      }
 
       if (!response.ok) {
-        this.logger.warn({ status: response.status, body: result }, "brevo_verification_email_failed");
+        this.logger.warn(
+          { status: response.status, providerResponse: result },
+          "brevo_verification_email_failed",
+        );
         return { accepted: false, providerResponse: result };
       }
 
-      this.logger.debug({ messageId: result.messageId }, "brevo_verification_email_sent");
-      return { accepted: true, messageId: result.messageId, providerResponse: result };
+      // Safely extract messageId from provider response
+      const messageId = typeof result === "object" && result !== null && "messageId" in result
+        ? String((result as Record<string, unknown>).messageId)
+        : undefined;
+
+      this.logger.debug({ messageId }, "brevo_verification_email_sent");
+      return { accepted: true, messageId: messageId ?? "", providerResponse: result };
     } catch (error) {
-      this.logger.error({ error: error instanceof Error ? error.message : String(error) }, "brevo_verification_email_exception");
+      const message = error instanceof Error ? error.message : String(error);
+      const name = error instanceof Error ? error.name : "UnknownError";
+      // Do not log sensitive data (API key, token, email body)
+      this.logger.error(
+        { errorName: name, errorMessage: message, timeout: error instanceof DOMException && name === "AbortError" },
+        "brevo_verification_email_exception",
+      );
       return { accepted: false };
     }
   }

@@ -1,5 +1,7 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import type { ApiEnvironment } from "../config.js";
+import type { Connection } from "mongoose";
+import { MONGO_CONNECTION } from "../database/database.module.js";
 import { AccessTokenAuthGuard } from "./access-token-auth.guard.js";
 import { AccessTokenService } from "./access-token.service.js";
 import { BrevoEmailAdapter } from "./email.adapter.js";
@@ -31,7 +33,15 @@ export class AuthModule {
         },
         PasswordHashService,
         MemberSessionService,
-        RegistrationService,
+        {
+          provide: RegistrationService,
+          useFactory: (
+            connection: Connection,
+            passwordHash: PasswordHashService,
+            emailAdapter: BrevoEmailAdapter,
+          ) => new RegistrationService(connection, passwordHash, emailAdapter),
+          inject: [MONGO_CONNECTION, PasswordHashService, BrevoEmailAdapter],
+        },
         EmailVerificationService,
         LoginService,
         {
