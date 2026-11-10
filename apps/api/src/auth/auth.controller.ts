@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   Post,
@@ -13,7 +14,10 @@ import { CsrfOriginService } from "./csrf-origin.service.js";
 import { CurrentPrincipal, type AuthenticatedRequest } from "./current-principal.decorator.js";
 import { MemberSessionService } from "./member-session.service.js";
 import { RegistrationService } from "./registration.service.js";
+import { EmailVerificationService } from "./email-verification.service.js";
+import { LoginService, type LoginResult } from "./login.service.js";
 import type { AuthenticatedPrincipal } from "./auth.types.js";
+import { RegisterDto, LoginDto, VerifyEmailDto, ResendEmailDto } from "./auth.dto.js";
 
 const BFF_ACCESS_TOKEN_HEADER = "x-mmm-access-token";
 const BFF_REFRESH_TOKEN_HEADER = "x-mmm-refresh-token";
@@ -25,6 +29,8 @@ export class AuthController {
     private readonly sessions: MemberSessionService,
     private readonly csrf: CsrfOriginService,
     private readonly registration: RegistrationService,
+    private readonly verification: EmailVerificationService,
+    private readonly loginService: LoginService,
   ) {}
 
   @Post("refresh")
@@ -51,15 +57,45 @@ export class AuthController {
   @Post("register")
   @HttpCode(201)
   async register(
-    @Req() request: Request,
+    @Body() dto: RegisterDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ data: { user: { userId: string; email: string; displayName: string; emailVerificationStatus: string } } }> {
     const result = await this.registration.register({
-      email: request.body?.email ?? "",
-      password: request.body?.password ?? "",
-      displayName: request.body?.displayName ?? "",
+      email: dto.email,
+      password: dto.password,
+      displayName: dto.displayName,
     });
     return { data: { user: { userId: result.userId, email: result.emailNormalized, displayName: result.displayName, emailVerificationStatus: result.emailVerificationStatus } } };
+  }
+
+  @Post("login")
+  @HttpCode(200)
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ data: { user: LoginResult["user"] } }> {
+    const result = await this.loginService.login({
+      email: dto.email,
+      password: dto.password,
+    });
+    response.setHeader(BFF_ACCESS_TOKEN_HEADER, result.tokens.accessToken);
+    response.setHeader(BFF_REFRESH_TOKEN_HEADER, result.tokens.refreshToken);
+    response.setHeader(BFF_CSRF_TOKEN_HEADER, result.csrfToken);
+    return { data: { user: result.user } };
+  }
+
+  @Post("email/verify")
+  @HttpCode(200)
+  async verifyEmail(@Body() dto: VerifyEmailDto): Promise<{ data: { verified: true } }> {
+    await this.verification.verify(dto.token);
+    return { data: { verified: true } };
+  }
+
+  @Post("email/resend")
+  @HttpCode(200)
+  async resendEmail(@Body() dto: ResendEmailDto): Promise<{ data: { resent: true } }> {
+    await this.verification.resend(dto.email);
+    return { data: { resent: true } };
   }
 
   @Post("logout")

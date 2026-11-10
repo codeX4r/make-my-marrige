@@ -17,6 +17,10 @@ describe("API environment validation", () => {
       AUTH_JWT_PRIVATE_KEY_PEM: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD...\n-----END PRIVATE KEY-----",
       AUTH_JWT_PUBLIC_KEYS_JSON: '{"dev-key-1":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----"}',
       AUTH_ALLOWED_ORIGINS: "http://localhost:3000",
+      EMAIL_BREVO_API_KEY: "brevo-test-key",
+      EMAIL_SENDER_EMAIL: "noreply@example.com",
+      EMAIL_SENDER_NAME: "MakeMyMarrige",
+      APP_ORIGIN: "http://localhost:3000",
     };
     expect(validateApiEnvironment(env).PORT).toBe(4000);
   });

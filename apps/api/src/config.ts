@@ -18,6 +18,10 @@ const apiEnvironmentSchema = z.object({
   AUTH_JWT_PRIVATE_KEY_PEM: z.string().min(1),
   AUTH_JWT_PUBLIC_KEYS_JSON: z.string().min(1),
   AUTH_ALLOWED_ORIGINS: z.string().min(1),
+  EMAIL_BREVO_API_KEY: z.string().min(1),
+  EMAIL_SENDER_EMAIL: z.string().email(),
+  EMAIL_SENDER_NAME: z.string().min(1).max(100),
+  APP_ORIGIN: z.string().url().default("http://localhost:3000"),
 });
 
 export type ApiEnvironment = z.infer<typeof apiEnvironmentSchema>;

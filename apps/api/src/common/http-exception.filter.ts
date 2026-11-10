@@ -36,7 +36,9 @@ export class HttpExceptionEnvelopeFilter implements ExceptionFilter {
     };
 
     if (status === 500) {
-      this.logger.error({ path: request.path, method: request.method }, "unhandled_exception");
+      this.logger.error({ path: request.path, method: request.method, stack: exception instanceof Error ? exception.stack : undefined }, "unhandled_exception");
+    } else {
+      this.logger.warn({ path: request.path, method: request.method, status, exception: exception instanceof Error ? exception.message : String(exception) }, "http_exception");
     }
     response.status(status).json(body);
   }

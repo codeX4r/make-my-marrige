@@ -2,7 +2,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { RegistrationService } from "./registration.service.js";
 import { PasswordHashService } from "./password-hash.service.js";
 import { MONGO_CONNECTION } from "../database/database.module.js";
-import { Connection } from "mongoose";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 const createMockModels = () => ({
@@ -15,7 +14,7 @@ const createMockModels = () => ({
   },
 });
 
-const createMockConnection = (models: ReturnType<typeof createMockModels>) => ({
+const createMockConnection = (models: any) => ({
   startSession: vi.fn().mockResolvedValue({
     withTransaction: vi.fn(async (cb: any) => cb()),
     endSession: vi.fn(),
@@ -26,8 +25,8 @@ const createMockConnection = (models: ReturnType<typeof createMockModels>) => ({
 
 describe("RegistrationService", () => {
   let service: RegistrationService;
-  let mockConnection: Partial<Connection>;
-  let mockModels: ReturnType<typeof createMockModels>;
+  let mockConnection: any;
+  let mockModels: any;
 
   beforeEach(async () => {
     mockModels = createMockModels();
