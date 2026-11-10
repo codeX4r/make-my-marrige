@@ -7,9 +7,11 @@ import { NestPinoLogger } from "./common/nest-pino.logger.js";
 import { validateApiEnvironment } from "./config.js";
 import { AppModule } from "./app.module.js";
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const localEnvFile = resolve(process.cwd(), "../../.env");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const localEnvFile = resolve(__dirname, "../../../.env");
 
 if (existsSync(localEnvFile)) {
   process.loadEnvFile(localEnvFile);

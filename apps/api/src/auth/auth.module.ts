@@ -5,6 +5,8 @@ import { AccessTokenService } from "./access-token.service.js";
 import { CsrfOriginService } from "./csrf-origin.service.js";
 import { JwtKeyRingService } from "./jwt-key-ring.service.js";
 import { MemberSessionService } from "./member-session.service.js";
+import { PasswordHashService } from "./password-hash.service.js";
+import { RegistrationService } from "./registration.service.js";
 import { AuthController } from "./auth.controller.js";
 
 @Module({})
@@ -24,7 +26,9 @@ export class AuthModule {
             new AccessTokenService(keyRing, environment.AUTH_JWT_ISSUER, environment.AUTH_JWT_AUDIENCE),
           inject: [JwtKeyRingService],
         },
+        PasswordHashService,
         MemberSessionService,
+        RegistrationService,
         {
           provide: CsrfOriginService,
           useFactory: (sessions: MemberSessionService) => new CsrfOriginService(environment, sessions),
@@ -37,6 +41,8 @@ export class AuthModule {
         AccessTokenService,
         CsrfOriginService,
         MemberSessionService,
+        PasswordHashService,
+        RegistrationService,
       ],
     };
   }

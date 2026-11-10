@@ -12,6 +12,7 @@ import { AccessTokenAuthGuard } from "./access-token-auth.guard.js";
 import { CsrfOriginService } from "./csrf-origin.service.js";
 import { CurrentPrincipal, type AuthenticatedRequest } from "./current-principal.decorator.js";
 import { MemberSessionService } from "./member-session.service.js";
+import { RegistrationService } from "./registration.service.js";
 import type { AuthenticatedPrincipal } from "./auth.types.js";
 
 const BFF_ACCESS_TOKEN_HEADER = "x-mmm-access-token";
@@ -23,6 +24,7 @@ export class AuthController {
   constructor(
     private readonly sessions: MemberSessionService,
     private readonly csrf: CsrfOriginService,
+    private readonly registration: RegistrationService,
   ) {}
 
   @Post("refresh")
@@ -44,6 +46,20 @@ export class AuthController {
     response.setHeader(BFF_REFRESH_TOKEN_HEADER, tokens.refreshToken);
     response.setHeader(BFF_CSRF_TOKEN_HEADER, tokens.csrfToken);
     return { data: {} };
+  }
+
+  @Post("register")
+  @HttpCode(201)
+  async register(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ data: { user: { userId: string; email: string; displayName: string; emailVerificationStatus: string } } }> {
+    const result = await this.registration.register({
+      email: request.body?.email ?? "",
+      password: request.body?.password ?? "",
+      displayName: request.body?.displayName ?? "",
+    });
+    return { data: { user: { userId: result.userId, email: result.emailNormalized, displayName: result.displayName, emailVerificationStatus: result.emailVerificationStatus } } };
   }
 
   @Post("logout")

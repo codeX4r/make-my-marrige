@@ -6,6 +6,7 @@ import {
   MemberSessionFamilySchema,
 } from "./member-session.schema.js";
 import { MembershipPeriodEventSchema, MembershipSchema } from "./membership.schema.js";
+import { EmailVerificationTokenSchema } from "../../auth/account-verification.schema.js";
 import { ProviderIdentitySchema, UserSchema } from "./user.schema.js";
 import { WeddingSchema } from "./wedding.schema.js";
 
@@ -70,6 +71,12 @@ export function registerIdentityModels(connection: Connection) {
       AuthSessionAuditEventSchema,
       "authSessionAuditEvents",
     ),
+    EmailVerificationToken: getModel<InferSchemaType<typeof EmailVerificationTokenSchema>>(
+      connection,
+      "EmailVerificationToken",
+      EmailVerificationTokenSchema,
+      "emailVerificationTokens",
+    ),
   };
 }
 
@@ -80,6 +87,7 @@ export {
   hashCoOwnerInvitationToken,
 } from "./co-owner-invitation-token.js";
 export { MembershipPeriodEventSchema, MembershipSchema } from "./membership.schema.js";
+export { EmailVerificationTokenSchema } from "../../auth/account-verification.schema.js";
 export {
   AuthSessionAuditEventSchema,
   MemberRefreshSessionSchema,

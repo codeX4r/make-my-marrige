@@ -6,9 +6,11 @@ import { WorkerModule } from "./worker.module.js";
 import { WorkerHealthServer } from "./worker/health-server.js";
 import { RedisBullMqBoundary } from "./worker/redis-bullmq.boundary.js";
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const localEnvFile = resolve(process.cwd(), "../../.env");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const localEnvFile = resolve(__dirname, "../../../.env");
 
 if (existsSync(localEnvFile)) {
   process.loadEnvFile(localEnvFile);
