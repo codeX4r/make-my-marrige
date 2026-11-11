@@ -117,7 +117,7 @@ describe("foundation BFF route policy", () => {
     expect(await unavailable.text()).not.toContain("connection details");
   });
 
-  it("preserves upstream status and forwards multiple cookies without upstream cache policy", async () => {
+  it("preserves upstream status and does not forward upstream cookies for non-auth routes", async () => {
     const upstreamHeaders = new Headers({ "content-type": "application/json" });
     upstreamHeaders.append("set-cookie", "a=1; HttpOnly");
     upstreamHeaders.append("set-cookie", "b=2; Secure");
@@ -136,8 +136,10 @@ describe("foundation BFF route policy", () => {
     );
     expect(response.status).toBe(429);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(response.headers.get("set-cookie")).toContain("a=1");
-    expect(response.headers.get("set-cookie")).toContain("b=2");
+    // BFF only forwards set-cookie for auth routes (refresh/logout)
+    // For non-auth routes, it does not forward upstream cookies to browser
+    const setCookies = response.headers.getSetCookie();
+    expect(setCookies.length).toBe(0);
   });
 
   it("sanitizes upstream server errors while preserving their status", async () => {

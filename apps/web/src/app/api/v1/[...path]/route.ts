@@ -1,17 +1,34 @@
 import type { NextRequest } from "next/server";
 import { getWebEnvironment } from "../../../../lib/server-env";
+import {
+  clearSessionCookieHeaders,
+  getAuthCookieConfiguration,
+  sessionCookieHeaders,
+} from "../../../../lib/server-auth-cookies";
 
 const MAX_REQUEST_BYTES = 1_048_576;
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 5_000;
 const MAX_UPSTREAM_TIMEOUT_MS = 30_000;
 
 type RouteContext = { params: Promise<{ path: string[] }> };
-type RoutePolicy = { upstreamPath: string; methods: readonly string[] };
+type RoutePolicy = {
+  upstreamPath: string;
+  methods: readonly string[];
+  authentication?: "refresh" | "logout" | "resend" | "verify" | "login";
+};
 
 // Foundation-only routes. Add product operations only after their contracts are approved.
 const routePolicies: Record<string, RoutePolicy> = {
   "health/live": { upstreamPath: "/health/live", methods: ["GET"] },
   "health/ready": { upstreamPath: "/health/ready", methods: ["GET"] },
+  "auth/refresh": { upstreamPath: "/v1/auth/refresh", methods: ["POST"], authentication: "refresh" },
+  "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
+  "auth/register": { upstreamPath: "/v1/auth/register", methods: ["POST"] },
+  "auth/login": { upstreamPath: "/v1/auth/login", methods: ["POST"], authentication: "login" },
+  "password/forgot": { upstreamPath: "/v1/auth/password/forgot", methods: ["POST"] },
+  "password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
+  "email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"], authentication: "resend" },
+  "email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"], authentication: "verify" },
 };
 
 function jsonError(status: number, code: string): Response {
@@ -94,6 +111,32 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
+  let cookieConfiguration: ReturnType<typeof getAuthCookieConfiguration> | undefined;
+  if (policy.authentication) {
+    try {
+      cookieConfiguration = getAuthCookieConfiguration();
+    } catch {
+      return jsonError(500, "BFF_CONFIGURATION_ERROR");
+    }
+    const csrfToken = request.headers.get("x-csrf-token");
+    const origin = request.headers.get("origin");
+    if (csrfToken) headers.set("x-csrf-token", csrfToken);
+    if (origin) headers.set("origin", origin);
+    if (policy.authentication === "refresh") {
+      const refreshToken = request.cookies.get(cookieConfiguration.refreshName)?.value;
+      if (refreshToken) headers.set("x-mmm-refresh-token", refreshToken);
+    } else if (policy.authentication === "logout") {
+      const accessToken = request.cookies.get(cookieConfiguration.accessName)?.value;
+      if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
+    } else if (policy.authentication === "login") {
+      // Login: no cookies yet, forward credentials as-is (no auth headers needed)
+      // NestJS will validate credentials and return tokens in headers
+    } else if (policy.authentication) {
+      // For other authenticated requests, forward access token as Bearer for NestJS guard
+      const accessToken = request.cookies.get(cookieConfiguration.accessName)?.value;
+      if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
+    }
+  }
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const signal = AbortSignal.any([request.signal, timeoutSignal]);
 
@@ -119,9 +162,31 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     const value = upstream.headers.get(name);
     if (value) responseHeaders.set(name, value);
   }
-  const cookieHeaders = upstream.headers as Headers & { getSetCookie?: () => string[] };
-  const setCookies = cookieHeaders.getSetCookie?.() ?? [];
-  for (const cookie of setCookies) responseHeaders.append("set-cookie", cookie);
+  if (policy.authentication === "refresh" && upstream.ok && cookieConfiguration) {
+    const accessToken = upstream.headers.get("x-mmm-access-token");
+    const refreshToken = upstream.headers.get("x-mmm-refresh-token");
+    const csrfToken = upstream.headers.get("x-mmm-csrf-token");
+    if (!accessToken || !refreshToken || !csrfToken) return jsonError(502, "UPSTREAM_ERROR");
+    for (const cookie of sessionCookieHeaders(accessToken, refreshToken, cookieConfiguration)) {
+      responseHeaders.append("set-cookie", cookie);
+    }
+    responseHeaders.set("x-csrf-token", csrfToken);
+  }
+  if (policy.authentication === "login" && upstream.ok && cookieConfiguration) {
+    const accessToken = upstream.headers.get("x-mmm-access-token");
+    const refreshToken = upstream.headers.get("x-mmm-refresh-token");
+    const csrfToken = upstream.headers.get("x-mmm-csrf-token");
+    if (!accessToken || !refreshToken || !csrfToken) return jsonError(502, "UPSTREAM_ERROR");
+    for (const cookie of sessionCookieHeaders(accessToken, refreshToken, cookieConfiguration)) {
+      responseHeaders.append("set-cookie", cookie);
+    }
+    responseHeaders.set("x-csrf-token", csrfToken);
+  }
+  if (policy.authentication === "logout" && upstream.ok && cookieConfiguration) {
+    for (const cookie of clearSessionCookieHeaders(cookieConfiguration)) {
+      responseHeaders.append("set-cookie", cookie);
+    }
+  }
 
   return new Response(upstream.body, { status: upstream.status, headers: responseHeaders });
 }

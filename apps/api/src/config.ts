@@ -12,6 +12,16 @@ const apiEnvironmentSchema = z.object({
       message: "MONGODB_URI must use mongodb:// or mongodb+srv://",
     }),
   LOG_LEVEL: z.enum(logLevels).default("info"),
+  AUTH_JWT_ISSUER: z.string().url(),
+  AUTH_JWT_AUDIENCE: z.string().min(1).max(200),
+  AUTH_JWT_ACTIVE_KID: z.string().min(1).max(100),
+  AUTH_JWT_PRIVATE_KEY_PEM: z.string().min(1),
+  AUTH_JWT_PUBLIC_KEYS_JSON: z.string().min(1),
+  AUTH_ALLOWED_ORIGINS: z.string().min(1),
+  EMAIL_BREVO_API_KEY: z.string().min(1),
+  EMAIL_SENDER_EMAIL: z.string().email(),
+  EMAIL_SENDER_NAME: z.string().min(1).max(100),
+  APP_ORIGIN: z.string().url().default("http://localhost:3000"),
 });
 
 export type ApiEnvironment = z.infer<typeof apiEnvironmentSchema>;
