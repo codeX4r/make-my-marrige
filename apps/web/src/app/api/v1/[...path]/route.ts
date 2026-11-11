@@ -25,6 +25,8 @@ const routePolicies: Record<string, RoutePolicy> = {
   "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
   "auth/register": { upstreamPath: "/v1/auth/register", methods: ["POST"] },
   "auth/login": { upstreamPath: "/v1/auth/login", methods: ["POST"], authentication: "login" },
+  "password/forgot": { upstreamPath: "/v1/auth/password/forgot", methods: ["POST"] },
+  "password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
   "email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"], authentication: "resend" },
   "email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"], authentication: "verify" },
 };

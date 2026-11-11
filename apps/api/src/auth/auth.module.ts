@@ -12,6 +12,7 @@ import { PasswordHashService } from "./password-hash.service.js";
 import { RegistrationService } from "./registration.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
 import { LoginService } from "./login.service.js";
+import { PasswordResetService } from "./password-reset.service.js";
 import { AuthController } from "./auth.controller.js";
 
 @Module({})
@@ -45,6 +46,16 @@ export class AuthModule {
         EmailVerificationService,
         LoginService,
         {
+          provide: PasswordResetService,
+          useFactory: (
+            connection: Connection,
+            emailAdapter: BrevoEmailAdapter,
+            passwordHash: PasswordHashService,
+            sessions: MemberSessionService,
+          ) => new PasswordResetService(connection, emailAdapter, passwordHash, sessions),
+          inject: [MONGO_CONNECTION, BrevoEmailAdapter, PasswordHashService, MemberSessionService],
+        },
+        {
           provide: BrevoEmailAdapter,
           useFactory: () => new BrevoEmailAdapter({
             EMAIL_BREVO_API_KEY: environment.EMAIL_BREVO_API_KEY,
@@ -69,6 +80,7 @@ export class AuthModule {
         EmailVerificationService,
         LoginService,
         BrevoEmailAdapter,
+        PasswordResetService,
       ],
     };
   }

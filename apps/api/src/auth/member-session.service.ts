@@ -164,17 +164,28 @@ export class MemberSessionService {
     }
   }
 
-  async revokeAllForUser(userId: string, now = new Date()): Promise<void> {
-    const databaseSession = await this.connection.startSession();
+  async revokeAllForUser(userId: string, now = new Date(), databaseSession?: import("mongoose").ClientSession): Promise<void> {
+    const session = databaseSession ?? await this.connection.startSession();
+    const ownsSession = !databaseSession;
     try {
-      await databaseSession.withTransaction(async () => {
-        const families = await this.models.MemberSessionFamily.find({ userId, status: "ACTIVE" }).session(databaseSession);
-        for (const family of families) {
-          await this.revokeFamily(family.familyId, family.userId, "SIGN_OUT_ALL", now, databaseSession, null);
-        }
-      });
+      if (ownsSession) {
+        await session.withTransaction(async () => {
+          await this.revokeAllForUserInternal(userId, now, session);
+        });
+      } else {
+        await this.revokeAllForUserInternal(userId, now, session);
+      }
     } finally {
-      await databaseSession.endSession();
+      if (ownsSession) {
+        await session.endSession();
+      }
+    }
+  }
+
+  private async revokeAllForUserInternal(userId: string, now: Date, databaseSession: import("mongoose").ClientSession): Promise<void> {
+    const families = await this.models.MemberSessionFamily.find({ userId, status: "ACTIVE" }).session(databaseSession);
+    for (const family of families) {
+      await this.revokeFamily(family.familyId, family.userId, "SIGN_OUT_ALL", now, databaseSession, null);
     }
   }
 

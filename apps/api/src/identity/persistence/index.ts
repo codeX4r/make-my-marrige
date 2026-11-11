@@ -7,6 +7,7 @@ import {
 } from "./member-session.schema.js";
 import { MembershipPeriodEventSchema, MembershipSchema } from "./membership.schema.js";
 import { EmailVerificationTokenSchema } from "../../auth/account-verification.schema.js";
+import { PasswordResetTokenSchema } from "../../auth/password-reset.schema.js";
 import { ProviderIdentitySchema, UserSchema } from "./user.schema.js";
 import { WeddingSchema } from "./wedding.schema.js";
 
@@ -76,6 +77,12 @@ export function registerIdentityModels(connection: Connection) {
       "EmailVerificationToken",
       EmailVerificationTokenSchema,
       "emailVerificationTokens",
+    ),
+    PasswordResetToken: getModel<InferSchemaType<typeof PasswordResetTokenSchema>>(
+      connection,
+      "PasswordResetToken",
+      PasswordResetTokenSchema,
+      "passwordResetTokens",
     ),
   };
 }

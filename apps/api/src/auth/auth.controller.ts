@@ -18,8 +18,9 @@ import { MemberSessionService } from "./member-session.service.js";
 import { RegistrationService } from "./registration.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
 import { LoginService, type LoginResult } from "./login.service.js";
+import { PasswordResetService } from "./password-reset.service.js";
 import type { AuthenticatedPrincipal } from "./auth.types.js";
-import { RegisterDto, LoginDto, VerifyEmailDto, ResendEmailDto } from "./auth.dto.js";
+import { RegisterDto, LoginDto, VerifyEmailDto, ResendEmailDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.dto.js";
 
 const BFF_ACCESS_TOKEN_HEADER = "x-mmm-access-token";
 const BFF_REFRESH_TOKEN_HEADER = "x-mmm-refresh-token";
@@ -33,6 +34,7 @@ export class AuthController {
     private readonly registration: RegistrationService,
     private readonly verification: EmailVerificationService,
     private readonly loginService: LoginService,
+    private readonly passwordReset: PasswordResetService,
   ) {}
 
   @Post("refresh")
@@ -144,6 +146,20 @@ export class AuthController {
   ): Promise<{ data: { revoked: true } }> {
     await this.sessions.revokeSession(principal.userId, sessionId);
     return { data: { revoked: true } };
+  }
+
+  @Post("password/forgot")
+  @HttpCode(200)
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ data: { requested: true } }> {
+    await this.passwordReset.requestReset(dto.email);
+    return { data: { requested: true } };
+  }
+
+  @Post("password/reset")
+  @HttpCode(200)
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ data: { reset: true } }> {
+    await this.passwordReset.resetPassword(dto.token, dto.newPassword);
+    return { data: { reset: true } };
   }
 }
 
