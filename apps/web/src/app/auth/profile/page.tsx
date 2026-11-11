@@ -56,7 +56,10 @@ export default function ProfilePage() {
         }
       }
 
-      return { errors, values };
+      if (Object.keys(errors).length > 0) {
+        return { errors, values: undefined as any };
+      }
+      return { values, errors: undefined as any };
     },
     defaultValues: {
       displayName: user?.displayName || "",
@@ -156,7 +159,7 @@ export default function ProfilePage() {
                 )}
                 {success && (
                   <InlineBanner
-                    type="success"
+                    type="info"
                     message={success}
                     onDismiss={() => setSuccess(null)}
                   />
@@ -166,7 +169,7 @@ export default function ProfilePage() {
                   <TextField
                     label="Display name"
                     placeholder="Your name"
-                    error={errors.displayName?.message}
+                    error={errors.displayName?.message ?? undefined}
                     required
                     {...register("displayName")}
                   />
@@ -191,7 +194,7 @@ export default function ProfilePage() {
                 )}
                 {success && (
                   <InlineBanner
-                    type="success"
+                    type="info"
                     message={success}
                     onDismiss={() => setSuccess(null)}
                   />
@@ -210,7 +213,7 @@ export default function ProfilePage() {
                     type="password"
                     autoComplete="current-password"
                     placeholder="Enter your current password"
-                    error={errors.currentPassword?.message}
+                    error={errors.currentPassword?.message ?? undefined}
                     required
                     {...register("currentPassword")}
                   />
@@ -220,7 +223,7 @@ export default function ProfilePage() {
                     type="password"
                     autoComplete="new-password"
                     placeholder="At least 12 characters"
-                    error={errors.newPassword?.message}
+                    error={errors.newPassword?.message ?? undefined}
                     required
                     hint="At least 12 characters"
                     {...register("newPassword")}
@@ -231,7 +234,7 @@ export default function ProfilePage() {
                     type="password"
                     autoComplete="new-password"
                     placeholder="Confirm your new password"
-                    error={errors.confirmPassword?.message}
+                    error={errors.confirmPassword?.message ?? undefined}
                     required
                     {...register("confirmPassword")}
                   />

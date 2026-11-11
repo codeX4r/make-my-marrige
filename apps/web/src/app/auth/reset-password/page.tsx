@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -15,7 +15,7 @@ interface ResetFormData {
   confirmPassword: string;
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resetPassword, isLoading: authLoading } = useAuth();
@@ -42,7 +42,10 @@ export default function ResetPasswordPage() {
       if (values.password !== values.confirmPassword) {
         errors.confirmPassword = { message: "Passwords do not match" };
       }
-      return { errors, values };
+      if (Object.keys(errors).length > 0) {
+        return { errors, values: undefined as any };
+      }
+      return { values, errors: undefined as any };
     },
   });
 
@@ -140,7 +143,7 @@ export default function ResetPasswordPage() {
                 type="password"
                 autoComplete="new-password"
                 placeholder="At least 12 characters"
-                error={errors.password?.message}
+                error={errors.password?.message ?? undefined}
                 required
                 hint="At least 12 characters"
                 {...register("password")}
@@ -151,7 +154,7 @@ export default function ResetPasswordPage() {
                 type="password"
                 autoComplete="new-password"
                 placeholder="Confirm your new password"
-                error={errors.confirmPassword?.message}
+                error={errors.confirmPassword?.message ?? undefined}
                 required
                 {...register("confirmPassword")}
               />
@@ -175,5 +178,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

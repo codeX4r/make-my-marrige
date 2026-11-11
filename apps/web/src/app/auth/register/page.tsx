@@ -44,7 +44,10 @@ export default function RegisterPage() {
       if (!displayNameResult.valid) {
         errors.displayName = { message: displayNameResult.error! };
       }
-      return { errors, values };
+      if (Object.keys(errors).length > 0) {
+        return { errors, values: undefined as any };
+      }
+      return { values, errors: undefined as any };
     },
   });
 
@@ -85,7 +88,7 @@ export default function RegisterPage() {
         <TextField
           label="Display name"
           placeholder="Your name"
-          error={errors.displayName?.message}
+          error={errors.displayName?.message ?? undefined}
           required
           {...register("displayName")}
         />
@@ -95,7 +98,7 @@ export default function RegisterPage() {
           type="email"
           autoComplete="email"
           placeholder="you@example.com"
-          error={errors.email?.message}
+          error={errors.email?.message ?? undefined}
           required
           {...register("email")}
         />
@@ -105,7 +108,7 @@ export default function RegisterPage() {
           type="password"
           autoComplete="new-password"
           placeholder="At least 12 characters"
-          error={errors.password?.message}
+          error={errors.password?.message ?? undefined}
           required
           hint="Must be at least 12 characters"
           {...register("password")}

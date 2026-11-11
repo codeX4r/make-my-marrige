@@ -1,328 +1,251 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useAuth } from "@/lib/auth-context";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import Link from "next/link";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
+import * as THREE from "three";
 
 export default function LandingPage() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-
   useEffect(() => {
-    if (!isLoading) {
-      // Don't redirect - landing page is public
-    }
-  }, [isAuthenticated, isLoading]);
-
-  useEffect(() => {
-    // Load external scripts
-    const scripts = [
-      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js",
-      "https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
-    ];
-
-    const loadScript = (src: string) => {
-      return new Promise((resolve, reject) => {
-        if (document.querySelector(`script[src="${src}"]`)) {
-          resolve();
-          return;
-        }
-        const script = document.createElement("script");
-        script.src = src;
-        script.async = true;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-
-    Promise.all(scripts.map(loadScript)).then(() => {
-      initializeAnimations();
-    }).catch(console.error);
+    // Register the plugin once before creating any ScrollTrigger instances.
+    gsap.registerPlugin(ScrollTrigger);
+    const dispose = initializeAnimations();
 
     return () => {
-      // Cleanup
-      if (window.gsap) {
-        window.gsap.killTweensOf("*");
-        if (window.ScrollTrigger) {
-          window.ScrollTrigger.getAll().forEach((st) => st.kill());
-        }
-      }
+      dispose();
     };
   }, []);
 
-  const initializeAnimations = () => {
-    if (typeof window === "undefined") return;
+  const initializeAnimations = (): (() => void) => {
+    if (typeof window === "undefined") return () => undefined;
 
-    const rm = matchMedia("(prefers-reduced-motion:reduce)").matches;
-    const $ = (s: string, c: Element | Document = document) =>
-      [].slice.call((c || document).querySelectorAll(s));
+    // Use the locally bundled modules; no runtime CDN script injection.
+    const w = { gsap, ScrollTrigger, Lenis, THREE };
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const disposers: Array<() => void> = [];
+    let rafId = 0;
+    let renderer: any;
+    let observer: IntersectionObserver | undefined;
+    let resizeObserver: ResizeObserver | undefined;
+    let lenis: any;
+    const initialTriggers = new Set(w.ScrollTrigger?.getAll?.() ?? []);
 
-    const h1 = document.getElementById("h1");
+    const addListener = (target: EventTarget, type: string, handler: EventListener, options?: AddEventListenerOptions) => {
+      target.addEventListener(type, handler, options);
+      disposers.push(() => target.removeEventListener(type, handler, options));
+    };
 
-    function bars() {
-      document.querySelectorAll(".bar i").forEach((b) => {
-        b.style.width = b.dataset.w + "%";
+    const showStaticValues = () => {
+      document.querySelectorAll<HTMLElement>(".bar i").forEach((bar) => {
+        bar.style.width = `${bar.dataset.w ?? 0}%`;
       });
-      document.querySelectorAll(".ct").forEach((c) => {
-        const d = +c.dataset.d || 0;
-        c.textContent = (+c.dataset.to).toFixed(d);
+      document.querySelectorAll<HTMLElement>(".ct").forEach((counter) => {
+        counter.textContent = Number(counter.dataset.to ?? 0).toFixed(Number(counter.dataset.d ?? 0));
       });
+      document.querySelectorAll<HTMLElement>("[data-r]").forEach((element) => {
+        element.style.opacity = "1";
+        element.style.transform = "none";
+      });
+    };
+
+    if (!w.gsap || !w.ScrollTrigger) {
+      showStaticValues();
+      return () => undefined;
     }
 
-    if (rm || !window.gsap || !window.ScrollTrigger) {
-      bars();
-      return;
-    }
-
+    w.gsap.registerPlugin(w.ScrollTrigger);
     document.documentElement.classList.add("js");
-    window.gsap.registerPlugin(window.ScrollTrigger);
 
-    // Lenis smooth scroll
-    let ls: any;
-    if (window.Lenis) {
-      const lsInstance = new window.Lenis({ lerp: 0.09 });
-      lsInstance.on("scroll", window.ScrollTrigger.update);
-      window.gsap.ticker.add((t) => lsInstance.raf(t * 1000));
-      window.gsap.ticker.lagSmoothing(0);
+    if (w.Lenis && !rm) {
+      lenis = new w.Lenis({ lerp: 0.09 });
+      lenis.on("scroll", w.ScrollTrigger.update);
+      const ticker = (time: number) => lenis?.raf(time * 1000);
+      w.gsap.ticker.add(ticker);
+      w.gsap.ticker.lagSmoothing(0);
+      disposers.push(() => {
+        w.gsap.ticker.remove(ticker);
+        lenis?.destroy?.();
+        lenis = undefined;
+      });
 
-      document.querySelectorAll('a[href^="#"]').forEach((a) => {
-        a.addEventListener("click", (e) => {
-          const t = a.getAttribute("href");
-          if (t.length > 1 && document.querySelector(t)) {
-            e.preventDefault();
-            lsInstance.scrollTo(t, { offset: -72 });
+      document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
+        const click = (event: MouseEvent) => {
+          const href = anchor.getAttribute("href");
+          if (href && href.length > 1 && document.querySelector(href)) {
+            event.preventDefault();
+            lenis?.scrollTo(href, { offset: -72 });
           }
+        };
+        addListener(anchor, "click", click as EventListener);
+      });
+    }
+
+    if (!rm) {
+      const heading = document.getElementById("h1");
+      if (heading) {
+        const words = heading.querySelectorAll(".wd > span");
+        if (words.length) {
+          w.gsap.from(words, {
+            yPercent: 110, rotate: 4, duration: 1.1,
+            ease: "expo.out", stagger: 0.08, delay: 0.2,
+          });
+        }
+      }
+
+      w.gsap.set(".hero [data-r]", { y: 24 });
+      w.gsap.to(".hero [data-r]", {
+        opacity: 1, y: 0, duration: 0.9, stagger: 0.12, delay: 0.2, ease: "power3.out",
+      });
+
+      document.querySelectorAll<HTMLElement>("[data-r]").forEach((element) => {
+        if (element.closest(".hero") && element.id !== "preview") return;
+        w.gsap.set(element, { y: 36 });
+        w.ScrollTrigger.create({
+          trigger: element, start: "top 88%", once: true,
+          onEnter: () => w.gsap.to(element, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }),
         });
       });
-      ls = lsInstance;
-    }
 
-    // Headline word reveal
-    const h1 = document.getElementById("h1");
-    if (h1) {
-      const nodes = [].slice.call(h1.childNodes);
-      let out = "";
-      nodes.forEach((n) => {
-        const em = n.nodeName === "EM";
-        const t = n.textContent?.trim().split(/\s+/);
-        out += t?.map((w) => {
-          const s = '<span class="wd"><span>' + w + '</span></span> ';
-          return em ? "<em>" + s + "</em>" : s;
-        }).join("") || "";
+      document.querySelectorAll<HTMLElement>(".bar i").forEach((bar) => {
+        w.ScrollTrigger.create({
+          trigger: bar, start: "top 92%", once: true,
+          onEnter: () => w.gsap.to(bar, { width: `${bar.dataset.w ?? 0}%`, duration: 1.6, ease: "power3.out" }),
+        });
       });
-      h1.innerHTML = out;
 
-      window.gsap.from("#h1 .wd>span", {
-        yPercent: 110,
-        rotate: 4,
-        duration: 1.1,
-        ease: "expo.out",
-        stagger: 0.08,
-        delay: 0.2,
+      document.querySelectorAll<HTMLElement>(".ct").forEach((counter) => {
+        const value = { current: 0 };
+        const precision = Number(counter.dataset.d ?? 0);
+        w.ScrollTrigger.create({
+          trigger: counter, start: "top 92%", once: true,
+          onEnter: () => w.gsap.to(value, {
+            current: Number(counter.dataset.to ?? 0), duration: 1.8, ease: "power2.out",
+            onUpdate: () => { counter.textContent = value.current.toFixed(precision); },
+          }),
+        });
       });
-    }
 
-    window.gsap.to(".hero [data-r]", {
-      opacity: 1,
-      y: 0,
-      duration: 0.9,
-      stagger: 0.12,
-      delay: 0.9,
-      ease: "power3.out",
-    });
-    window.gsap.set(".hero [data-r]", { y: 24 });
+      w.gsap.to("#ln", {
+        scaleX: 1, ease: "none", scrollTrigger: {
+          trigger: "#ceremonies", start: "top 60%", end: "bottom 80%", scrub: 0.6,
+        }
+      });
+      w.gsap.to("#m1", {
+        rotate: 90, ease: "none", scrollTrigger: {
+          trigger: ".hero", start: "top top", end: "bottom top", scrub: true,
+        }
+      });
+      w.gsap.to("#m2", {
+        rotate: -120, ease: "none", scrollTrigger: {
+          trigger: "#cta", start: "top bottom", end: "bottom top", scrub: true,
+        }
+      });
 
-    // Scroll reveals
-    document.querySelectorAll('[data-r]').forEach((e) => {
-      if (!e.closest(".hero") || e.id === "preview") {
-        window.gsap.set(e, { y: 36 });
-        window.ScrollTrigger.create({
-          trigger: e,
-          start: "top 88%",
-          once: true,
-          onEnter: () =>
-            window.gsap.to(e, {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              ease: "power3.out",
-            }),
+      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        document.querySelectorAll<HTMLElement>(".mag").forEach((element) => {
+          const x = w.gsap.quickTo(element, "x", { duration: 0.4, ease: "power3" });
+          const y = w.gsap.quickTo(element, "y", { duration: 0.4, ease: "power3" });
+          const move = (event: Event) => {
+            const pointer = event as MouseEvent;
+            const rect = element.getBoundingClientRect();
+            x((pointer.clientX - rect.left - rect.width / 2) * 0.18);
+            y((pointer.clientY - rect.top - rect.height / 2) * 0.18);
+          };
+          const reset = () => { x(0); y(0); };
+          addListener(element, "mousemove", move);
+          addListener(element, "mouseleave", reset);
+        });
+
+        document.querySelectorAll<HTMLElement>(".tilt").forEach((element) => {
+          const rx = w.gsap.quickTo(element, "rotationX", { duration: 0.5 });
+          const ry = w.gsap.quickTo(element, "rotationY", { duration: 0.5 });
+          element.style.perspective = "900px";
+          const move = (event: Event) => {
+            const pointer = event as MouseEvent;
+            const rect = element.getBoundingClientRect();
+            ry(((pointer.clientX - rect.left) / rect.width - 0.5) * 6);
+            rx(-((pointer.clientY - rect.top) / rect.height - 0.5) * 6);
+          };
+          const reset = () => { rx(0); ry(0); };
+          addListener(element, "mousemove", move);
+          addListener(element, "mouseleave", reset);
         });
       }
-    });
-
-    document.querySelectorAll(".bar i").forEach((b) => {
-      window.ScrollTrigger.create({
-        trigger: b,
-        start: "top 92%",
-        once: true,
-        onEnter: () =>
-          window.gsap.to(b, {
-            width: b.dataset.w + "%",
-            duration: 1.6,
-            ease: "power3.out",
-          }),
-      });
-    });
-
-    document.querySelectorAll(".ct").forEach((c) => {
-      const o = { v: 0 };
-      const d = +c.dataset.d || 0;
-      window.ScrollTrigger.create({
-        trigger: c,
-        start: "top 92%",
-        once: true,
-        onEnter: () =>
-          window.gsap.to(o, {
-            v: +c.dataset.to,
-            duration: 1.8,
-            ease: "power2.out",
-            onUpdate: () => {
-              c.textContent = o.v.toFixed(d);
-            },
-          }),
-      });
-    });
-
-    const ln = document.getElementById("ln");
-    if (ln) {
-      window.gsap.to("#ln", {
-        scaleX: 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#ceremonies",
-          start: "top 60%",
-          end: "bottom 80%",
-          scrub: 0.6,
-        },
-      });
     }
 
-    const m1 = document.getElementById("m1");
-    if (m1) {
-      window.gsap.to("#m1", {
-        rotate: 90,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".hero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
+    const initialHost = document.getElementById("stage");
+    const stageTwo = document.getElementById("stage2");
+    if (!w.THREE || !initialHost || !stageTwo) {
+      showStaticValues();
+      return () => {
+        disposers.forEach((dispose) => dispose());
+        w.ScrollTrigger?.getAll?.().forEach((trigger: any) => {
+          if (!initialTriggers.has(trigger)) trigger.kill();
+        });
+        document.documentElement.classList.remove("js");
+      };
     }
 
-    const m2 = document.getElementById("m2");
-    if (m2) {
-      window.gsap.to("#m2", {
-        rotate: -120,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#cta",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    }
-
-    // Magnetic buttons + card tilt (pointer-only)
-    if (matchMedia("(hover:hover)").matches) {
-      document.querySelectorAll(".mag").forEach((b) => {
-        const x = window.gsap.quickTo(b, "x", {
-          duration: 0.4,
-          ease: "power3",
-        });
-        const y = window.gsap.quickTo(b, "y", {
-          duration: 0.4,
-          ease: "power3",
-        });
-        b.addEventListener("mousemove", (e: MouseEvent) => {
-          const r = b.getBoundingClientRect();
-          x((e.clientX - r.left - r.width / 2) * 0.25);
-          y((e.clientY - r.top - r.height / 2) * 0.35);
-        });
-        b.addEventListener("mouseleave", () => {
-          x(0);
-          y(0);
-        });
-      });
-
-      document.querySelectorAll(".tilt").forEach((c) => {
-        const rx = window.gsap.quickTo(c, "rotationX", {
-          duration: 0.5,
-        });
-        const ry = window.gsap.quickTo(c, "rotationY", {
-          duration: 0.5,
-        });
-        (c as HTMLElement).style.transformPerspective = "900px";
-        c.addEventListener("mousemove", (e: MouseEvent) => {
-          const r = c.getBoundingClientRect();
-          ry(((e.clientX - r.left) / r.width - 0.5) * 8);
-          rx(-((e.clientY - r.top) / r.height - 0.5) * 8);
-        });
-        c.addEventListener("mouseleave", () => {
-          rx(0);
-          ry(0);
-        });
-      });
-    }
-
-    // 3D hero scene
-    const host = document.getElementById("stage");
-    if (!window.THREE || !host) return;
-
-    const T = window.THREE;
-    const sc = new window.THREE.Scene();
-    const cam = new window.THREE.PerspectiveCamera(40, 1, 0.1, 100);
+    let host: HTMLElement = initialHost;
+    const T = w.THREE;
+    const sc = new w.THREE.Scene();
+    const cam = new w.THREE.PerspectiveCamera(40, 1, 0.1, 100);
     cam.position.set(0, 0, 9);
 
     let rd: any;
     try {
-      rd = new window.THREE.WebGLRenderer({ alpha: true, antialias: true });
-    } catch (e) {
-      return;
+      rd = new w.THREE.WebGLRenderer({ alpha: true, antialias: true });
+    } catch (error) {
+      console.warn("WebGL is unavailable; using the static landing page:", error);
+      showStaticValues();
+      return () => {
+        disposers.forEach((dispose) => dispose());
+        w.ScrollTrigger?.getAll?.().forEach((trigger: any) => {
+          if (!initialTriggers.has(trigger)) trigger.kill();
+        });
+        document.documentElement.classList.remove("js");
+      };
     }
 
-    rd.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer = rd;
+    rd.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     host.appendChild(rd.domElement);
 
-    const sc = new window.THREE.Scene();
-    sc.add(new window.THREE.AmbientLight(0xffe6c8, 0.7));
-    const l1 = new window.THREE.PointLight(0xffc26b, 2.2, 40);
+    sc.add(new w.THREE.AmbientLight(0xffe6c8, 0.7));
+    const l1 = new w.THREE.PointLight(0xffc26b, 2.2, 40);
     l1.position.set(4, 4, 6);
     sc.add(l1);
-    const l2 = new window.THREE.PointLight(0xff7a9a, 1.3, 40);
+    const l2 = new w.THREE.PointLight(0xff7a9a, 1.3, 40);
     l2.position.set(-5, -2, 4);
     sc.add(l2);
 
-    const gold = new window.THREE.MeshStandardMaterial({
+    const gold = new w.THREE.MeshStandardMaterial({
       color: 0xd9a441,
       metalness: 0.75,
       roughness: 0.28,
       emissive: 0x3a2300,
     });
-    const g = new window.THREE.Group();
+    const g = new w.THREE.Group();
     sc.add(g);
 
-    const r1 = new window.THREE.Mesh(
-      new window.THREE.TorusGeometry(1.5, 0.17, 32, 96),
+    const r1 = new w.THREE.Mesh(
+      new w.THREE.TorusGeometry(1.5, 0.17, 32, 96),
       gold,
     );
     r1.position.x = -0.8;
     r1.rotation.y = 0.9;
-    const r2 = new window.THREE.Mesh(
-      new window.THREE.TorusGeometry(1.5, 0.17, 32, 96),
+    const r2 = new w.THREE.Mesh(
+      new w.THREE.TorusGeometry(1.5, 0.17, 32, 96),
       gold,
     );
     r2.position.x = 0.8;
     r2.rotation.x = Math.PI / 2;
     r2.rotation.y = -0.3;
-    const gem = new window.THREE.Mesh(
-      new window.THREE.OctahedronGeometry(0.28),
-      new window.THREE.MeshStandardMaterial({
+    const gem = new w.THREE.Mesh(
+      new w.THREE.OctahedronGeometry(0.28),
+      new w.THREE.MeshStandardMaterial({
         color: 0xff9aaf,
         emissive: 0x7a2e42,
         metalness: 0.3,
@@ -331,22 +254,22 @@ export default function LandingPage() {
     );
     gem.position.set(0, 1.6, 0);
 
-    const rg = new window.THREE.Group();
+    const rg = new w.THREE.Group();
     rg.add(r1, r2, gem);
     rg.scale.setScalar(0.36);
     rg.position.y = 0.15;
     sc.add(rg);
 
     // lotus below
-    const lot = new window.THREE.Group();
-    const pm = new window.THREE.MeshStandardMaterial({
+    const lot = new w.THREE.Group();
+    const pm = new w.THREE.MeshStandardMaterial({
       color: 0xc4506b,
       emissive: 0x3f0016,
       roughness: 0.5,
     });
     for (let i = 0; i < 8; i++) {
-      const p = new window.THREE.Mesh(
-        new window.THREE.SphereGeometry(0.5, 24, 16),
+      const p = new w.THREE.Mesh(
+        new w.THREE.SphereGeometry(0.5, 24, 16),
         pm,
       );
       p.scale.set(0.32, 0.9, 0.12);
@@ -361,59 +284,59 @@ export default function LandingPage() {
     g.add(lot);
 
     // Mandap: platform, four pillars, pyramid roof, kalash, garlands, sacred flame
-    const mar = new window.THREE.MeshStandardMaterial({
+    const mar = new w.THREE.MeshStandardMaterial({
       color: 0x7a2e42,
       emissive: 0x2a0810,
       roughness: 0.55,
     });
-    const M = new window.THREE.Group();
-    g.add(M);
+    const M = new w.THREE.Group();
+    sc.add(M);
 
-    const pf = new window.THREE.Mesh(
-      new window.THREE.BoxGeometry(3.8, 0.22, 3.8),
+    const pf = new w.THREE.Mesh(
+      new w.THREE.BoxGeometry(3.8, 0.22, 3.8),
       mar,
     );
     pf.position.y = -1.95;
     M.add(pf);
 
-    const pf2 = new window.THREE.Mesh(
-      new window.THREE.BoxGeometry(3.4, 0.14, 3.4),
+    const pf2 = new w.THREE.Mesh(
+      new w.THREE.BoxGeometry(3.4, 0.14, 3.4),
       gold,
     );
     pf2.position.y = -1.77;
     M.add(pf2);
 
-    const cs = [
+    const cs: Array<[number, number]> = [
       [1.5, 1.5],
       [-1.5, 1.5],
       [-1.5, -1.5],
       [1.5, -1.5],
     ];
     cs.forEach((c) => {
-      const p = new window.THREE.Mesh(
-        new window.THREE.CylinderGeometry(0.1, 0.13, 2.8, 20),
+      const p = new w.THREE.Mesh(
+        new w.THREE.CylinderGeometry(0.1, 0.13, 2.8, 20),
         gold,
       );
       p.position.set(c[0], -0.4, c[1]);
       M.add(p);
-      const cap = new window.THREE.Mesh(
-        new window.THREE.SphereGeometry(0.16, 16, 12),
+      const cap = new w.THREE.Mesh(
+        new w.THREE.SphereGeometry(0.16, 16, 12),
         gold,
       );
       cap.position.set(c[0], 1.05, c[1]);
       M.add(cap);
-    }
+    });
 
-    const roof = new window.THREE.Mesh(
-      new window.THREE.ConeGeometry(2.55, 1.15, 4),
+    const roof = new w.THREE.Mesh(
+      new w.THREE.ConeGeometry(2.55, 1.15, 4),
       mar,
     );
     roof.rotation.y = Math.PI / 4;
     roof.position.y = 1.6;
     M.add(roof);
 
-    const trim = new window.THREE.Mesh(
-      new window.THREE.TorusGeometry(1.8, 0.05, 8, 4),
+    const trim = new w.THREE.Mesh(
+      new w.THREE.TorusGeometry(1.8, 0.05, 8, 4),
       gold,
     );
     trim.rotation.set(Math.PI / 2, 0, Math.PI / 4);
@@ -421,33 +344,33 @@ export default function LandingPage() {
     trim.scale.setScalar(1.18);
     M.add(trim);
 
-    const kb = new window.THREE.Mesh(
-      new window.THREE.SphereGeometry(0.2, 20, 14),
+    const kb = new w.THREE.Mesh(
+      new w.THREE.SphereGeometry(0.2, 20, 14),
       gold,
     );
     kb.position.y = 2.32;
-    const kc = new window.THREE.Mesh(
-      new window.THREE.ConeGeometry(0.08, 0.35, 12),
+    const kc = new w.THREE.Mesh(
+      new w.THREE.ConeGeometry(0.08, 0.35, 12),
       gold,
     );
     kc.position.y = 2.65;
     M.add(kb, kc);
 
-    const bg1 = new window.THREE.SphereGeometry(0.09, 10, 8);
-    const bm1 = new window.THREE.MeshStandardMaterial({
+    const bg1 = new w.THREE.SphereGeometry(0.09, 10, 8);
+    const bm1 = new w.THREE.MeshStandardMaterial({
       color: 0xf08a1c,
       emissive: 0x5a2a00,
     });
-    const bm2 = new window.THREE.MeshStandardMaterial({
+    const bm2 = new w.THREE.MeshStandardMaterial({
       color: 0xe0457b,
       emissive: 0x4a0f22,
     });
     for (let s = 0; s < 4; s++) {
-      const A = cs[s],
-        B = cs[(s + 1) % 4];
+      const A = cs[s]!;
+      const B = cs[(s + 1) % 4]!;
       for (let k = 1; k < 12; k++) {
         const u = k / 12;
-        const b = new window.THREE.Mesh(bg1, k % 2 ? bm1 : bm2);
+        const b = new w.THREE.Mesh(bg1, k % 2 ? bm1 : bm2);
         b.position.set(
           A[0] + (B[0] - A[0]) * u,
           1.0 - Math.sin(Math.PI * u) * 0.5,
@@ -457,9 +380,9 @@ export default function LandingPage() {
       }
     }
 
-    const fl = new window.THREE.Mesh(
-      new window.THREE.ConeGeometry(0.13, 0.45, 12),
-      new window.THREE.MeshStandardMaterial({
+    const fl = new w.THREE.Mesh(
+      new w.THREE.ConeGeometry(0.13, 0.45, 12),
+      new w.THREE.MeshStandardMaterial({
         color: 0xffb03a,
         emissive: 0xff7a00,
         emissiveIntensity: 1.6,
@@ -468,23 +391,23 @@ export default function LandingPage() {
     fl.position.y = -1.4;
     g.add(fl);
 
-    const fire = new window.THREE.PointLight(0xff9a3a, 1.6, 6);
+    const fire = new w.THREE.PointLight(0xff9a3a, 1.6, 6);
     fire.position.y = -1.3;
     g.add(fire);
 
     // marigold petals
     const N = 90;
-    const pet = new window.THREE.InstancedMesh(
-      new window.THREE.SphereGeometry(0.09, 10, 8),
-      new window.THREE.MeshStandardMaterial({
+    const pet = new w.THREE.InstancedMesh(
+      new w.THREE.SphereGeometry(0.09, 10, 8),
+      new w.THREE.MeshStandardMaterial({
         color: 0xf08a1c,
         emissive: 0x5a2a00,
         roughness: 0.6,
       }),
       N,
     );
-    const dm = new window.THREE.Object3D();
-    const d = [];
+    const dm = new w.THREE.Object3D();
+    const d: Array<{ r: number; a: number; y: number; s: number; k: number; z: number }> = [];
     for (let i = 0; i < N; i++) {
       d.push({
         r: 2.4 + Math.random() * 2.2,
@@ -497,24 +420,31 @@ export default function LandingPage() {
     }
 
     function size() {
-      const w = host.clientWidth,
-        h = host.clientHeight;
-      rd.setSize(w, h, false);
-      cam.aspect = w / h;
-      cam.position.z = w < 500 ? 11 : 9;
+      const width = Math.max(host.clientWidth, 1);
+      const height = Math.max(host.clientHeight, 1);
+      rd.setSize(width, height, false);
+      cam.aspect = width / height;
+      cam.position.z = width < 500 ? 11 : 9;
       cam.updateProjectionMatrix();
     }
     size();
-    window.addEventListener("resize", size);
+    if ("ResizeObserver" in window) {
+      resizeObserver = new ResizeObserver(size);
+      resizeObserver.observe(host);
+      resizeObserver.observe(stageTwo);
+    } else {
+      addListener(window, "resize", size as EventListener);
+    }
 
     sc.add(pet);
-    const mx = 0,
+    let mx = 0,
       my = 0,
       sy = 0,
       vis = true;
 
     const S = { h: 0, rain: 0, fl: 1, burst: 0, lan: 0.45, z: 9, ry: 0, jn: 0 };
     const Tg = { h: 0, rain: 0, fl: 1, burst: 0, lan: 0.45, z: 9, ry: 0 };
+    const sceneKeys = ["h", "rain", "fl", "burst", "lan", "z", "ry"] as const;
 
     const h1s = document.getElementById("stage");
     const h2s = document.getElementById("stage2");
@@ -526,15 +456,15 @@ export default function LandingPage() {
       size();
     }
 
-    const fa = [];
-    const fm = new window.THREE.MeshBasicMaterial({ color: 0xffe3a0 });
-    const fg = new window.THREE.SphereGeometry(0.05, 8, 6);
+    const fa: any[] = [];
+    const fm = new w.THREE.MeshBasicMaterial({ color: 0xffe3a0 });
+    const fg = new w.THREE.SphereGeometry(0.05, 8, 6);
     for (let s = 0; s < 4; s++) {
-      const A = cs[s],
-        B = cs[(s + 1) % 4];
+      const A = cs[s]!;
+      const B = cs[(s + 1) % 4]!;
       for (let k = 0; k < 8; k++) {
         const u = k / 8;
-        const f = new window.THREE.Mesh(fg, fm);
+        const f = new w.THREE.Mesh(fg, fm);
         f.position.set(
           (A[0] + (B[0] - A[0]) * u) * 1.2,
           1.08,
@@ -546,26 +476,26 @@ export default function LandingPage() {
     }
 
     const dy: any[] = [];
-    const dgb = new window.THREE.SphereGeometry(0.13, 14, 8);
-    const dfg = new window.THREE.ConeGeometry(0.045, 0.17, 8);
-    const dfm = new window.THREE.MeshStandardMaterial({
+    const dgb = new w.THREE.SphereGeometry(0.13, 14, 8);
+    const dfg = new w.THREE.ConeGeometry(0.045, 0.17, 8);
+    const dfm = new w.THREE.MeshStandardMaterial({
       color: 0xffc04a,
       emissive: 0xff8a00,
       emissiveIntensity: 1.5,
     });
     for (let i = 0; i < 6; i++) {
       const an = i / 6 * 6.283;
-      const db = new window.THREE.Mesh(dgb, gold);
+      const db = new w.THREE.Mesh(dgb, gold);
       db.scale.y = 0.45;
       db.position.set(Math.cos(an) * 1.15, -1.64, Math.sin(an) * 1.15);
-      const df = new window.THREE.Mesh(dfg, dfm);
+      const df = new w.THREE.Mesh(dfg, dfm);
       df.position.set(db.position.x, -1.5, db.position.z);
       M.add(db, df);
       dy.push(df);
     }
 
-    const H = new window.THREE.Group();
-    const hm = new window.THREE.MeshStandardMaterial({
+    const H = new w.THREE.Group();
+    const hm = new w.THREE.MeshStandardMaterial({
       color: 0xb9561f,
       emissive: 0x6a2a08,
       roughness: 0.6,
@@ -574,8 +504,8 @@ export default function LandingPage() {
     g.add(H);
 
     [2.7, 2.2, 1.7].forEach((r) => {
-      const m = new window.THREE.Mesh(
-        new window.THREE.TorusGeometry(r, 0.025, 6, 64),
+      const m = new w.THREE.Mesh(
+        new w.THREE.TorusGeometry(r, 0.025, 6, 64),
         hm,
       );
       m.rotation.x = Math.PI / 2;
@@ -583,7 +513,7 @@ export default function LandingPage() {
     });
 
     for (let i = 0; i < 24; i++) {
-      const dd = new window.THREE.Mesh(fg, hm);
+      const dd = new w.THREE.Mesh(fg, hm);
       dd.position.set(
         Math.cos((i / 24) * 6.283) * 2.45,
         0,
@@ -593,14 +523,14 @@ export default function LandingPage() {
     }
 
     const LN: any[] = [];
-    const lg = new window.THREE.CylinderGeometry(0.14, 0.1, 0.3, 10);
-    const lm = new window.THREE.MeshStandardMaterial({
+    const lg = new w.THREE.CylinderGeometry(0.14, 0.1, 0.3, 10);
+    const lm = new w.THREE.MeshStandardMaterial({
       color: 0xffb347,
       emissive: 0xff8a1c,
       emissiveIntensity: 1.2,
     });
     for (let i = 0; i < 16; i++) {
-      const lp = new window.THREE.Mesh(lg, lm);
+      const lp = new w.THREE.Mesh(lg, lm);
       lp.userData = {
         x: (Math.random() - 0.5) * 11,
         z: -2 - Math.random() * 3,
@@ -612,15 +542,15 @@ export default function LandingPage() {
     }
 
     const BN = 140;
-    const bu = new window.THREE.InstancedMesh(
-      new window.THREE.SphereGeometry(0.06, 6, 6),
-      new window.THREE.MeshBasicMaterial({ color: 0xf2c96b }),
+    const bu = new w.THREE.InstancedMesh(
+      new w.THREE.SphereGeometry(0.06, 6, 6),
+      new w.THREE.MeshBasicMaterial({ color: 0xf2c96b }),
       BN,
     );
-    const bd: window.THREE.Vector3[] = [];
+    const bd: any[] = [];
     for (let i = 0; i < BN; i++) {
       bd.push(
-        new window.THREE.Vector3(
+        new w.THREE.Vector3(
           Math.random() - 0.5,
           Math.random() - 0.5,
           Math.random() - 0.5,
@@ -629,7 +559,7 @@ export default function LandingPage() {
     }
     sc.add(bu);
 
-    const pv = new window.THREE.Vector3();
+    const pv = new w.THREE.Vector3();
     const chips = [
       ["Guests", "542 confirmed"],
       ["Budget", "₹38.4L planned"],
@@ -644,7 +574,7 @@ export default function LandingPage() {
     });
 
     function step() {
-      for (const k in Tg) S[k] += (Tg[k] - S[k]) * 0.06;
+      for (const k of sceneKeys) S[k] += (Tg[k] - S[k]) * 0.06;
       const kk = host.clientWidth < 500 ? 1.22 : 1;
       cam.position.z += ((S.jn ? S.z : 9) * kk - cam.position.z) * 0.05;
     }
@@ -657,8 +587,8 @@ export default function LandingPage() {
         f.scale.set(1, 1 + Math.sin(t * 10 + j * 2) * 0.2, 1);
       });
       fl.scale.x = S.fl;
-      fl.scale.y *= S.fl;
-      fire.intensity *= S.fl;
+      fl.scale.y = (1 + Math.sin(performance.now() / 1000 * 9) * 0.15) * S.fl;
+      fire.intensity = (1.5 + Math.sin(performance.now() / 1000 * 11) * 0.3) * S.fl;
       H.scale.setScalar(Math.max(0.001, S.h));
       H.rotation.y = t * 0.15;
       LN.forEach((l) => {
@@ -688,8 +618,8 @@ export default function LandingPage() {
       const on = host === document.getElementById("stage");
       const w = document.getElementById("stage")?.clientWidth || 0;
       const hh = document.getElementById("stage")?.clientHeight || 0;
-      const chips = document.querySelectorAll(".chip");
-      chips.forEach((e: HTMLElement, j) => {
+      const chips = document.querySelectorAll<HTMLElement>(".chip");
+      chips.forEach((e, j) => {
         if (!on) {
           e.style.opacity = "0";
           return;
@@ -714,14 +644,14 @@ export default function LandingPage() {
       });
     }
 
-    window.addEventListener("pointermove", (e: MouseEvent) => {
-      mx = e.clientX / innerWidth - 0.5;
-      my = e.clientY / innerHeight - 0.5;
-    });
+    addListener(window, "pointermove", ((e: MouseEvent) => {
+      mx = e.clientX / Math.max(window.innerWidth, 1) - 0.5;
+      my = e.clientY / Math.max(window.innerHeight, 1) - 0.5;
+    }) as EventListener);
 
-    window.addEventListener("scroll", () => {
-      sy = Math.min(scrollY / innerHeight, 1.5);
-    }, { passive: true });
+    addListener(window, "scroll", (() => {
+      sy = Math.min(window.scrollY / Math.max(window.innerHeight, 1), 1.5);
+    }) as EventListener, { passive: true });
 
     const vs: Record<string, boolean> = {};
     if ("IntersectionObserver" in window) {
@@ -731,14 +661,14 @@ export default function LandingPage() {
         });
         vis = !!(vs.stage || vs.stage2);
       });
-      io.observe(document.getElementById("stage")!);
-      io.observe(document.getElementById("stage2")!);
+      const stageOne = document.getElementById("stage");
+      if (stageOne) io.observe(stageOne);
+      io.observe(stageTwo);
+      observer = io;
     }
 
-    const clk = { getElapsedTime: () => performance.now() / 1000 };
-
     function loop() {
-      requestAnimationFrame(loop);
+      rafId = window.requestAnimationFrame(loop);
       if (!vis) return;
       const t = performance.now() / 1000;
       step();
@@ -753,8 +683,8 @@ export default function LandingPage() {
       r2.rotation.y = -0.3 + t * 0.35;
       gem.rotation.y = t;
       lot.rotation.y = -t * 0.3;
-      fl.scale.y = 1 + Math.sin(t * 9) * 0.15;
-      fire.intensity = 1.5 + Math.sin(t * 11) * 0.3;
+      fl.scale.y = (1 + Math.sin(t * 9) * 0.15) * S.fl;
+      fire.intensity = (1.5 + Math.sin(t * 11) * 0.3) * S.fl;
 
       for (let i = 0; i < N; i++) {
         const q = d[i];
@@ -777,89 +707,15 @@ export default function LandingPage() {
       rd.render(sc, cam);
     }
 
-    function loop() {
-      requestAnimationFrame(loop);
-      if (!vis) return;
-      const t = performance.now() / 1000;
+    if (rm) {
       step();
-      g.rotation.y +=
-        ((S.jn ? S.ry + mx * 0.4 : mx * 0.8 + t * 0.25 + sy * 2.2) -
-          g.rotation.y) *
-        0.06;
-      g.rotation.x += ((0.2 + my * 0.3) - g.rotation.x) * 0.06;
-      g.position.y = Math.sin(t * 0.9) * 0.15 - (S.jn ? 0 : sy) * 0.8;
-
-      r1.rotation.x = t * 0.4;
-      r2.rotation.y = -0.3 + t * 0.35;
-      gem.rotation.y = t;
-      lot.rotation.y = -t * 0.3;
-      fl.scale.y = 1 + Math.sin(t * 9) * 0.15;
-      fire.intensity = 1.5 + Math.sin(t * 11) * 0.3;
-
-      for (let i = 0; i < N; i++) {
-        const q = d[i];
-        const a = q.a + t * q.k * 0.4;
-        const y0 = q.y + Math.sin(t * q.s + i) * 0.4;
-        const yr = ((q.y + 3 - t * (0.8 + q.k * 1.5)) % 6 + 6) % 6 - 3;
-        dm.position.set(
-          Math.cos(a) * q.r,
-          y0 + (yr - y0) * S.rain,
-          Math.sin(a) * q.r * q.z
-        );
-        dm.rotation.set(t * q.s, t * q.k, 0);
-        dm.scale.set(1.5, 0.5, 1);
-        dm.updateMatrix();
-        pet.setMatrixAt(i, dm.matrix);
-      }
-
-      pet.instanceMatrix.needsUpdate = true;
-      extras(performance.now() / 1000);
+      extras(0);
       rd.render(sc, cam);
+    } else {
+      loop();
     }
 
-    function loop() {
-      requestAnimationFrame(loop);
-      if (!vis) return;
-      const t = performance.now() / 1000;
-      step();
-      g.rotation.y +=
-        ((S.jn ? S.ry + mx * 0.4 : mx * 0.8 + t * 0.25 + sy * 2.2) -
-          g.rotation.y) *
-        0.06;
-      g.rotation.x += ((0.2 + my * 0.3) - g.rotation.x) * 0.06;
-      g.position.y = Math.sin(t * 0.9) * 0.15 - (S.jn ? 0 : sy) * 0.8;
-
-      r1.rotation.x = t * 0.4;
-      r2.rotation.y = -0.3 + t * 0.35;
-      gem.rotation.y = t;
-      lot.rotation.y = -t * 0.3;
-      fl.scale.y = 1 + Math.sin(t * 9) * 0.15;
-      fire.intensity = 1.5 + Math.sin(t * 11) * 0.3;
-
-      for (let i = 0; i < N; i++) {
-        const q = d[i];
-        const a = q.a + t * q.k * 0.4;
-        const y0 = q.y + Math.sin(t * q.s + i) * 0.4;
-        const yr = ((q.y + 3 - t * (0.8 + q.k * 1.5)) % 6 + 6) % 6 - 3;
-        dm.position.set(
-          Math.cos(a) * q.r,
-          y0 + (yr - y0) * S.rain,
-          Math.sin(a) * q.r * q.z
-        );
-        dm.rotation.set(t * q.s, t * q.k, 0);
-        dm.scale.set(1.5, 0.5, 1);
-        dm.updateMatrix();
-        pet.setMatrixAt(i, dm.matrix);
-      }
-
-      pet.instanceMatrix.needsUpdate = true;
-      extras(performance.now() / 1000);
-      rd.render(sc, cam);
-    }
-
-    loop();
-
-    if (window.ScrollTrigger && window.gsap && document.documentElement.classList.contains("js")) {
+    if (!rm && w.ScrollTrigger && w.gsap && document.documentElement.classList.contains("js")) {
       const jn = document.getElementById("journey");
       const pn = document.getElementById("jc");
       const ds = Array.from(document.querySelectorAll("#jd i"));
@@ -897,46 +753,50 @@ export default function LandingPage() {
           "Lanterns rise. The planning is already done.",
           "Thank-you messages, vendor settlements and photo albums reach every household.",
         ],
-      ];
+      ] as const;
 
       function show(n: number) {
-        if (n === cur) return;
+        const tx = TX[n];
+        if (n === cur || !tx) return;
         cur = n;
         Object.assign(Tg, ST[n]);
         document.querySelectorAll("#jd i").forEach((d, j) =>
           d.classList.toggle("on", j === n)
         );
-        gsap.to(document.getElementById("jc")!, {
+        w.gsap.to(document.getElementById("jc")!, {
           opacity: 0,
           y: -10,
           duration: 0.18,
           onComplete: () => {
-            document.getElementById("jk")!.textContent = TX[n][0];
-            document.getElementById("jh")!.textContent = TX[n][1];
-            document.getElementById("jp")!.textContent = TX[n][2];
-            gsap.fromTo(document.getElementById("jc")!, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
+            const key = document.getElementById("jk");
+            const heading = document.getElementById("jh");
+            const paragraph = document.getElementById("jp");
+            if (key) key.textContent = tx[0];
+            if (heading) heading.textContent = tx[1];
+            if (paragraph) paragraph.textContent = tx[2];
+            w.gsap.fromTo(document.getElementById("jc")!, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
           },
         });
       }
 
-      window.ScrollTrigger.create({
+      w.ScrollTrigger.create({
         trigger: document.getElementById("journey"),
         start: "top 85%",
         end: "bottom 15%",
-        onToggle: s => {
+        onToggle: (s: { isActive: boolean }) => {
           mount(s.isActive ? document.getElementById("stage2")! : document.getElementById("stage")!);
         },
       });
 
-      ScrollTrigger.create({
+      w.ScrollTrigger.create({
         trigger: document.getElementById("journey"),
         start: "top top",
         end: "bottom bottom",
-        onToggle: s => {
+        onToggle: (s: { isActive: boolean }) => {
           const isActive = s.isActive;
-          (window as any).S.jn = isActive ? 1 : 0;
+          S.jn = isActive ? 1 : 0;
           if (!isActive) {
-            Object.assign((window as any).Tg, {
+            Object.assign(Tg, {
               h: 0,
               rain: 0,
               fl: 1,
@@ -948,15 +808,103 @@ export default function LandingPage() {
             cur = -1;
           }
         },
-        onUpdate: s => {
+        onUpdate: (s: { progress: number }) => {
           show(Math.min(4, Math.floor(s.progress * 5)));
         },
       });
     }
+
+    if (rm) showStaticValues();
+
+    return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      observer?.disconnect();
+      resizeObserver?.disconnect();
+      disposers.forEach((dispose) => dispose());
+      w.ScrollTrigger?.getAll?.().forEach((trigger: any) => {
+        if (!initialTriggers.has(trigger)) trigger.kill();
+      });
+      document.querySelectorAll(".chip").forEach((chip) => chip.remove());
+      renderer?.dispose?.();
+      renderer?.domElement?.remove?.();
+      document.documentElement.classList.remove("js");
+    };
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] antialiased">
+    <div className="landing-page">
+      <style jsx global>{`
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300..600,0,1&display=swap');
+:root{color-scheme:light;--bg:#fff8f4;--bg2:#faf2ed;--card:#fff;--ink:#1e1b18;--mute:#534245;--line:#e8e1dc;--pri:#5d172c;--pri2:#7a2e42;--gold:#795829;--gold2:#c9993f;--grn:#003a22;--onp:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}html{scroll-padding-top:5rem}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.65 Inter,system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3,.serif{font-family:'Playfair Display',Georgia,serif;font-weight:600;color:var(--pri);line-height:1.15}
+.ms{font-family:'Material Symbols Outlined';font-weight:400;font-size:20px;line-height:1;vertical-align:middle;font-style:normal}
+a{color:inherit;text-decoration:none}.w{max-width:1280px;margin:auto;padding:0 1.25rem}
+@media(min-width:768px){.w{padding:0 3rem}}
+header{position:fixed;inset:0 0 auto;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header .w{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;gap:.6rem;align-items:center}.logo b{display:block;font:600 20px 'Playfair Display',serif;color:var(--pri)}.logo small{font-size:10px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase}
+nav{display:none;gap:2rem;font-size:13px;font-weight:500;color:var(--mute)}nav a:hover{color:var(--pri)}@media(min-width:1024px){nav{display:flex}}
+.btn{display:inline-flex;gap:.5rem;align-items:center;padding:.75rem 1.5rem;border-radius:4px;background:var(--pri2);color:#fff;font-weight:500;font-size:13px;border:0;cursor:pointer;transition:background .2s}.btn:hover{background:var(--pri);color:var(--bg)}
+.btn.g{background:var(--bg2);color:var(--ink);border:1px solid var(--line)}.btn.g:hover{background:var(--line);color:var(--ink)}
+.hero{position:relative;padding:130px 0 70px;overflow:hidden;min-height:100svh}
+.hero .w{display:grid;gap:2rem;align-items:center;position:relative}
+@media(min-width:1024px){.hero .w{grid-template-columns:1.1fr .9fr}}
+#stage{height:420px;width:100%;position:relative}#stage canvas{width:100%!important;height:100%!important;display:block}
+.hero h1{font-size:clamp(36px,6vw,64px);letter-spacing:-.02em}.hero h1 em{color:var(--gold)}.hero h1 .wd{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em}.hero h1 .wd>span{display:inline-block}
+.pill{display:inline-flex;gap:.4rem;align-items:center;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--gold);background:var(--bg2);padding:.4rem .9rem;border-radius:99px;margin-bottom:1.2rem}
+.lead{max-width:34rem;color:var(--mute);font-size:17px;margin:1.2rem 0 1.8rem}.row{display:flex;gap:.8rem;flex-wrap:wrap}
+.mandala{position:absolute;right:-180px;top:-120px;width:620px;opacity:.16;pointer-events:none;color:var(--gold2)}
+.strip{overflow:hidden;border-block:1px solid var(--line);background:var(--bg2);padding:.9rem 0;white-space:nowrap}
+.strip div{display:inline-flex;gap:2.5rem;animation:mq 32s linear infinite;font:italic 500 20px 'Playfair Display',serif;color:var(--gold)}.strip span:nth-child(even){color:var(--pri2)}
+@keyframes mq{to{transform:translateX(-50%)}}
+.dash{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 60px -24px rgba(93,23,44,.35);margin-top:-1rem;position:relative}
+.dash .top{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1rem 1.4rem;background:var(--bg2);border-radius:12px 12px 0 0;align-items:center}
+.av{display:inline-flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;margin-left:-8px;border:2px solid var(--bg2)}
+.mets{display:grid;gap:1rem;padding:1.2rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.met{border:1px solid var(--line);border-radius:8px;padding:1rem}.met small{font-size:11px;letter-spacing:.06em;color:var(--gold);text-transform:uppercase;font-weight:600}
+.met .n{font:500 28px 'Playfair Display',serif}.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin:.6rem 0 .3rem}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pri2),var(--gold2));border-radius:9px}
+.act{padding:0 1.2rem 1.2rem;display:grid;gap:.6rem}.act div{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--bg2);padding:.7rem 1rem;border-radius:6px;font-size:13px}.tag{font-size:11px;font-weight:600;padding:.15rem .6rem;border-radius:4px;background:color-mix(in srgb,var(--gold2) 22%,transparent);color:var(--gold)}.tag.ok{background:color-mix(in srgb,var(--grn) 14%,transparent);color:var(--grn)}
+section.s{padding:90px 0}.alt{background:var(--bg2)}.head{max-width:44rem;margin-bottom:3rem}.head h2{font-size:clamp(28px,4vw,40px);margin-bottom:.7rem}.head p{color:var(--mute);font-size:16px}
+.grid{display:grid;gap:1.3rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.6rem;transform-style:preserve-3d;transition:box-shadow .3s,border-color .3s;will-change:transform}.card:hover{box-shadow:0 18px 40px -20px rgba(93,23,44,.4);border-color:var(--gold2)}
+.card .ic{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--gold2) 20%,transparent);color:var(--gold);margin-bottom:1rem}.card h3{font-size:19px;color:var(--ink);margin-bottom:.4rem}.card p{color:var(--mute);font-size:14px}
+.cer{display:grid;gap:1.3rem;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));position:relative}
+.cer .card b{font:500 13px Inter;color:var(--gold)}.cer .card h3{margin:.3rem 0 1rem}.line{height:2px;background:var(--line);position:relative;margin-bottom:2rem}.line i{position:absolute;inset:0;background:linear-gradient(90deg,var(--pri2),var(--gold2));transform-origin:left;transform:scaleX(0)}
+.sp{display:flex;gap:1.1rem}.sp .k{flex:none;width:42px;height:42px;border-radius:50%;background:var(--pri2);color:#fff;display:flex;align-items:center;justify-content:center;font:500 18px 'Playfair Display',serif}
+.quote{margin:2rem auto 0;max-width:46rem;border-left:4px solid var(--gold);padding:1.2rem 1.5rem;background:var(--card);font:italic 500 21px/1.5 'Playfair Display',serif;color:var(--pri)}
+.faq{max-width:46rem;margin:auto;display:grid;gap:.9rem}.faq details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.4rem}.faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:1rem}.faq summary::-webkit-details-marker{display:none}.faq details[open] summary .ms{transform:rotate(180deg)}.faq summary .ms{color:var(--gold);transition:transform .25s}.faq p{margin-top:.8rem;color:var(--mute);font-size:14px}
+.cta{position:relative;overflow:hidden;background:var(--pri2);color:#fff;border-radius:20px;padding:4rem 1.5rem;text-align:center}.cta h2{color:#fff;font-size:clamp(30px,5vw,52px);margin-bottom:1rem}.cta p{max-width:34rem;margin:0 auto 1.8rem;color:#ffd9df}.cta .btn{background:var(--bg);color:#5d172c}.cta .btn.g{background:transparent;color:#fff;border:1px solid #ffffff55}
+.cta svg{position:absolute;left:50%;top:50%;width:720px;margin:-360px 0 0 -360px;opacity:.14;color:#ebbf86}.cta>*:not(svg){position:relative}
+footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1.5rem;margin-top:90px;color:var(--mute);font-size:13px}footer .w{display:flex;flex-wrap:wrap;gap:1rem 2rem;justify-content:space-between}
+.jr{display:none;background:var(--bg2);border-block:1px solid var(--line);position:relative}.js .jr{display:block;height:440vh}
+.jst{position:sticky;top:0;height:100svh;display:flex;align-items:center;padding-top:72px}
+.jg{display:grid;gap:1rem;align-items:center;width:100%}@media(min-width:1024px){.jg{grid-template-columns:.8fr 1.2fr;gap:2rem}}
+#stage2{height:min(58svh,560px);position:relative}#stage2 canvas{width:100%!important;height:100%!important;display:block}
+#jc h2{font-size:clamp(26px,3.6vw,40px);margin:.4rem 0 .8rem}#jc p{color:var(--mute);max-width:30rem}
+.dots{display:flex;gap:.5rem;margin-top:1.4rem}.dots i{width:28px;height:4px;border-radius:9px;background:var(--line);transition:background .3s,width .3s}.dots i.on{background:var(--gold2);width:48px}
+.chip{position:absolute;left:0;top:0;opacity:0;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.45rem .8rem;font-size:11px;color:var(--gold);box-shadow:0 10px 24px -12px rgba(93,23,44,.45);white-space:nowrap;will-change:transform}.chip b{display:block;font:500 15px 'Playfair Display',serif;color:var(--pri)}
+.js [data-r]{opacity:0}
+@media(prefers-reduced-motion:reduce){.strip div{animation:none}.js [data-r]{opacity:1}}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+`}</style>
+      <svg aria-hidden="true" width="0" height="0" style={{ position: "absolute" }}>
+        <defs>
+          <g id="md" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <circle r="190" />
+            <circle r="150" strokeDasharray="3 7" />
+            <circle r="100" />
+            <g id="pt">
+              <path d="M0-190C26-160 26-120 0-90 -26-120 -26-160 0-190Z" />
+            </g>
+            {Array.from({ length: 11 }, (_, index) => (
+              <use key={index} href="#pt" transform={`rotate(${(index + 1) * 30})`} />
+            ))}
+          </g>
+        </defs>
+      </svg>
       <header>
         <div className="w">
           <a className="logo" href="#top">
@@ -976,8 +924,8 @@ export default function LandingPage() {
             <a href="#faqs">FAQs</a>
           </nav>
           <div className="row" style={{ gap: "0.5rem" }}>
-            <a className="btn g" href="#">Log in</a>
-            <a className="btn mag" href="#cta">Get started</a>
+            <Link className="btn g" href="/login">Log in</Link>
+            <Link className="btn mag" href="/register">Get started</Link>
           </div>
         </div>
       </header>
@@ -1000,9 +948,9 @@ export default function LandingPage() {
                 Unite families across cities, coordinate every ceremony, track vendor payments and keep each ritual in its right place.
               </p>
               <div className="row" data-r>
-                <a className="btn mag" href="#preview">
+                <Link className="btn mag" href="/register">
                   Start planning free <span className="ms">arrow_forward</span>
-                </a>
+                </Link>
                 <a className="btn g mag" href="#features">
                   <span className="ms" style={{ color: "var(--gold)" }}>play_circle</span>
                   See features
@@ -1016,8 +964,9 @@ export default function LandingPage() {
               <div className="top">
                 <div>
                   <div className="serif" style={{ fontSize: 19, color: "var(--ink)" }}>
-                    Aanya & Kabir's Wedding Workspace
+                    Sample Wedding Workspace
                   </div>
+                  <small style={{ color: "var(--mute)" }}>Illustrative preview · sample figures</small>
                   <small style={{ color: "var(--mute)" }}>
                     <span className="ms" style={{ fontSize: 14, color: "var(--gold)" }}>
                       calendar_month
@@ -1242,7 +1191,7 @@ export default function LandingPage() {
                 </div>
                 <h3>Expenses & digital Shagun</h3>
                 <p>
-                  Follow vendor milestones and log UPI Shagun with 0% commission, with a ledger you can audit.
+                  Track vendor milestones and keep Shagun records organised alongside the wedding budget.
                 </p>
               </div>
               <div className="card tilt" data-r>
@@ -1430,7 +1379,7 @@ export default function LandingPage() {
                   How does Digital Shagun work? Are there fees?<span className="ms">expand_more</span>
                 </summary>
                 <p>
-                  Guests pay directly to your verified UPI ID. We charge 0% commission, and the amount, sender and blessing message are logged in your ledger.
+                  The workspace can keep Shagun instructions and contribution records organised for the family. Payment handling and any applicable provider charges should be confirmed before launch.
                 </p>
               </details>
               <details>
@@ -1438,7 +1387,7 @@ export default function LandingPage() {
                   How private is our guest and budget data?<span className="ms">expand_more</span>
                 </summary>
                 <p>
-                  We never sell guest lists, phone numbers or budget data to vendors or marketers. Your celebration stays within your invited circle.
+                  Workspace access is designed around membership and permissions, so organisers can limit who sees guest details, budgets and other sensitive information.
                 </p>
               </details>
             </div>
@@ -1453,15 +1402,15 @@ export default function LandingPage() {
             <h2>Make room for the moments that matter.</h2>
             <p>Bring your plans, people and celebrations into one calm place, and cherish every ritual.</p>
             <div className="row" style={{ justifyContent: "center" }}>
-              <a className="btn mag" href="#">
+              <Link className="btn mag" href="/register">
                 Start planning free
-              </a>
-              <a className="btn g mag" href="#">
-                Book a family walkthrough
+              </Link>
+              <a className="btn g mag" href="#how">
+                How it works
               </a>
             </div>
             <p style={{ fontSize: 12, margin: "1.4rem 0 0", color: "#ffd9df99" }}>
-              No credit card · Set up in 2 minutes
+              Bring both families into one shared planning workspace
             </p>
           </div>
         </section>
@@ -1475,7 +1424,7 @@ export default function LandingPage() {
             <b>MakeMyMarrige</b>
           </div>
           <span>Crafted with reverence for Indian celebrations · Kanpur & pan-India</span>
-          <span>© 2026 MakeMyMarrige Technologies Pvt. Ltd.</span>
+          <span>© 2026 MakeMyMarrige</span>
         </div>
       </footer>
     </div>

@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     formState: { errors },
     setError: setFieldError,
     clearErrors,
-  } = useForm<{ email: string }>({
+  } = useForm<ForgotFormData>({
     mode: "onBlur",
     resolver: async (values) => {
       const errors: Record<string, { message: string }> = {};
@@ -35,11 +35,14 @@ export default function ForgotPasswordPage() {
       if (!emailResult.valid) {
         errors.email = { message: emailResult.error! };
       }
-      return { errors, values };
+      if (Object.keys(errors).length > 0) {
+        return { errors, values: undefined as any };
+      }
+      return { values, errors: undefined as any };
     },
   });
 
-  const onSubmit = async (data: { email: string }) => {
+  const onSubmit = async (data: ForgotFormData) => {
     setIsSubmitting(true);
     setError(null);
     clearErrors();
@@ -58,89 +61,49 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  if (success) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md">
-          <header className="mb-10 text-center">
-            <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors">
-              <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
-            </Link>
-          </header>
-          <div className="bg-surface rounded-xl border border-border p-8 sm:p-10">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h1 className="text-2xl font-semibold text-text">Check your email</h1>
-              <p className="mt-2 text-muted">
-                We've sent a password reset link to your email address.
-                Please check your inbox (and spam folder) and click the link to reset your password.
-                The link expires in 30 minutes.
-              </p>
+  const successContent = (
+    <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <header className="mb-10 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors">
+            <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
+          </Link>
+        </header>
+        <div className="bg-surface rounded-xl border border-border p-8 sm:p-10">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
+              </svg>
             </div>
+            <h1 className="text-2xl font-semibold text-text">Check your email</h1>
+            <p className="mt-2 text-muted">
+              We've sent a password reset link to your email address.
+              Please check your inbox (and spam folder) and click the link to reset your password.
+              The link expires in 30 minutes.
+            </p>
+          </div>
 
-            <div className="space-y-4">
-              <p className="text-sm text-muted">
-                Didn't receive the email?{" "}
-                <button onClick={() => setSuccess(false)} className="font-medium text-primary hover:text-primary-hover">
-                  Resend email
-                </button>
-              </p>
-              <p className="text-sm text-muted">
-                Remember your password?{" "}
-                <Link href="/auth/login" className="font-medium text-primary hover:text-primary-hover">
-                  Sign in
-                </Link>
-              </p>
-            </div>
+          <div className="space-y-4">
+            <p className="text-sm text-muted">
+              Didn't receive the email?{" "}
+              <button onClick={() => setSuccess(false)} className="font-medium text-primary hover:text-primary-hover">
+                Resend email
+              </button>
+            </p>
+            <p className="text-sm text-muted">
+              Remember your password?{" "}
+              <Link href="/auth/login" className="font-medium text-primary hover:text-primary-hover">
+                Sign in
+              </Link>
+            </p>
           </div>
         </div>
       </div>
     </main>
   );
-  }
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError: setFieldError,
-    clearErrors,
-  } = useForm<{ email: string }>({
-    mode: "onBlur",
-    resolver: async (values) => {
-      const errors: Record<string, { message: string }> = {};
-      const emailResult = validateEmail(values.email);
-      if (!emailResult.valid) {
-        errors.email = { message: emailResult.error! };
-      }
-      return { errors, values };
-    },
-  });
-
-  const onSubmit = async (data: { email: string }) => {
-    setIsSubmitting(true);
-    setError(null);
-    clearErrors();
-
-    try {
-      await forgotPassword(data.email);
-      setSuccess(true);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to send reset email. Please try again.";
-      setError(message);
-      if (message.toLowerCase().includes("email")) {
-        setFieldError("email", { message });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
+  const formContent = (
     <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <header className="mb-10 text-center">
@@ -171,7 +134,7 @@ export default function ForgotPasswordPage() {
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
-                error={errors.email?.message}
+                error={errors.email?.message ?? undefined}
                 required
                 {...register("email")}
               />
@@ -196,4 +159,6 @@ export default function ForgotPasswordPage() {
       </div>
     </main>
   );
+
+  return success ? successContent : formContent;
 }

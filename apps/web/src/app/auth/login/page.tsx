@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -15,14 +15,15 @@ interface LoginFormData {
   password: string;
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectToRaw = searchParams.get("redirect") || "/";
+  const redirectTo = (redirectToRaw.startsWith("/") && !redirectToRaw.startsWith("//")) ? redirectToRaw : "/";
 
   const {
     register,
@@ -30,7 +31,7 @@ export default function LoginPage() {
     formState: { errors },
     setError: setFieldError,
     clearErrors,
-  } = useForm<{ email: string; password: string }>({
+  } = useForm<LoginFormData>({
     mode: "onBlur",
     resolver: async (values) => {
       const errors: Record<string, { message: string }> = {};
@@ -42,7 +43,10 @@ export default function LoginPage() {
       if (!passwordResult.valid) {
         errors.password = { message: passwordResult.error! };
       }
-      return { errors, values };
+      if (Object.keys(errors).length > 0) {
+        return { errors, values: undefined as any };
+      }
+      return { values, errors: undefined as any };
     },
   });
 
@@ -84,7 +88,7 @@ export default function LoginPage() {
           type="email"
           autoComplete="email"
           placeholder="you@example.com"
-          error={errors.email?.message}
+          error={errors.email?.message ?? undefined}
           required
           {...register("email")}
         />
@@ -94,7 +98,7 @@ export default function LoginPage() {
           type="password"
           autoComplete="current-password"
           placeholder="Enter your password"
-          error={errors.password?.message}
+          error={errors.password?.message ?? undefined}
           required
           {...register("password")}
         />
@@ -140,5 +144,13 @@ export default function LoginPage() {
         {" (coming soon)"}
       </p>
     </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="space-y-6">Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

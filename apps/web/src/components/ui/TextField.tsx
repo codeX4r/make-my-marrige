@@ -5,7 +5,7 @@ import { InputHTMLAttributes, forwardRef } from "react";
 export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   hint?: string;
-  error?: string;
+  error?: string | undefined;
   required?: boolean;
   fullWidth?: boolean;
 }
@@ -44,7 +44,6 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             ${error ? "border-danger focus:ring-danger focus:border-danger" : ""}
             ${props.disabled ? "opacity-50 cursor-not-allowed" : ""}
           `}
-          ref={ref}
           {...props}
         />
         {hint && !error && (

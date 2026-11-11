@@ -23,6 +23,8 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   refreshUser: () => Promise<void>;
+  listSessions: () => Promise<Array<{ sessionId: string; issuedAt: string; lastUsedAt: string; expiresAt: string }>>;
+  revokeSession: (sessionId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -104,6 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const listSessions = async () => {
+    const data = await apiRequest<{ data: { sessions: Array<{ sessionId: string; issuedAt: string; lastUsedAt: string; expiresAt: string }> } }>("/auth/sessions");
+    return data.data.sessions;
+  };
+
+  const revokeSession = async (sessionId: string) => {
+    await apiRequest(`/auth/sessions/${sessionId}/revoke`, { method: "POST" });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -119,6 +130,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         forgotPassword,
         resetPassword,
         refreshUser,
+        listSessions,
+        revokeSession,
       }}
     >
       {children}
