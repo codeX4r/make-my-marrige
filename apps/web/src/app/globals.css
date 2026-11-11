@@ -1,10 +1,142 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: light;
+@theme {
+  --color-background: #FAF8F4;
+  --color-surface: #FFFFFF;
+  --color-primary: #7A2E42;
+  --color-primary-hover: #662638;
+  --color-primary-active: #551F2D;
+  --color-accent: #BD9560;
+  --color-accent-hover: #A88050;
+  --color-text: #282522;
+  --color-muted: #77716B;
+  --color-border: #EAE4DA;
+  --color-success: #287A52;
+  --color-warning: #A96816;
+  --color-danger: #B33A36;
+  --color-info: #356B9A;
+
+  --font-ui: "Inter", system-ui, sans-serif;
+  --font-editorial: "Playfair Display", Georgia, serif;
+  --font-devanagari: "Noto Sans Devanagari", sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+
+  --breakpoint-mobile: 360px;
+  --breakpoint-mobile-large: 390px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1280px;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-editorial);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+  }
+
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1.125rem; }
+  h6 { font-size: 1rem; }
+
+  p {
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .container-main {
+    @apply mx-auto max-w-5xl px-6 sm:px-10;
+  }
+
+  .container-narrow {
+    @apply mx-auto max-w-3xl px-6 sm:px-10;
+  }
+
+  .page-section {
+    @apply py-16 sm:py-24;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
