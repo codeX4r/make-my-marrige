@@ -42,10 +42,8 @@ function ResetPasswordPageContent() {
       if (values.password !== values.confirmPassword) {
         errors.confirmPassword = { message: "Passwords do not match" };
       }
-      if (Object.keys(errors).length > 0) {
-        return { errors, values: undefined as any };
-      }
-      return { values, errors: undefined as any };
+      if (Object.keys(errors).length > 0) return { errors, values: {} as ResetFormData };
+      return { values, errors: {} };
     },
   });
 

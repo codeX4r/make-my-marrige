@@ -44,10 +44,8 @@ export default function RegisterPage() {
       if (!displayNameResult.valid) {
         errors.displayName = { message: displayNameResult.error! };
       }
-      if (Object.keys(errors).length > 0) {
-        return { errors, values: undefined as any };
-      }
-      return { values, errors: undefined as any };
+      if (Object.keys(errors).length > 0) return { errors, values: {} as RegisterFormData };
+      return { values, errors: {} };
     },
   });
 

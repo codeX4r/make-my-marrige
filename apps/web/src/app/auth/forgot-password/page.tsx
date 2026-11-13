@@ -35,10 +35,8 @@ export default function ForgotPasswordPage() {
       if (!emailResult.valid) {
         errors.email = { message: emailResult.error! };
       }
-      if (Object.keys(errors).length > 0) {
-        return { errors, values: undefined as any };
-      }
-      return { values, errors: undefined as any };
+      if (Object.keys(errors).length > 0) return { errors, values: {} as ForgotFormData };
+      return { values, errors: {} };
     },
   });
 

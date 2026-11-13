@@ -43,10 +43,8 @@ function LoginPageContent() {
       if (!passwordResult.valid) {
         errors.password = { message: passwordResult.error! };
       }
-      if (Object.keys(errors).length > 0) {
-        return { errors, values: undefined as any };
-      }
-      return { values, errors: undefined as any };
+      if (Object.keys(errors).length > 0) return { errors, values: {} as LoginFormData };
+      return { values, errors: {} };
     },
   });
 

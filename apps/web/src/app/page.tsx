@@ -378,8 +378,8 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
             <a href="#faqs">FAQs</a>
           </nav>
           <div className="row" style={{ gap: "0.5rem" }}>
-            <Link className="btn g" href="/auth/login">Log in</Link>
-            <Link className="btn mag" href="/auth/register">Get started</Link>
+            <Link className="btn g" href="/auth?tab=login">Log in</Link>
+            <Link className="btn mag" href="/auth/?tab=register">Get started</Link>
           </div>
         </div>
       </header>
@@ -401,7 +401,7 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
                 Unite families across cities, coordinate every ceremony, track vendor payments and keep each ritual in its right place.
               </p>
               <div className="row" data-r>
-                <Link className="btn mag" href="/auth/register">Start planning free <span className="ms">arrow_forward</span></Link>
+                <Link className="btn mag" href="/auth/?tab=register">Start planning free <span className="ms">arrow_forward</span></Link>
                 <a className="btn g mag" href="#features">
                   <span className="ms" style={{ color: "var(--gold)" }}>play_circle</span>See features
                 </a>
@@ -553,7 +553,7 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
             <h2>Make room for the moments that matter.</h2>
             <p>Bring your plans, people and celebrations into one calm place, and cherish every ritual.</p>
             <div className="row" style={{ justifyContent: "center" }}>
-              <Link className="btn mag" href="/auth/register">Start planning free</Link>
+              <Link className="btn mag" href="/auth?tab=register">Start planning free</Link>
               <a className="btn g mag" href="#how">How it works</a>
             </div>
             <p style={{ fontSize: 12, margin: "1.4rem 0 0", color: "#ffd9df99" }}>

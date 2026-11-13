@@ -14,21 +14,22 @@ type RouteContext = { params: Promise<{ path: string[] }> };
 type RoutePolicy = {
   upstreamPath: string;
   methods: readonly string[];
-  authentication?: "refresh" | "logout" | "resend" | "verify" | "login";
+  authentication?: "refresh" | "logout" | "login" | "access";
 };
 
 // Foundation-only routes. Add product operations only after their contracts are approved.
 const routePolicies: Record<string, RoutePolicy> = {
   "health/live": { upstreamPath: "/health/live", methods: ["GET"] },
   "health/ready": { upstreamPath: "/health/ready", methods: ["GET"] },
+  "auth/me": { upstreamPath: "/v1/auth/me", methods: ["GET"], authentication: "access" },
   "auth/refresh": { upstreamPath: "/v1/auth/refresh", methods: ["POST"], authentication: "refresh" },
   "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
   "auth/register": { upstreamPath: "/v1/auth/register", methods: ["POST"] },
   "auth/login": { upstreamPath: "/v1/auth/login", methods: ["POST"], authentication: "login" },
-  "password/forgot": { upstreamPath: "/v1/auth/password/forgot", methods: ["POST"] },
-  "password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
-  "email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"], authentication: "resend" },
-  "email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"], authentication: "verify" },
+  "auth/password/forgot": { upstreamPath: "/v1/auth/password/forgot", methods: ["POST"] },
+  "auth/password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
+  "auth/email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"] },
+  "auth/email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"] },
 };
 
 function jsonError(status: number, code: string): Response {
@@ -59,21 +60,33 @@ function apiOrigin(): URL {
   return origin;
 }
 
-async function bodyExceedsLimit(request: Request): Promise<boolean> {
+async function readBoundedBody(
+  request: Request,
+): Promise<{ exceeded: boolean; body?: Uint8Array }> {
   const declaredSize = Number(request.headers.get("content-length") ?? 0);
-  if (declaredSize > MAX_REQUEST_BYTES) return true;
-  if (!request.body) return false;
+  if (declaredSize > MAX_REQUEST_BYTES) return { exceeded: true };
+  if (!request.body) return { exceeded: false };
   const reader = request.body.getReader();
   let size = 0;
+  const chunks: Uint8Array[] = [];
   try {
     while (true) {
       const { done, value } = await reader.read();
-      if (done) return false;
+      if (done) {
+        const body = new Uint8Array(size);
+        let offset = 0;
+        for (const chunk of chunks) {
+          body.set(chunk, offset);
+          offset += chunk.byteLength;
+        }
+        return { exceeded: false, body };
+      }
       size += value.byteLength;
       if (size > MAX_REQUEST_BYTES) {
         await reader.cancel();
-        return true;
+        return { exceeded: true };
       }
+      chunks.push(value);
     }
   } finally {
     reader.releaseLock();
@@ -84,8 +97,11 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
   const { path } = await context.params;
   const policy = routePolicies[path.join("/")];
   if (!policy) return jsonError(404, "NOT_FOUND");
+  let requestBody: Uint8Array | undefined;
   try {
-    if (await bodyExceedsLimit(request)) return jsonError(413, "REQUEST_TOO_LARGE");
+    const result = await readBoundedBody(request);
+    if (result.exceeded) return jsonError(413, "REQUEST_TOO_LARGE");
+    requestBody = result.body;
   } catch {
     return jsonError(499, "CLIENT_DISCONNECTED");
   }
@@ -107,7 +123,7 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
   upstreamUrl.search = request.nextUrl.search;
 
   const headers = new Headers();
-  for (const name of ["accept", "x-request-id"]) {
+  for (const name of ["accept", "content-type", "x-request-id"]) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
@@ -145,6 +161,7 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     upstream = await fetch(upstreamUrl, {
       method: request.method,
       headers,
+      body: request.method === "GET" || request.method === "HEAD" ? undefined : requestBody,
       cache: "no-store",
       redirect: "manual",
       signal,

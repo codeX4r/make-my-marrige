@@ -57,9 +57,9 @@ export default function ProfilePage() {
       }
 
       if (Object.keys(errors).length > 0) {
-        return { errors, values: undefined as any };
+        return { errors, values: {} as ProfileFormData };
       }
-      return { values, errors: undefined as any };
+      return { values, errors: {} };
     },
     defaultValues: {
       displayName: user?.displayName || "",
