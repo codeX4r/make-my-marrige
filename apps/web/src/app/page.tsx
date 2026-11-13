@@ -7,7 +7,18 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import * as THREE from "three";
 
-type Petal = { x: number; y: number; v: number; z: number; a: number; f: number; ph: number; rx: number; ry: number; sp: number };
+type Petal = {
+  x: number;
+  y: number;
+  v: number;
+  z: number;
+  a: number;
+  f: number;
+  ph: number;
+  rx: number;
+  ry: number;
+  sp: number;
+};
 
 function FallingPetals() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -35,19 +46,32 @@ function FallingPetals() {
 
     const N = window.innerWidth < 768 ? 22 : 42;
     const geo = new THREE.SphereGeometry(1, 12, 8);
-    const mat = new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0.05, emissive: 0x2a1200 });
+    const mat = new THREE.MeshStandardMaterial({
+      roughness: 0.6,
+      metalness: 0.05,
+      emissive: 0x2a1200,
+    });
     const mesh = new THREE.InstancedMesh(geo, mat, N);
     mesh.frustumCulled = false;
     scene.add(mesh);
 
-    const palette = [0xf08a1c, 0xf5b53a, 0xe0702a, 0xf08a1c, 0xe0457b].map((c) => new THREE.Color(c));
+    const palette = [0xf08a1c, 0xf5b53a, 0xe0702a, 0xf08a1c, 0xe0457b].map(
+      (c) => new THREE.Color(c),
+    );
     const petals: Petal[] = [];
     for (let i = 0; i < N; i++) {
       const z = 0.5 + Math.random() * 0.9;
       petals.push({
-        x: Math.random(), y: Math.random(), v: 20 + z * 28, z,
-        a: 14 + Math.random() * 34, f: 0.4 + Math.random() * 0.7, ph: Math.random() * 6.28,
-        rx: 0.5 + Math.random() * 1.5, ry: 0.4 + Math.random() * 1.2, sp: 0.15 + z * 0.25,
+        x: Math.random(),
+        y: Math.random(),
+        v: 20 + z * 28,
+        z,
+        a: 14 + Math.random() * 34,
+        f: 0.4 + Math.random() * 0.7,
+        ph: Math.random() * 6.28,
+        rx: 0.5 + Math.random() * 1.5,
+        ry: 0.4 + Math.random() * 1.2,
+        sp: 0.15 + z * 0.25,
       });
       mesh.setColorAt(i, palette[i % palette.length]!);
     }
@@ -59,7 +83,10 @@ function FallingPetals() {
       vw = window.innerWidth;
       vh = window.innerHeight;
       renderer.setSize(vw, vh, false);
-      cam.left = 0; cam.right = vw; cam.top = 0; cam.bottom = -vh;
+      cam.left = 0;
+      cam.right = vw;
+      cam.top = 0;
+      cam.bottom = -vh;
       cam.updateProjectionMatrix();
     };
     size();
@@ -75,7 +102,7 @@ function FallingPetals() {
       const H = vh + 120;
       for (let i = 0; i < N; i++) {
         const p = petals[i]!;
-        const yy = (((p.y * H + t * p.v + sy * p.sp) % H) + H) % H - 60;
+        const yy = ((((p.y * H + t * p.v + sy * p.sp) % H) + H) % H) - 60;
         dm.position.set(p.x * vw + Math.sin(t * p.f + p.ph) * p.a, -yy, p.z * 20);
         dm.rotation.set(t * p.rx + p.ph, t * p.ry, p.ph + Math.sin(t * p.f) * 0.6);
         dm.scale.set(9 * p.z, 5 * p.z, 1.6 * p.z);
@@ -101,7 +128,14 @@ function FallingPetals() {
     <canvas
       ref={ref}
       aria-hidden="true"
-      style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 40 }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 40,
+      }}
     />
   );
 }
@@ -113,7 +147,9 @@ const Words = ({ text }: { text: string }) => (
   <>
     {text.split(" ").map((word, i) => (
       <Fragment key={i}>
-        <span className="wd"><span>{word}</span></span>{" "}
+        <span className="wd">
+          <span>{word}</span>
+        </span>{" "}
       </Fragment>
     ))}
   </>
@@ -121,30 +157,75 @@ const Words = ({ text }: { text: string }) => (
 
 const Card = ({ icon, title, children }: { icon: string; title: string; children: ReactNode }) => (
   <div className="card tilt" data-r>
-    <div className="ic"><span className="ms">{icon}</span></div>
+    <div className="ic">
+      <span className="ms">{icon}</span>
+    </div>
     <h3>{title}</h3>
     <p>{children}</p>
   </div>
 );
 
-const Metric = ({ label, pct, note, noteColor, children }: { label: string; pct: number; note: string; noteColor: string; children: ReactNode }) => (
+const Metric = ({
+  label,
+  pct,
+  note,
+  noteColor,
+  children,
+}: {
+  label: string;
+  pct: number;
+  note: string;
+  noteColor: string;
+  children: ReactNode;
+}) => (
   <div className="met">
     <small>{label}</small>
     <div className="n">{children}</div>
-    <div className="bar"><i data-w={pct} /></div>
+    <div className="bar">
+      <i data-w={pct} />
+    </div>
     <small style={{ color: noteColor, textTransform: "none" }}>{note}</small>
   </div>
 );
 
-const unit = { textTransform: "none", letterSpacing: 0, fontWeight: 400, color: "var(--mute)" } as const;
+const unit = {
+  textTransform: "none",
+  letterSpacing: 0,
+  fontWeight: 400,
+  color: "var(--mute)",
+} as const;
 
 const FEATURES = [
-  ["hub", "One shared workspace", "Bring the bride's and groom's sides into one calm place, instead of scattered chats and unverified sheets."],
-  ["assignment_ind", "Clear responsibilities", "Assign ceremonies and logistics so Chacha ji, Mausi ji and siblings know exactly what they lead. Gentle WhatsApp reminders do the rest."],
-  ["family_restroom", "Households & guest lists", "Track RSVPs by family, travel dates, hotel rooms and diets such as Satvik and Jain."],
-  ["festival", "Function-wise planning", "Plan Mehendi, Haldi, Sangeet, Phere and Reception on their own timelines with run-of-show cues."],
-  ["account_balance_wallet", "Expenses & digital Shagun", "Track vendor milestones and keep Shagun records organised alongside the wedding budget."],
-  ["diversity_1", "Coordinated family decisions", "Involve elders and relatives with permission-controlled views that suit their comfort. Run polls on mithai, themes and safas."],
+  [
+    "hub",
+    "One shared workspace",
+    "Bring the bride's and groom's sides into one calm place, instead of scattered chats and unverified sheets.",
+  ],
+  [
+    "assignment_ind",
+    "Clear responsibilities",
+    "Assign ceremonies and logistics so Chacha ji, Mausi ji and siblings know exactly what they lead. Gentle WhatsApp reminders do the rest.",
+  ],
+  [
+    "family_restroom",
+    "Households & guest lists",
+    "Track RSVPs by family, travel dates, hotel rooms and diets such as Satvik and Jain.",
+  ],
+  [
+    "festival",
+    "Function-wise planning",
+    "Plan Mehendi, Haldi, Sangeet, Phere and Reception on their own timelines with run-of-show cues.",
+  ],
+  [
+    "account_balance_wallet",
+    "Expenses & digital Shagun",
+    "Track vendor milestones and keep Shagun records organised alongside the wedding budget.",
+  ],
+  [
+    "diversity_1",
+    "Coordinated family decisions",
+    "Involve elders and relatives with permission-controlled views that suit their comfort. Run polls on mithai, themes and safas.",
+  ],
 ] as const;
 
 const CEREMONIES = [
@@ -155,27 +236,76 @@ const CEREMONIES = [
 ] as const;
 
 const STEPS = [
-  ["Create your workspace", "Set your dates, host cities and ceremony days in two minutes. No app to download."],
-  ["Invite key family", "Add your partner, parents and siblings with permissions that fit their role."],
-  ["Organise the details", "Build run-of-shows, import WhatsApp contacts into households and set budgets."],
-  ["Celebrate in calm", "Follow live cue cards, greet guests with ease and enjoy every moment until the Vidai."],
+  [
+    "Create your workspace",
+    "Set your dates, host cities and ceremony days in two minutes. No app to download.",
+  ],
+  [
+    "Invite key family",
+    "Add your partner, parents and siblings with permissions that fit their role.",
+  ],
+  [
+    "Organise the details",
+    "Build run-of-shows, import WhatsApp contacts into households and set budgets.",
+  ],
+  [
+    "Celebrate in calm",
+    "Follow live cue cards, greet guests with ease and enjoy every moment until the Vidai.",
+  ],
 ] as const;
 
 const ROLES = [
-  ["favorite", "Bride & Groom", "Workspace owners. Full control over ceremonies, budgets, contracts, invites and delegation."],
-  ["groups", "Parents & Siblings", "Family organisers. Manage guest follow-ups, rooms and checklists, with financial views protected."],
-  ["receipt_long", "Treasurer / Chacha ji", "Tracks vendor invoices, payment milestones, cash reserves and automatic Shagun receipts."],
-  ["celebration", "Honoured Atithi", "Guests get a clean web itinerary, dress code, map, RSVP and Shagun QR. No account needed."],
+  [
+    "favorite",
+    "Bride & Groom",
+    "Workspace owners. Full control over ceremonies, budgets, contracts, invites and delegation.",
+  ],
+  [
+    "groups",
+    "Parents & Siblings",
+    "Family organisers. Manage guest follow-ups, rooms and checklists, with financial views protected.",
+  ],
+  [
+    "receipt_long",
+    "Treasurer / Chacha ji",
+    "Tracks vendor invoices, payment milestones, cash reserves and automatic Shagun receipts.",
+  ],
+  [
+    "celebration",
+    "Honoured Atithi",
+    "Guests get a clean web itinerary, dress code, map, RSVP and Shagun QR. No account needed.",
+  ],
 ] as const;
 
 const FAQS = [
-  ["Can both families plan in the same workspace?", "Yes. Share joint lists such as Sangeet and Reception guests and vendor contracts, and keep private tabs for things like trousseau budgets or family gifts."],
-  ["Is it easy for elders who use WhatsApp?", "Yes. Elders need no app or password. Send them WhatsApp summaries, and guests can confirm RSVPs with one tap."],
-  ["How does Digital Shagun work? Are there fees?", "The workspace can keep Shagun instructions and contribution records organised for the family. Payment handling and any applicable provider charges should be confirmed before launch."],
-  ["How private is our guest and budget data?", "Workspace access is designed around membership and permissions, so organisers can limit who sees guest details, budgets and other sensitive information."],
+  [
+    "Can both families plan in the same workspace?",
+    "Yes. Share joint lists such as Sangeet and Reception guests and vendor contracts, and keep private tabs for things like trousseau budgets or family gifts.",
+  ],
+  [
+    "Is it easy for elders who use WhatsApp?",
+    "Yes. Elders need no app or password. Send them WhatsApp summaries, and guests can confirm RSVPs with one tap.",
+  ],
+  [
+    "How does Digital Shagun work? Are there fees?",
+    "The workspace can keep Shagun instructions and contribution records organised for the family. Payment handling and any applicable provider charges should be confirmed before launch.",
+  ],
+  [
+    "How private is our guest and budget data?",
+    "Workspace access is designed around membership and permissions, so organisers can limit who sees guest details, budgets and other sensitive information.",
+  ],
 ] as const;
 
-const STRIP = ["Mehendi", "Haldi", "Sangeet", "Phere", "Vidai", "Reception", "Shagun", "Atithi Satkar"];
+const STRIP = [
+  "Mehendi",
+  "Haldi",
+  "Sangeet",
+  "Phere",
+  "Vidai",
+  "Reception",
+  "Shagun",
+  "Atithi Satkar",
+];
 
 export default function LandingPage() {
   useEffect(() => {
@@ -184,7 +314,8 @@ export default function LandingPage() {
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const undo: Array<() => void> = [];
     const initialTriggers = new Set(ScrollTrigger.getAll());
-    const qa = <E extends HTMLElement>(sel: string) => Array.from(document.querySelectorAll<E>(sel));
+    const qa = <E extends HTMLElement>(sel: string) =>
+      Array.from(document.querySelectorAll<E>(sel));
     const listen = (el: EventTarget, type: string, fn: EventListener) => {
       el.addEventListener(type, fn);
       undo.push(() => el.removeEventListener(type, fn));
@@ -203,8 +334,13 @@ export default function LandingPage() {
     // Reduced motion: show final values, skip every animation.
     if (rm) {
       qa(".bar i").forEach((b) => (b.style.width = `${b.dataset.w ?? 0}%`));
-      qa(".ct").forEach((c) => (c.textContent = Number(c.dataset.to ?? 0).toFixed(Number(c.dataset.d ?? 0))));
-      qa("[data-r]").forEach((e) => { e.style.opacity = "1"; e.style.transform = "none"; });
+      qa(".ct").forEach(
+        (c) => (c.textContent = Number(c.dataset.to ?? 0).toFixed(Number(c.dataset.d ?? 0))),
+      );
+      qa("[data-r]").forEach((e) => {
+        e.style.opacity = "1";
+        e.style.transform = "none";
+      });
       return cleanup;
     }
 
@@ -214,7 +350,10 @@ export default function LandingPage() {
     const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
-    undo.push(() => { gsap.ticker.remove(tick); lenis.destroy(); });
+    undo.push(() => {
+      gsap.ticker.remove(tick);
+      lenis.destroy();
+    });
 
     qa<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
       listen(a, "click", ((e: MouseEvent) => {
@@ -233,14 +372,23 @@ export default function LandingPage() {
       { yPercent: 0, rotate: 0, duration: 1.1, ease: "expo.out", stagger: 0.08, delay: 0.2 },
     );
     gsap.set(".hero [data-r]", { y: 24 });
-    gsap.to(".hero [data-r]", { opacity: 1, y: 0, duration: 0.9, stagger: 0.12, delay: 0.6, ease: "power3.out" });
+    gsap.to(".hero [data-r]", {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      stagger: 0.12,
+      delay: 0.6,
+      ease: "power3.out",
+    });
 
     // Scroll reveals
     qa("[data-r]").forEach((el) => {
       if (el.closest(".hero") && el.id !== "preview") return;
       gsap.set(el, { y: 36 });
       ScrollTrigger.create({
-        trigger: el, start: "top 88%", once: true,
+        trigger: el,
+        start: "top 88%",
+        once: true,
         onEnter: () => gsap.to(el, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }),
       });
     });
@@ -248,27 +396,48 @@ export default function LandingPage() {
     // Progress bars and counters
     qa(".bar i").forEach((bar) => {
       ScrollTrigger.create({
-        trigger: bar, start: "top 92%", once: true,
-        onEnter: () => gsap.to(bar, { width: `${bar.dataset.w ?? 0}%`, duration: 1.6, ease: "power3.out" }),
+        trigger: bar,
+        start: "top 92%",
+        once: true,
+        onEnter: () =>
+          gsap.to(bar, { width: `${bar.dataset.w ?? 0}%`, duration: 1.6, ease: "power3.out" }),
       });
     });
     qa(".ct").forEach((counter) => {
       const v = { n: 0 };
       const digits = Number(counter.dataset.d ?? 0);
       ScrollTrigger.create({
-        trigger: counter, start: "top 92%", once: true,
+        trigger: counter,
+        start: "top 92%",
+        once: true,
         onEnter: () =>
           gsap.to(v, {
-            n: Number(counter.dataset.to ?? 0), duration: 1.8, ease: "power2.out",
-            onUpdate: () => { counter.textContent = v.n.toFixed(digits); },
+            n: Number(counter.dataset.to ?? 0),
+            duration: 1.8,
+            ease: "power2.out",
+            onUpdate: () => {
+              counter.textContent = v.n.toFixed(digits);
+            },
           }),
       });
     });
 
     // Scroll-linked motion
-    gsap.to("#ln", { scaleX: 1, ease: "none", scrollTrigger: { trigger: "#ceremonies", start: "top 60%", end: "bottom 80%", scrub: 0.6 } });
-    gsap.to("#m1", { rotate: 90, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
-    gsap.to("#m2", { rotate: -120, ease: "none", scrollTrigger: { trigger: "#cta", start: "top bottom", end: "bottom top", scrub: true } });
+    gsap.to("#ln", {
+      scaleX: 1,
+      ease: "none",
+      scrollTrigger: { trigger: "#ceremonies", start: "top 60%", end: "bottom 80%", scrub: 0.6 },
+    });
+    gsap.to("#m1", {
+      rotate: 90,
+      ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
+    });
+    gsap.to("#m2", {
+      rotate: -120,
+      ease: "none",
+      scrollTrigger: { trigger: "#cta", start: "top bottom", end: "bottom top", scrub: true },
+    });
 
     // Pointer-only effects: magnetic buttons and card tilt
     if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
@@ -280,7 +449,10 @@ export default function LandingPage() {
           x((e.clientX - r.left - r.width / 2) * 0.18);
           y((e.clientY - r.top - r.height / 2) * 0.18);
         }) as EventListener);
-        listen(el, "mouseleave", () => { x(0); y(0); });
+        listen(el, "mouseleave", () => {
+          x(0);
+          y(0);
+        });
       });
       qa(".tilt").forEach((el) => {
         const rx = gsap.quickTo(el, "rotationX", { duration: 0.5 });
@@ -291,7 +463,10 @@ export default function LandingPage() {
           ry(((e.clientX - r.left) / r.width - 0.5) * 6);
           rx(-((e.clientY - r.top) / r.height - 0.5) * 6);
         }) as EventListener);
-        listen(el, "mouseleave", () => { rx(0); ry(0); });
+        listen(el, "mouseleave", () => {
+          rx(0);
+          ry(0);
+        });
       });
     }
 
@@ -301,7 +476,7 @@ export default function LandingPage() {
   return (
     <div className="landing-page">
       <FallingPetals />
-      <style jsx global>{`
+      <style>{`
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300..600,0..1&display=swap');
 :root{color-scheme:light;--bg:#fff8f4;--bg2:#faf2ed;--card:#fff;--ink:#1e1b18;--mute:#534245;--line:#e8e1dc;--pri:#5d172c;--pri2:#7a2e42;--gold:#795829;--gold2:#c9993f;--grn:#003a22;--onp:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -356,7 +531,9 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
             <circle r="190" />
             <circle r="150" strokeDasharray="3 7" />
             <circle r="100" />
-            <g id="pt"><path d="M0-190C26-160 26-120 0-90 -26-120 -26-160 0-190Z" /></g>
+            <g id="pt">
+              <path d="M0-190C26-160 26-120 0-90 -26-120 -26-160 0-190Z" />
+            </g>
             {Array.from({ length: 11 }, (_, i) => (
               <use key={i} href="#pt" transform={`rotate(${(i + 1) * 30})`} />
             ))}
@@ -367,8 +544,12 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
       <header>
         <div className="w">
           <a className="logo" href="#top">
-            <span className="ms" style={{ color: "var(--gold)", fontSize: 30 }}>temple_hindu</span>
-            <span><b>MakeMyMarrige</b></span>
+            <span className="ms" style={{ color: "var(--gold)", fontSize: 30 }}>
+              temple_hindu
+            </span>
+            <span>
+              <b>MakeMyMarrige</b>
+            </span>
           </a>
           <nav>
             <a href="#features">Features</a>
@@ -378,32 +559,48 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
             <a href="#faqs">FAQs</a>
           </nav>
           <div className="row" style={{ gap: "0.5rem" }}>
-            <Link className="btn g" href="/auth?tab=login">Log in</Link>
-            <Link className="btn mag" href="/auth/?tab=register">Get started</Link>
+            <Link className="btn g" href="/auth?tab=login">
+              Log in
+            </Link>
+            <Link className="btn mag" href="/auth/?tab=register">
+              Get started
+            </Link>
           </div>
         </div>
       </header>
 
       <main id="top">
         <section className="hero">
-          <svg className="mandala" id="m1" viewBox="-200 -200 400 400" aria-hidden="true"><use href="#md" /></svg>
+          <svg className="mandala" id="m1" viewBox="-200 -200 400 400" aria-hidden="true">
+            <use href="#md" />
+          </svg>
           <div className="w">
             <div>
               <span className="pill" data-r>
-                <span className="ms" style={{ fontSize: 15 }}>auto_awesome</span>
+                <span className="ms" style={{ fontSize: 15 }}>
+                  auto_awesome
+                </span>
                 Collaborative wedding workspace for Indian families
               </span>
               <h1 id="h1">
                 <Words text="Your wedding. Your people." />
-                <em><Words text="One beautiful plan." /></em>
+                <em>
+                  <Words text="One beautiful plan." />
+                </em>
               </h1>
               <p className="lead" data-r>
-                Unite families across cities, coordinate every ceremony, track vendor payments and keep each ritual in its right place.
+                Unite families across cities, coordinate every ceremony, track vendor payments and
+                keep each ritual in its right place.
               </p>
               <div className="row" data-r>
-                <Link className="btn mag" href="/auth/?tab=register">Start planning free <span className="ms">arrow_forward</span></Link>
+                <Link className="btn mag" href="/auth/?tab=register">
+                  Start planning free <span className="ms">arrow_forward</span>
+                </Link>
                 <a className="btn g mag" href="#features">
-                  <span className="ms" style={{ color: "var(--gold)" }}>play_circle</span>See features
+                  <span className="ms" style={{ color: "var(--gold)" }}>
+                    play_circle
+                  </span>
+                  See features
                 </a>
               </div>
             </div>
@@ -413,45 +610,108 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
             <div className="dash" id="preview" data-r>
               <div className="top">
                 <div>
-                  <div className="serif" style={{ fontSize: 19, color: "var(--ink)" }}>Sample Wedding Workspace</div>
-                  <small style={{ color: "var(--mute)", display: "block" }}>Illustrative preview · sample figures</small>
+                  <div className="serif" style={{ fontSize: 19, color: "var(--ink)" }}>
+                    Sample Wedding Workspace
+                  </div>
+                  <small style={{ color: "var(--mute)", display: "block" }}>
+                    Illustrative preview · sample figures
+                  </small>
                   <small style={{ color: "var(--mute)" }}>
-                    <span className="ms" style={{ fontSize: 14, color: "var(--gold)" }}>calendar_month</span>{" "}
+                    <span className="ms" style={{ fontSize: 14, color: "var(--gold)" }}>
+                      calendar_month
+                    </span>{" "}
                     18–21 Nov 2026 · The Landmark Hotel, Kanpur
                   </small>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", paddingLeft: 8 }}>
-                  <span className="av" style={{ background: "#5d172c" }}>A</span>
-                  <span className="av" style={{ background: "#795829" }}>K</span>
-                  <span className="av" style={{ background: "#7a2e42" }}>RV</span>
-                  <span className="av" style={{ background: "#005332" }}>M</span>
+                  <span className="av" style={{ background: "#5d172c" }}>
+                    A
+                  </span>
+                  <span className="av" style={{ background: "#795829" }}>
+                    K
+                  </span>
+                  <span className="av" style={{ background: "#7a2e42" }}>
+                    RV
+                  </span>
+                  <span className="av" style={{ background: "#005332" }}>
+                    M
+                  </span>
                 </div>
               </div>
 
               <div className="mets">
-                <Metric label="Guests & Parivar" pct={79} note="79% attending · 38 households" noteColor="var(--grn)">
-                  <span className="ct" data-to="542">0</span> <small style={unit}>of 680 confirmed</small>
+                <Metric
+                  label="Guests & Parivar"
+                  pct={79}
+                  note="79% attending · 38 households"
+                  noteColor="var(--grn)"
+                >
+                  <span className="ct" data-to="542">
+                    0
+                  </span>{" "}
+                  <small style={unit}>of 680 confirmed</small>
                 </Metric>
-                <Metric label="Budget & Shagun" pct={68} note="₹26.1L committed · 3 invoices pending" noteColor="var(--gold)">
-                  ₹<span className="ct" data-to="38.4" data-d="1">0</span> <small style={unit}>allocated</small>
+                <Metric
+                  label="Budget & Shagun"
+                  pct={68}
+                  note="₹26.1L committed · 3 invoices pending"
+                  noteColor="var(--gold)"
+                >
+                  ₹
+                  <span className="ct" data-to="38.4" data-d="1">
+                    0
+                  </span>{" "}
+                  <small style={unit}>allocated</small>
                 </Metric>
-                <Metric label="Ritual checklists" pct={78} note="6 urgent tasks" noteColor="var(--pri)">
-                  <span className="ct" data-to="64">0</span> / 82 <small style={unit}>done</small>
+                <Metric
+                  label="Ritual checklists"
+                  pct={78}
+                  note="6 urgent tasks"
+                  noteColor="var(--pri)"
+                >
+                  <span className="ct" data-to="64">
+                    0
+                  </span>{" "}
+                  / 82 <small style={unit}>done</small>
                 </Metric>
               </div>
 
               <div className="act">
                 <div>
-                  <span><span className="ms" style={{ color: "var(--grn)" }}>check_circle</span> Awadhi &amp; Mughlai menu finalised</span>
-                  <span><span className="tag ok">Approved</span> Rajesh V. (Father)</span>
+                  <span>
+                    <span className="ms" style={{ color: "var(--grn)" }}>
+                      check_circle
+                    </span>{" "}
+                    Awadhi &amp; Mughlai menu finalised
+                  </span>
+                  <span>
+                    <span className="tag ok">Approved</span> Rajesh V. (Father)
+                  </span>
                 </div>
                 <div>
-                  <span><span className="ms" style={{ color: "var(--gold)" }}>pending</span> Brass diyas &amp; floral toran procurement</span>
-                  <span><span className="tag">In progress</span> Meera (Sister)</span>
+                  <span>
+                    <span className="ms" style={{ color: "var(--gold)" }}>
+                      pending
+                    </span>{" "}
+                    Brass diyas &amp; floral toran procurement
+                  </span>
+                  <span>
+                    <span className="tag">In progress</span> Meera (Sister)
+                  </span>
                 </div>
                 <div>
-                  <span><span className="ms" style={{ color: "var(--pri)" }}>priority_high</span> Guest pickups · Lucknow Airport &amp; Kanpur Central</span>
-                  <span><span className="tag" style={{ color: "var(--pri)" }}>Needs attention</span> Kabir (Groom)</span>
+                  <span>
+                    <span className="ms" style={{ color: "var(--pri)" }}>
+                      priority_high
+                    </span>{" "}
+                    Guest pickups · Lucknow Airport &amp; Kanpur Central
+                  </span>
+                  <span>
+                    <span className="tag" style={{ color: "var(--pri)" }}>
+                      Needs attention
+                    </span>{" "}
+                    Kabir (Groom)
+                  </span>
                 </div>
               </div>
             </div>
@@ -460,7 +720,9 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
 
         <div className="strip" aria-hidden="true">
           <div>
-            {[...STRIP, ...STRIP].map((word, i) => (<span key={i}>{word}</span>))}
+            {[...STRIP, ...STRIP].map((word, i) => (
+              <span key={i}>{word}</span>
+            ))}
           </div>
         </div>
 
@@ -468,10 +730,17 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
           <div className="w">
             <div className="head" data-r>
               <h2>Everything your family needs to plan together.</h2>
-              <p>An Indian wedding is a multi-day symphony of traditions. MakeMyMarrige brings ceremonial depth together with modern order.</p>
+              <p>
+                An Indian wedding is a multi-day symphony of traditions. MakeMyMarrige brings
+                ceremonial depth together with modern order.
+              </p>
             </div>
             <div className="grid">
-              {FEATURES.map(([icon, title, text]) => (<Card key={title} icon={icon} title={title}>{text}</Card>))}
+              {FEATURES.map(([icon, title, text]) => (
+                <Card key={title} icon={icon} title={title}>
+                  {text}
+                </Card>
+              ))}
             </div>
           </div>
         </section>
@@ -480,16 +749,25 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
           <div className="w">
             <div className="head" data-r>
               <h2>Every ritual given the respect and precision it deserves.</h2>
-              <p>Break each ceremony day into timed cues so pundit ji, performers and family anchors never miss a beat.</p>
+              <p>
+                Break each ceremony day into timed cues so pundit ji, performers and family anchors
+                never miss a beat.
+              </p>
             </div>
-            <div className="line"><i id="ln" /></div>
+            <div className="line">
+              <i id="ln" />
+            </div>
             <div className="cer">
               {CEREMONIES.map(([date, title, pct, text]) => (
                 <div className="card tilt" data-r key={title}>
                   <b>{date}</b>
                   <h3>{title}</h3>
-                  <div className="bar"><i data-w={pct} /></div>
-                  <p>{pct}% ready · {text}</p>
+                  <div className="bar">
+                    <i data-w={pct} />
+                  </div>
+                  <p>
+                    {pct}% ready · {text}
+                  </p>
                 </div>
               ))}
             </div>
@@ -520,13 +798,21 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
           <div className="w">
             <div className="head" data-r>
               <h2>Collaborative by design. Private by permission.</h2>
-              <p>Not everyone needs to see private vendor contracts. Tailored access keeps harmony across generations.</p>
+              <p>
+                Not everyone needs to see private vendor contracts. Tailored access keeps harmony
+                across generations.
+              </p>
             </div>
             <div className="grid">
-              {ROLES.map(([icon, title, text]) => (<Card key={title} icon={icon} title={title}>{text}</Card>))}
+              {ROLES.map(([icon, title, text]) => (
+                <Card key={title} icon={icon} title={title}>
+                  {text}
+                </Card>
+              ))}
             </div>
             <p className="quote" data-r>
-              “We honour the depth, warmth and multi-day celebrations of Indian families without the clutter and chaos.”
+              “We honour the depth, warmth and multi-day celebrations of Indian families without the
+              clutter and chaos.”
             </p>
           </div>
         </section>
@@ -539,7 +825,10 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
             <div className="faq" data-r>
               {FAQS.map(([q, a]) => (
                 <details key={q}>
-                  <summary>{q}<span className="ms">expand_more</span></summary>
+                  <summary>
+                    {q}
+                    <span className="ms">expand_more</span>
+                  </summary>
                   <p>{a}</p>
                 </details>
               ))}
@@ -549,12 +838,21 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
 
         <section className="w" id="cta">
           <div className="cta" data-r>
-            <svg id="m2" viewBox="-200 -200 400 400" aria-hidden="true"><use href="#md" /></svg>
+            <svg id="m2" viewBox="-200 -200 400 400" aria-hidden="true">
+              <use href="#md" />
+            </svg>
             <h2>Make room for the moments that matter.</h2>
-            <p>Bring your plans, people and celebrations into one calm place, and cherish every ritual.</p>
+            <p>
+              Bring your plans, people and celebrations into one calm place, and cherish every
+              ritual.
+            </p>
             <div className="row" style={{ justifyContent: "center" }}>
-              <Link className="btn mag" href="/auth?tab=register">Start planning free</Link>
-              <a className="btn g mag" href="#how">How it works</a>
+              <Link className="btn mag" href="/auth?tab=register">
+                Start planning free
+              </Link>
+              <a className="btn g mag" href="#how">
+                How it works
+              </a>
             </div>
             <p style={{ fontSize: 12, margin: "1.4rem 0 0", color: "#ffd9df99" }}>
               Bring both families into one shared planning workspace
@@ -566,7 +864,9 @@ footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.5rem 0 1
       <footer>
         <div className="w">
           <div className="logo">
-            <span className="ms" style={{ color: "var(--gold)" }}>temple_hindu</span>
+            <span className="ms" style={{ color: "var(--gold)" }}>
+              temple_hindu
+            </span>
             <b>MakeMyMarrige</b>
           </div>
           <span>Crafted with reverence for Indian celebrations · Kanpur &amp; pan-India</span>

@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
@@ -34,15 +34,15 @@ function ResetPasswordPageContent() {
   } = useForm<ResetFormData>({
     mode: "onBlur",
     resolver: async (values) => {
-      const errors: Record<string, { message: string }> = {};
+      const errors: FieldErrors<ResetFormData> = {};
       const passwordResult = validatePassword(values.password);
       if (!passwordResult.valid) {
-        errors.password = { message: passwordResult.error! };
+        errors.password = { type: "validate", message: passwordResult.error! };
       }
       if (values.password !== values.confirmPassword) {
-        errors.confirmPassword = { message: "Passwords do not match" };
+        errors.confirmPassword = { type: "validate", message: "Passwords do not match" };
       }
-      if (Object.keys(errors).length > 0) return { errors, values: {} as ResetFormData };
+      if (Object.keys(errors).length > 0) return { errors, values: {} };
       return { values, errors: {} };
     },
   });
@@ -63,7 +63,8 @@ function ResetPasswordPageContent() {
       await resetPassword(token, data.password);
       router.push("/auth/login?reset=success");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to reset password. Please try again.";
+      const message =
+        err instanceof Error ? err.message : "Failed to reset password. Please try again.";
       setError(message);
       if (message.toLowerCase().includes("token")) {
         setFieldError("password", { message: "Invalid or expired reset token" });
@@ -79,25 +80,42 @@ function ResetPasswordPageContent() {
     <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <header className="mb-10 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors"
+          >
             <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
           </Link>
         </header>
         <div className="bg-surface rounded-xl border border-border p-8 sm:p-10">
           <div className="text-center mb-8">
             <div className="w-16 h-16 mx-auto mb-4 bg-danger/10 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.34 0L3.34 16.5c-.77 1.333.192 3 1.732 3z" />
+              <svg
+                className="w-8 h-8 text-danger"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.34 0L3.34 16.5c-.77 1.333.192 3 1.732 3z"
+                />
               </svg>
             </div>
             <h1 className="text-2xl font-semibold text-text">Invalid link</h1>
             <p className="mt-2 text-muted">
-              This password reset link is invalid or has expired.
-              Please request a new password reset link.
+              This password reset link is invalid or has expired. Please request a new password
+              reset link.
             </p>
           </div>
           <div className="text-center">
-            <Link href="/auth/forgot-password" className="font-medium text-primary hover:text-primary-hover">
+            <Link
+              href="/auth/forgot-password"
+              className="font-medium text-primary hover:text-primary-hover"
+            >
               Request a new reset link
             </Link>
           </div>
@@ -114,7 +132,10 @@ function ResetPasswordPageContent() {
     <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <header className="mb-10 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors"
+          >
             <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
           </Link>
         </header>
@@ -128,11 +149,7 @@ function ResetPasswordPageContent() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             {error && (
-              <InlineBanner
-                type="error"
-                message={error}
-                onDismiss={() => setError(null)}
-              />
+              <InlineBanner type="error" message={error} onDismiss={() => setError(null)} />
             )}
 
             <div className="space-y-5">
@@ -158,17 +175,15 @@ function ResetPasswordPageContent() {
               />
             </div>
 
-            <Button
-              type="submit"
-              fullWidth
-              size="lg"
-              loading={isSubmitting || authLoading}
-            >
+            <Button type="submit" fullWidth size="lg" loading={isSubmitting || authLoading}>
               Reset password
             </Button>
 
             <p className="text-center text-sm text-muted">
-              <Link href="/auth/login" className="font-medium text-primary hover:text-primary-hover">
+              <Link
+                href="/auth/login"
+                className="font-medium text-primary hover:text-primary-hover"
+              >
                 Back to sign in
               </Link>
             </p>

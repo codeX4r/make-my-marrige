@@ -17,10 +17,17 @@ import { CurrentPrincipal, type AuthenticatedRequest } from "./current-principal
 import { MemberSessionService } from "./member-session.service.js";
 import { RegistrationService } from "./registration.service.js";
 import { EmailVerificationService } from "./email-verification.service.js";
-import { LoginService, type LoginResult } from "./login.service.js";
+import { LoginService } from "./login.service.js";
 import { PasswordResetService } from "./password-reset.service.js";
 import type { AuthenticatedPrincipal } from "./auth.types.js";
-import { RegisterDto, LoginDto, VerifyEmailDto, ResendEmailDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.dto.js";
+import {
+  RegisterDto,
+  LoginDto,
+  VerifyEmailDto,
+  ResendEmailDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from "./auth.dto.js";
 
 const BFF_ACCESS_TOKEN_HEADER = "x-mmm-access-token";
 const BFF_REFRESH_TOKEN_HEADER = "x-mmm-refresh-token";
@@ -62,13 +69,26 @@ export class AuthController {
   @HttpCode(201)
   async register(
     @Body() dto: RegisterDto,
-  ): Promise<{ data: { user: { userId: string; email: string; displayName: string; emailVerificationStatus: string } } }> {
+  ): Promise<{
+    data: {
+      user: { userId: string; email: string; displayName: string; emailVerificationStatus: string };
+    };
+  }> {
     const result = await this.registration.register({
       email: dto.email,
       password: dto.password,
       displayName: dto.displayName,
     });
-    return { data: { user: { userId: result.userId, email: result.emailNormalized, displayName: result.displayName, emailVerificationStatus: result.emailVerificationStatus } } };
+    return {
+      data: {
+        user: {
+          userId: result.userId,
+          email: result.emailNormalized,
+          displayName: result.displayName,
+          emailVerificationStatus: result.emailVerificationStatus,
+        },
+      },
+    };
   }
 
   @Post("login")
@@ -76,7 +96,11 @@ export class AuthController {
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<{ data: { user: LoginResult["user"] } }> {
+  ): Promise<{
+    data: {
+      user: { userId: string; email: string; displayName: string; emailVerificationStatus: string };
+    };
+  }> {
     const result = await this.loginService.login({
       email: dto.email,
       password: dto.password,
@@ -84,7 +108,16 @@ export class AuthController {
     response.setHeader(BFF_ACCESS_TOKEN_HEADER, result.tokens.accessToken);
     response.setHeader(BFF_REFRESH_TOKEN_HEADER, result.tokens.refreshToken);
     response.setHeader(BFF_CSRF_TOKEN_HEADER, result.csrfToken);
-    return { data: { user: result.user } };
+    return {
+      data: {
+        user: {
+          userId: result.user.id,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          emailVerificationStatus: result.user.emailVerificationStatus,
+        },
+      },
+    };
   }
 
   @Post("email/verify")
@@ -122,9 +155,22 @@ export class AuthController {
   @UseGuards(AccessTokenAuthGuard)
   async me(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-  ): Promise<{ data: { user: { userId: string; email: string; displayName: string; emailVerificationStatus: string } } }> {
+  ): Promise<{
+    data: {
+      user: { userId: string; email: string; displayName: string; emailVerificationStatus: string };
+    };
+  }> {
     const user = await this.sessions.getUserById(principal.userId);
-    return { data: { user: { userId: principal.userId, email: user.emailNormalized, displayName: user.displayName, emailVerificationStatus: user.emailVerificationStatus } } };
+    return {
+      data: {
+        user: {
+          userId: principal.userId,
+          email: user.emailNormalized,
+          displayName: user.displayName,
+          emailVerificationStatus: user.emailVerificationStatus,
+        },
+      },
+    };
   }
 
   @Get("sessions")
@@ -132,7 +178,11 @@ export class AuthController {
   @UseGuards(AccessTokenAuthGuard)
   async listSessions(
     @CurrentPrincipal() principal: AuthenticatedPrincipal,
-  ): Promise<{ data: { sessions: Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }> } }> {
+  ): Promise<{
+    data: {
+      sessions: Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }>;
+    };
+  }> {
     const sessions = await this.sessions.listUserSessions(principal.userId);
     return { data: { sessions } };
   }

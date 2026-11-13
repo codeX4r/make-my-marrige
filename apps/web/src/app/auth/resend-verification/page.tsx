@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
@@ -30,12 +30,12 @@ export default function ResendVerificationPage() {
   } = useForm<ResendFormData>({
     mode: "onBlur",
     resolver: async (values) => {
-      const errors: Record<string, { message: string }> = {};
+      const errors: FieldErrors<ResendFormData> = {};
       const emailResult = validateEmail(values.email);
       if (!emailResult.valid) {
-        errors.email = { message: emailResult.error! };
+        errors.email = { type: "validate", message: emailResult.error! };
       }
-      if (Object.keys(errors).length > 0) return { errors, values: {} as ResendFormData };
+      if (Object.keys(errors).length > 0) return { errors, values: {} };
       return { values, errors: {} };
     },
   });
@@ -49,7 +49,8 @@ export default function ResendVerificationPage() {
       await resendVerification(data.email);
       setSuccess(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to resend verification. Please try again.";
+      const message =
+        err instanceof Error ? err.message : "Failed to resend verification. Please try again.";
       setError(message);
       if (message.toLowerCase().includes("email")) {
         setFieldError("email", { message });
@@ -63,34 +64,54 @@ export default function ResendVerificationPage() {
     <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <header className="mb-10 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors"
+          >
             <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
           </Link>
         </header>
         <div className="bg-surface rounded-xl border border-border p-8 sm:p-10">
           <div className="text-center mb-8">
             <div className="w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-8 h-8 text-success"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
             <h1 className="text-2xl font-semibold text-text">Email sent!</h1>
             <p className="mt-2 text-muted">
-              We've sent a new verification link to your email address.
-              Please check your inbox (and spam folder) and click the link to verify your account.
+              We've sent a new verification link to your email address. Please check your inbox (and
+              spam folder) and click the link to verify your account.
             </p>
           </div>
 
           <div className="space-y-4">
             <p className="text-sm text-muted">
               Didn't receive the email?{" "}
-              <button onClick={() => setSuccess(false)} className="font-medium text-primary hover:text-primary-hover">
+              <button
+                onClick={() => setSuccess(false)}
+                className="font-medium text-primary hover:text-primary-hover"
+              >
                 Try again
               </button>
             </p>
             <p className="text-sm text-muted">
               Already verified?{" "}
-              <Link href="/auth/login" className="font-medium text-primary hover:text-primary-hover">
+              <Link
+                href="/auth/login"
+                className="font-medium text-primary hover:text-primary-hover"
+              >
                 Sign in
               </Link>
             </p>
@@ -104,7 +125,10 @@ export default function ResendVerificationPage() {
     <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <header className="mb-10 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors"
+          >
             <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
           </Link>
         </header>
@@ -118,11 +142,7 @@ export default function ResendVerificationPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             {error && (
-              <InlineBanner
-                type="error"
-                message={error}
-                onDismiss={() => setError(null)}
-              />
+              <InlineBanner type="error" message={error} onDismiss={() => setError(null)} />
             )}
 
             <div className="space-y-5">
@@ -137,17 +157,15 @@ export default function ResendVerificationPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              fullWidth
-              size="lg"
-              loading={isSubmitting}
-            >
+            <Button type="submit" fullWidth size="lg" loading={isSubmitting}>
               Send verification email
             </Button>
 
             <p className="text-center text-sm text-muted">
-              <Link href="/auth/login" className="font-medium text-primary hover:text-primary-hover">
+              <Link
+                href="/auth/login"
+                className="font-medium text-primary hover:text-primary-hover"
+              >
                 Back to sign in
               </Link>
             </p>

@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
@@ -23,7 +23,8 @@ function LoginPageContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const redirectToRaw = searchParams.get("redirect") || "/";
-  const redirectTo = (redirectToRaw.startsWith("/") && !redirectToRaw.startsWith("//")) ? redirectToRaw : "/";
+  const redirectTo =
+    redirectToRaw.startsWith("/") && !redirectToRaw.startsWith("//") ? redirectToRaw : "/";
 
   const {
     register,
@@ -34,16 +35,16 @@ function LoginPageContent() {
   } = useForm<LoginFormData>({
     mode: "onBlur",
     resolver: async (values) => {
-      const errors: Record<string, { message: string }> = {};
+      const errors: FieldErrors<LoginFormData> = {};
       const emailResult = validateEmail(values.email);
       if (!emailResult.valid) {
-        errors.email = { message: emailResult.error! };
+        errors.email = { type: "validate", message: emailResult.error! };
       }
       const passwordResult = validatePassword(values.password);
       if (!passwordResult.valid) {
-        errors.password = { message: passwordResult.error! };
+        errors.password = { type: "validate", message: passwordResult.error! };
       }
-      if (Object.keys(errors).length > 0) return { errors, values: {} as LoginFormData };
+      if (Object.keys(errors).length > 0) return { errors, values: {} };
       return { values, errors: {} };
     },
   });
@@ -72,13 +73,7 @@ function LoginPageContent() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
-      {error && (
-        <InlineBanner
-          type="error"
-          message={error}
-          onDismiss={() => setError(null)}
-        />
-      )}
+      {error && <InlineBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
       <div className="space-y-5">
         <TextField
@@ -118,12 +113,7 @@ function LoginPageContent() {
         </Link>
       </div>
 
-      <Button
-        type="submit"
-        fullWidth
-        size="lg"
-        loading={isSubmitting || authLoading}
-      >
+      <Button type="submit" fullWidth size="lg" loading={isSubmitting || authLoading}>
         Sign in
       </Button>
 
@@ -136,9 +126,7 @@ function LoginPageContent() {
 
       <p className="text-center text-sm text-muted">
         Or continue with{" "}
-        <button className="font-medium text-primary hover:text-primary-hover">
-          Google
-        </button>
+        <button className="font-medium text-primary hover:text-primary-hover">Google</button>
         {" (coming soon)"}
       </p>
     </form>

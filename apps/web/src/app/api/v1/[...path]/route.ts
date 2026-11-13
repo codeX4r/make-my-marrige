@@ -22,7 +22,11 @@ const routePolicies: Record<string, RoutePolicy> = {
   "health/live": { upstreamPath: "/health/live", methods: ["GET"] },
   "health/ready": { upstreamPath: "/health/ready", methods: ["GET"] },
   "auth/me": { upstreamPath: "/v1/auth/me", methods: ["GET"], authentication: "access" },
-  "auth/refresh": { upstreamPath: "/v1/auth/refresh", methods: ["POST"], authentication: "refresh" },
+  "auth/refresh": {
+    upstreamPath: "/v1/auth/refresh",
+    methods: ["POST"],
+    authentication: "refresh",
+  },
   "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
   "auth/register": { upstreamPath: "/v1/auth/register", methods: ["POST"] },
   "auth/login": { upstreamPath: "/v1/auth/login", methods: ["POST"], authentication: "login" },
@@ -30,7 +34,33 @@ const routePolicies: Record<string, RoutePolicy> = {
   "auth/password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
   "auth/email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"] },
   "auth/email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"] },
+  "auth/sessions": {
+    upstreamPath: "/v1/auth/sessions",
+    methods: ["GET"],
+    authentication: "access",
+  },
 };
+
+/** Resolve dynamic path segments that cannot be expressed as static keys. */
+function resolveDynamicPolicy(
+  segments: string[],
+): (RoutePolicy & { upstreamPath: string }) | undefined {
+  // auth/sessions/:sessionId/revoke  →  POST /v1/auth/sessions/:sessionId/revoke
+  if (
+    segments.length === 4 &&
+    segments[0] === "auth" &&
+    segments[1] === "sessions" &&
+    segments[3] === "revoke"
+  ) {
+    const sessionId = segments[2];
+    return {
+      upstreamPath: `/v1/auth/sessions/${sessionId}/revoke`,
+      methods: ["POST"],
+      authentication: "access",
+    };
+  }
+  return undefined;
+}
 
 function jsonError(status: number, code: string): Response {
   return Response.json({ error: { code } }, { status, headers: { "cache-control": "no-store" } });
@@ -95,7 +125,7 @@ async function readBoundedBody(
 
 async function forward(request: NextRequest, context: RouteContext): Promise<Response> {
   const { path } = await context.params;
-  const policy = routePolicies[path.join("/")];
+  const policy = routePolicies[path.join("/")] ?? resolveDynamicPolicy(path);
   if (!policy) return jsonError(404, "NOT_FOUND");
   let requestBody: Uint8Array | undefined;
   try {
@@ -161,7 +191,10 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     upstream = await fetch(upstreamUrl, {
       method: request.method,
       headers,
-      body: request.method === "GET" || request.method === "HEAD" ? undefined : requestBody,
+      body:
+        request.method === "GET" || request.method === "HEAD" || !requestBody
+          ? null
+          : (requestBody as unknown as BodyInit),
       cache: "no-store",
       redirect: "manual",
       signal,

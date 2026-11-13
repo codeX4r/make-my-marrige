@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
@@ -31,25 +31,25 @@ export default function RegisterPage() {
   } = useForm<RegisterFormData>({
     mode: "onBlur",
     resolver: async (values) => {
-      const errors: Record<string, { message: string }> = {};
+      const errors: FieldErrors<RegisterFormData> = {};
       const emailResult = validateEmail(values.email);
       if (!emailResult.valid) {
-        errors.email = { message: emailResult.error! };
+        errors.email = { type: "validate", message: emailResult.error! };
       }
       const passwordResult = validatePassword(values.password);
       if (!passwordResult.valid) {
-        errors.password = { message: passwordResult.error! };
+        errors.password = { type: "validate", message: passwordResult.error! };
       }
       const displayNameResult = validateDisplayName(values.displayName);
       if (!displayNameResult.valid) {
-        errors.displayName = { message: displayNameResult.error! };
+        errors.displayName = { type: "validate", message: displayNameResult.error! };
       }
-      if (Object.keys(errors).length > 0) return { errors, values: {} as RegisterFormData };
+      if (Object.keys(errors).length > 0) return { errors, values: {} };
       return { values, errors: {} };
     },
   });
 
-  const onSubmit = async (data: { email: string; password: string; displayName: string }) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true);
     setError(null);
     clearErrors();
@@ -74,13 +74,7 @@ export default function RegisterPage() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
-      {error && (
-        <InlineBanner
-          type="error"
-          message={error}
-          onDismiss={() => setError(null)}
-        />
-      )}
+      {error && <InlineBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
       <div className="space-y-5">
         <TextField
@@ -125,12 +119,7 @@ export default function RegisterPage() {
         .
       </p>
 
-      <Button
-        type="submit"
-        fullWidth
-        size="lg"
-        loading={isSubmitting}
-      >
+      <Button type="submit" fullWidth size="lg" loading={isSubmitting}>
         Create account
       </Button>
 

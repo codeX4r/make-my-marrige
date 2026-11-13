@@ -16,7 +16,21 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   });
 
   if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}.`);
+    let message = `API request failed with status ${response.status}.`;
+    try {
+      const data = (await response.json()) as {
+        error?: { message?: string; code?: string };
+        message?: string | string[];
+      };
+      if (data?.error?.message) {
+        message = data.error.message;
+      } else if (data?.message) {
+        message = Array.isArray(data.message) ? data.message.join(", ") : data.message;
+      }
+    } catch {
+      // response wasn't JSON
+    }
+    throw new Error(message);
   }
 
   return (await response.json()) as T;

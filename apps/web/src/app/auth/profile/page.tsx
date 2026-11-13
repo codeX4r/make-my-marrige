@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
@@ -36,28 +36,28 @@ export default function ProfilePage() {
   } = useForm<ProfileFormData>({
     mode: "onBlur",
     resolver: async (values) => {
-      const errors: Record<string, { message: string }> = {};
+      const errors: FieldErrors<ProfileFormData> = {};
 
       if (activeTab === "profile") {
         const displayNameResult = validateDisplayName(values.displayName);
         if (!displayNameResult.valid) {
-          errors.displayName = { message: displayNameResult.error! };
+          errors.displayName = { type: "validate", message: displayNameResult.error! };
         }
       } else {
         const passwordResult = validatePassword(values.newPassword);
         if (!passwordResult.valid) {
-          errors.newPassword = { message: passwordResult.error! };
+          errors.newPassword = { type: "validate", message: passwordResult.error! };
         }
         if (values.newPassword !== values.confirmPassword) {
-          errors.confirmPassword = { message: "Passwords do not match" };
+          errors.confirmPassword = { type: "validate", message: "Passwords do not match" };
         }
         if (!values.currentPassword) {
-          errors.currentPassword = { message: "Current password is required" };
+          errors.currentPassword = { type: "validate", message: "Current password is required" };
         }
       }
 
       if (Object.keys(errors).length > 0) {
-        return { errors, values: {} as ProfileFormData };
+        return { errors, values: {} };
       }
       return { values, errors: {} };
     },
@@ -82,15 +82,18 @@ export default function ProfilePage() {
       // In a real implementation, you'd call the appropriate API endpoints
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setSuccess(
-        activeTab === "profile"
-          ? "Profile updated successfully"
-          : "Password changed successfully",
+        activeTab === "profile" ? "Profile updated successfully" : "Password changed successfully",
       );
 
       if (activeTab === "profile") {
         await refreshUser();
       } else {
-        reset({ displayName: user?.displayName || "", currentPassword: "", newPassword: "", confirmPassword: "" });
+        reset({
+          displayName: user?.displayName || "",
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to update. Please try again.";
@@ -106,9 +109,19 @@ export default function ProfilePage() {
     setSuccess(null);
     clearErrors();
     if (tab === "profile") {
-      reset({ displayName: user?.displayName || "", currentPassword: "", newPassword: "", confirmPassword: "" });
+      reset({
+        displayName: user?.displayName || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     } else {
-      reset({ displayName: user?.displayName || "", currentPassword: "", newPassword: "", confirmPassword: "" });
+      reset({
+        displayName: user?.displayName || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     }
   };
 
@@ -116,7 +129,10 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <header className="mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors mb-6"
+          >
             <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
           </Link>
           <h1 className="text-3xl font-semibold text-text">Profile & security</h1>
@@ -151,18 +167,10 @@ export default function ProfilePage() {
             {activeTab === "profile" && (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 {error && (
-                  <InlineBanner
-                    type="error"
-                    message={error}
-                    onDismiss={() => setError(null)}
-                  />
+                  <InlineBanner type="error" message={error} onDismiss={() => setError(null)} />
                 )}
                 {success && (
-                  <InlineBanner
-                    type="info"
-                    message={success}
-                    onDismiss={() => setSuccess(null)}
-                  />
+                  <InlineBanner type="info" message={success} onDismiss={() => setSuccess(null)} />
                 )}
 
                 <div className="space-y-5">
@@ -186,18 +194,10 @@ export default function ProfilePage() {
             {activeTab === "security" && (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 {error && (
-                  <InlineBanner
-                    type="error"
-                    message={error}
-                    onDismiss={() => setError(null)}
-                  />
+                  <InlineBanner type="error" message={error} onDismiss={() => setError(null)} />
                 )}
                 {success && (
-                  <InlineBanner
-                    type="info"
-                    message={success}
-                    onDismiss={() => setSuccess(null)}
-                  />
+                  <InlineBanner type="info" message={success} onDismiss={() => setSuccess(null)} />
                 )}
 
                 <div>
@@ -257,7 +257,10 @@ export default function ProfilePage() {
                 <Button variant="outline" onClick={() => router.push("/auth/sessions")}>
                   Manage sessions
                 </Button>
-                <Button variant="danger" onClick={() => confirm("Are you sure you want to delete your account?")}>
+                <Button
+                  variant="danger"
+                  onClick={() => confirm("Are you sure you want to delete your account?")}
+                >
                   Delete account
                 </Button>
               </div>
