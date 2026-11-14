@@ -66,8 +66,7 @@ export default function SessionsPage() {
       router.replace("/auth?tab=login&logged_out=true");
       router.refresh();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to sign out of all sessions";
+      const message = err instanceof Error ? err.message : "Failed to sign out of all sessions";
       setError(message);
       setRevokingAll(false);
     }
@@ -87,41 +86,60 @@ export default function SessionsPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background flex flex-col">
         <AuthenticatedHeader />
-        <main className="flex-1 px-4 py-12 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl">
-            <header className="mb-8">
-              <h1 className="text-3xl font-semibold text-text">Active sessions</h1>
+        <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[1100px]">
+            <header className="mb-8 pt-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+                Account security
+              </p>
+              <h1 className="font-serif text-3xl font-semibold tracking-tight text-text sm:text-4xl">
+                Active sessions
+              </h1>
               <p className="mt-2 text-muted">Manage your active sessions across all devices</p>
             </header>
 
-            {error && (
-              <InlineBanner
-                type="error"
-                message={error}
-              />
-            )}
+            {error && <InlineBanner type="error" message={error} />}
 
-            <div className="bg-surface rounded-xl border border-border overflow-hidden">
+            <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_8px_24px_rgba(40,37,34,0.04)]">
               {loading ? (
-                <div className="p-8 text-center">
-                  <div className="w-8 h-8 mx-auto border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="p-10 text-center" role="status" aria-live="polite">
+                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                   <p className="mt-4 text-muted">Loading sessions...</p>
                 </div>
               ) : sessions.length === 0 ? (
-                <div className="p-12 text-center">
-                  <p className="text-muted">No active sessions found</p>
+                <div className="px-6 py-14 text-center">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.8}
+                        d="M12 18h.01M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="font-serif text-xl font-semibold text-text">No active sessions</h2>
+                  <p className="mt-2 text-sm text-muted">
+                    No active sessions are currently listed for your account.
+                  </p>
                 </div>
               ) : (
                 <div className="divide-y divide-border">
                   {sessions.map((session) => (
                     <div
                       key={session.sessionId}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-5 gap-4"
+                      className="flex flex-col justify-between gap-4 p-5 transition-colors hover:bg-[#fcfaf7] sm:flex-row sm:items-center sm:px-6"
                     >
                       <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
                           <svg
-                            className="w-5 h-5 text-primary"
+                            className="h-5 w-5 text-primary"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -136,15 +154,15 @@ export default function SessionsPage() {
                           </svg>
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-text truncate">Session</p>
-                          <p className="text-sm text-muted truncate">
+                          <p className="truncate font-medium text-text">Session</p>
+                          <p className="truncate text-sm text-muted">
                             Started {formatDate(session.issuedAt)} • Last active{" "}
                             {formatDate(session.lastUsedAt)}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted hidden sm:block">
+                      <div className="flex items-center justify-between gap-3 sm:justify-end">
+                        <span className="hidden text-sm text-muted sm:block">
                           Expires {formatDate(session.expiresAt)}
                         </span>
                         <Button
@@ -161,7 +179,7 @@ export default function SessionsPage() {
                 </div>
               )}
 
-              <div className="border-t border-border p-5">
+              <section className="border-t border-border bg-[#fcfaf7] p-5 sm:px-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <p className="font-medium text-text">Sign out everywhere</p>
@@ -178,7 +196,7 @@ export default function SessionsPage() {
                     Sign out everywhere
                   </Button>
                 </div>
-              </div>
+              </section>
             </div>
           </div>
         </main>
