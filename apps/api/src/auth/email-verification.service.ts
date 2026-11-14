@@ -127,7 +127,10 @@ export class EmailVerificationService {
 
     try {
       const result: TransactionResult = await databaseSession.withTransaction(async () => {
-        const user = await this.models.User.findOne({ emailNormalized, emailVerificationStatus: "UNVERIFIED" })
+        const user = await this.models.User.findOne({
+          emailNormalized,
+          emailVerificationStatus: "UNVERIFIED",
+        })
           .select("_id emailNormalized")
           .session(databaseSession);
 
@@ -142,11 +145,20 @@ export class EmailVerificationService {
 
         if (existingToken) {
           if (existingToken.resendCount >= MAX_RESENDS_PER_TOKEN) {
-            throw new HttpException("Maximum resend limit reached. Please wait for the token to expire or request a new registration.", HttpStatus.TOO_MANY_REQUESTS);
+            throw new HttpException(
+              "Maximum resend limit reached. Please wait for the token to expire or request a new registration.",
+              HttpStatus.TOO_MANY_REQUESTS,
+            );
           }
 
-          if (existingToken.lastResentAt && (now.getTime() - existingToken.lastResentAt.getTime()) < RESEND_COOLDOWN_MS) {
-            throw new HttpException("Please wait before requesting another verification email.", HttpStatus.TOO_MANY_REQUESTS);
+          if (
+            existingToken.lastResentAt &&
+            now.getTime() - existingToken.lastResentAt.getTime() < RESEND_COOLDOWN_MS
+          ) {
+            throw new HttpException(
+              "Please wait before requesting another verification email.",
+              HttpStatus.TOO_MANY_REQUESTS,
+            );
           }
 
           const newTokenMaterial = newEmailVerificationToken(now);
@@ -163,7 +175,10 @@ export class EmailVerificationService {
             { session: databaseSession },
           );
 
-          this.logger.debug({ userId: user._id.toString(), resendCount: existingToken.resendCount + 1 }, "verification_email_resent");
+          this.logger.debug(
+            { userId: user._id.toString(), resendCount: existingToken.resendCount + 1 },
+            "verification_email_resent",
+          );
           return {
             shouldSend: true,
             email: user.emailNormalized,
@@ -207,12 +222,19 @@ export class EmailVerificationService {
     }
   }
 
-  private async sendVerificationEmail(email: string, token: string, expiresAt: Date): Promise<void> {
+  private async sendVerificationEmail(
+    email: string,
+    token: string,
+    expiresAt: Date,
+  ): Promise<void> {
     const payload: VerificationEmailPayload = { to: email, token, expiresAt };
     const result = await this.emailAdapter.sendVerificationEmail(payload);
 
     if (!result.accepted) {
-      this.logger.error({ email, providerResponse: result.providerResponse }, "verification_email_delivery_failed");
+      this.logger.error(
+        { email, providerResponse: result.providerResponse },
+        "verification_email_delivery_failed",
+      );
     }
   }
 }

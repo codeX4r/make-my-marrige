@@ -14,22 +14,53 @@ type RouteContext = { params: Promise<{ path: string[] }> };
 type RoutePolicy = {
   upstreamPath: string;
   methods: readonly string[];
-  authentication?: "refresh" | "logout" | "resend" | "verify" | "login";
+  authentication?: "refresh" | "logout" | "login" | "access";
 };
 
 // Foundation-only routes. Add product operations only after their contracts are approved.
 const routePolicies: Record<string, RoutePolicy> = {
   "health/live": { upstreamPath: "/health/live", methods: ["GET"] },
   "health/ready": { upstreamPath: "/health/ready", methods: ["GET"] },
-  "auth/refresh": { upstreamPath: "/v1/auth/refresh", methods: ["POST"], authentication: "refresh" },
+  "auth/me": { upstreamPath: "/v1/auth/me", methods: ["GET"], authentication: "access" },
+  "auth/refresh": {
+    upstreamPath: "/v1/auth/refresh",
+    methods: ["POST"],
+    authentication: "refresh",
+  },
   "auth/logout": { upstreamPath: "/v1/auth/logout", methods: ["POST"], authentication: "logout" },
   "auth/register": { upstreamPath: "/v1/auth/register", methods: ["POST"] },
   "auth/login": { upstreamPath: "/v1/auth/login", methods: ["POST"], authentication: "login" },
-  "password/forgot": { upstreamPath: "/v1/auth/password/forgot", methods: ["POST"] },
-  "password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
-  "email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"], authentication: "resend" },
-  "email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"], authentication: "verify" },
+  "auth/password/forgot": { upstreamPath: "/v1/auth/password/forgot", methods: ["POST"] },
+  "auth/password/reset": { upstreamPath: "/v1/auth/password/reset", methods: ["POST"] },
+  "auth/email/resend": { upstreamPath: "/v1/auth/email/resend", methods: ["POST"] },
+  "auth/email/verify": { upstreamPath: "/v1/auth/email/verify", methods: ["POST"] },
+  "auth/sessions": {
+    upstreamPath: "/v1/auth/sessions",
+    methods: ["GET"],
+    authentication: "access",
+  },
 };
+
+/** Resolve dynamic path segments that cannot be expressed as static keys. */
+function resolveDynamicPolicy(
+  segments: string[],
+): (RoutePolicy & { upstreamPath: string }) | undefined {
+  // auth/sessions/:sessionId/revoke  →  POST /v1/auth/sessions/:sessionId/revoke
+  if (
+    segments.length === 4 &&
+    segments[0] === "auth" &&
+    segments[1] === "sessions" &&
+    segments[3] === "revoke"
+  ) {
+    const sessionId = segments[2];
+    return {
+      upstreamPath: `/v1/auth/sessions/${sessionId}/revoke`,
+      methods: ["POST"],
+      authentication: "access",
+    };
+  }
+  return undefined;
+}
 
 function jsonError(status: number, code: string): Response {
   return Response.json({ error: { code } }, { status, headers: { "cache-control": "no-store" } });
@@ -59,21 +90,33 @@ function apiOrigin(): URL {
   return origin;
 }
 
-async function bodyExceedsLimit(request: Request): Promise<boolean> {
+async function readBoundedBody(
+  request: Request,
+): Promise<{ exceeded: boolean; body?: Uint8Array }> {
   const declaredSize = Number(request.headers.get("content-length") ?? 0);
-  if (declaredSize > MAX_REQUEST_BYTES) return true;
-  if (!request.body) return false;
+  if (declaredSize > MAX_REQUEST_BYTES) return { exceeded: true };
+  if (!request.body) return { exceeded: false };
   const reader = request.body.getReader();
   let size = 0;
+  const chunks: Uint8Array[] = [];
   try {
     while (true) {
       const { done, value } = await reader.read();
-      if (done) return false;
+      if (done) {
+        const body = new Uint8Array(size);
+        let offset = 0;
+        for (const chunk of chunks) {
+          body.set(chunk, offset);
+          offset += chunk.byteLength;
+        }
+        return { exceeded: false, body };
+      }
       size += value.byteLength;
       if (size > MAX_REQUEST_BYTES) {
         await reader.cancel();
-        return true;
+        return { exceeded: true };
       }
+      chunks.push(value);
     }
   } finally {
     reader.releaseLock();
@@ -82,10 +125,13 @@ async function bodyExceedsLimit(request: Request): Promise<boolean> {
 
 async function forward(request: NextRequest, context: RouteContext): Promise<Response> {
   const { path } = await context.params;
-  const policy = routePolicies[path.join("/")];
+  const policy = routePolicies[path.join("/")] ?? resolveDynamicPolicy(path);
   if (!policy) return jsonError(404, "NOT_FOUND");
+  let requestBody: Uint8Array | undefined;
   try {
-    if (await bodyExceedsLimit(request)) return jsonError(413, "REQUEST_TOO_LARGE");
+    const result = await readBoundedBody(request);
+    if (result.exceeded) return jsonError(413, "REQUEST_TOO_LARGE");
+    requestBody = result.body;
   } catch {
     return jsonError(499, "CLIENT_DISCONNECTED");
   }
@@ -107,7 +153,7 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
   upstreamUrl.search = request.nextUrl.search;
 
   const headers = new Headers();
-  for (const name of ["accept", "x-request-id"]) {
+  for (const name of ["accept", "content-type", "x-request-id"]) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
@@ -119,7 +165,7 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
       return jsonError(500, "BFF_CONFIGURATION_ERROR");
     }
     const csrfToken = request.headers.get("x-csrf-token");
-    const origin = request.headers.get("origin");
+    const origin = request.headers.get("origin") || request.nextUrl.origin;
     if (csrfToken) headers.set("x-csrf-token", csrfToken);
     if (origin) headers.set("origin", origin);
     if (policy.authentication === "refresh") {
@@ -145,6 +191,10 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     upstream = await fetch(upstreamUrl, {
       method: request.method,
       headers,
+      body:
+        request.method === "GET" || request.method === "HEAD" || !requestBody
+          ? null
+          : (requestBody as unknown as BodyInit),
       cache: "no-store",
       redirect: "manual",
       signal,
@@ -182,7 +232,11 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     }
     responseHeaders.set("x-csrf-token", csrfToken);
   }
-  if (policy.authentication === "logout" && upstream.ok && cookieConfiguration) {
+  if (
+    policy.authentication === "logout" &&
+    (upstream.ok || upstream.status === 401) &&
+    cookieConfiguration
+  ) {
     for (const cookie of clearSessionCookieHeaders(cookieConfiguration)) {
       responseHeaders.append("set-cookie", cookie);
     }

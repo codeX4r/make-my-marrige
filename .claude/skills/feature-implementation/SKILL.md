@@ -6,21 +6,13 @@ description: Implement approved MakeMyMarrige features efficiently while preserv
 
 \---
 
-
-
 \# Feature Implementation
-
-
 
 \## Objective
 
 Implement production-quality features without unnecessary exploration or overengineering.
 
-
-
 \## Execution Workflow
-
-
 
 \### 1. Understand
 
@@ -32,8 +24,6 @@ Implement production-quality features without unnecessary exploration or overeng
 
 \- Identify only files relevant to the requested feature.
 
-
-
 \### 2. Plan
 
 \- Write a brief implementation plan.
@@ -43,8 +33,6 @@ Implement production-quality features without unnecessary exploration or overeng
 \- Identify required tests.
 
 \- Resolve genuinely blocking ambiguities only.
-
-
 
 \### 3. Implement
 
@@ -62,8 +50,6 @@ Implement production-quality features without unnecessary exploration or overeng
 
 \- Do not repeatedly inspect unrelated repository files.
 
-
-
 \### 4. Test
 
 \- Write or update focused tests.
@@ -76,11 +62,7 @@ Implement production-quality features without unnecessary exploration or overeng
 
 \- Never claim runtime verification based only on a successful build.
 
-
-
 \### 5. Report
-
-
 
 Summarize:
 
@@ -96,11 +78,7 @@ Summarize:
 
 \- Deferred work.
 
-
-
 \## Mandatory Constraints
-
-
 
 \- Follow AGENTS.md and approved documentation.
 
@@ -120,15 +98,9 @@ Summarize:
 
 \- Do not claim completion when requirements remain unverified.
 
-
-
 \## Efficiency
 
-
-
 Prioritize implementation over excessive planning.
-
-
 
 Use the smallest sufficient investigation.
 
@@ -137,4 +109,3 @@ Avoid repeated repository-wide audits.
 Reuse existing dependencies and utilities.
 
 Do not repeat successful checks unnecessarily.
-

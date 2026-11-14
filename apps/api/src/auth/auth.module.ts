@@ -29,7 +29,11 @@ export class AuthModule {
         {
           provide: AccessTokenService,
           useFactory: (keyRing: JwtKeyRingService) =>
-            new AccessTokenService(keyRing, environment.AUTH_JWT_ISSUER, environment.AUTH_JWT_AUDIENCE),
+            new AccessTokenService(
+              keyRing,
+              environment.AUTH_JWT_ISSUER,
+              environment.AUTH_JWT_AUDIENCE,
+            ),
           inject: [JwtKeyRingService],
         },
         PasswordHashService,
@@ -57,15 +61,17 @@ export class AuthModule {
         },
         {
           provide: BrevoEmailAdapter,
-          useFactory: () => new BrevoEmailAdapter({
-            EMAIL_BREVO_API_KEY: environment.EMAIL_BREVO_API_KEY,
-            EMAIL_SENDER_EMAIL: environment.EMAIL_SENDER_EMAIL,
-            EMAIL_SENDER_NAME: environment.EMAIL_SENDER_NAME,
-          }),
+          useFactory: () =>
+            new BrevoEmailAdapter({
+              EMAIL_BREVO_API_KEY: environment.EMAIL_BREVO_API_KEY,
+              EMAIL_SENDER_EMAIL: environment.EMAIL_SENDER_EMAIL,
+              EMAIL_SENDER_NAME: environment.EMAIL_SENDER_NAME,
+            }),
         },
         {
           provide: CsrfOriginService,
-          useFactory: (sessions: MemberSessionService) => new CsrfOriginService(environment, sessions),
+          useFactory: (sessions: MemberSessionService) =>
+            new CsrfOriginService(environment, sessions),
           inject: [MemberSessionService],
         },
         AccessTokenAuthGuard,

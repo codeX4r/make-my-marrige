@@ -55,7 +55,14 @@ export class MemberSessionService {
           ],
           { session: databaseSession },
         );
-        await this.recordEvent("SESSION_CREATED", user._id, material.familyId, material.sessionId, now, databaseSession);
+        await this.recordEvent(
+          "SESSION_CREATED",
+          user._id,
+          material.familyId,
+          material.sessionId,
+          now,
+          databaseSession,
+        );
       });
     } finally {
       await databaseSession.endSession();
@@ -75,7 +82,14 @@ export class MemberSessionService {
 
         if (existing.status !== "ACTIVE") {
           if (existing.status === "ROTATED" || existing.status === "REVOKED") {
-            await this.revokeFamily(existing.familyId, existing.userId, "REFRESH_TOKEN_REUSE", now, databaseSession, existing.sessionId);
+            await this.revokeFamily(
+              existing.familyId,
+              existing.userId,
+              "REFRESH_TOKEN_REUSE",
+              now,
+              databaseSession,
+              existing.sessionId,
+            );
           }
           throw unauthorized();
         }
@@ -155,17 +169,31 @@ export class MemberSessionService {
     const databaseSession = await this.connection.startSession();
     try {
       await databaseSession.withTransaction(async () => {
-        const current = await this.models.MemberRefreshSession.findOne({ sessionId, userId }).session(databaseSession);
+        const current = await this.models.MemberRefreshSession.findOne({
+          sessionId,
+          userId,
+        }).session(databaseSession);
         if (!current) throw unauthorized();
-        await this.revokeFamily(current.familyId, current.userId, "CURRENT_SESSION_LOGOUT", now, databaseSession, sessionId);
+        await this.revokeFamily(
+          current.familyId,
+          current.userId,
+          "CURRENT_SESSION_LOGOUT",
+          now,
+          databaseSession,
+          sessionId,
+        );
       });
     } finally {
       await databaseSession.endSession();
     }
   }
 
-  async revokeAllForUser(userId: string, now = new Date(), databaseSession?: import("mongoose").ClientSession): Promise<void> {
-    const session = databaseSession ?? await this.connection.startSession();
+  async revokeAllForUser(
+    userId: string,
+    now = new Date(),
+    databaseSession?: import("mongoose").ClientSession,
+  ): Promise<void> {
+    const session = databaseSession ?? (await this.connection.startSession());
     const ownsSession = !databaseSession;
     try {
       if (ownsSession) {
@@ -182,10 +210,24 @@ export class MemberSessionService {
     }
   }
 
-  private async revokeAllForUserInternal(userId: string, now: Date, databaseSession: import("mongoose").ClientSession): Promise<void> {
-    const families = await this.models.MemberSessionFamily.find({ userId, status: "ACTIVE" }).session(databaseSession);
+  private async revokeAllForUserInternal(
+    userId: string,
+    now: Date,
+    databaseSession: import("mongoose").ClientSession,
+  ): Promise<void> {
+    const families = await this.models.MemberSessionFamily.find({
+      userId,
+      status: "ACTIVE",
+    }).session(databaseSession);
     for (const family of families) {
-      await this.revokeFamily(family.familyId, family.userId, "SIGN_OUT_ALL", now, databaseSession, null);
+      await this.revokeFamily(
+        family.familyId,
+        family.userId,
+        "SIGN_OUT_ALL",
+        now,
+        databaseSession,
+        null,
+      );
     }
   }
 
@@ -200,26 +242,60 @@ export class MemberSessionService {
     return Boolean(session && hashesMatch(session.csrfTokenHash, csrfToken));
   }
 
-  async getUserById(userId: string): Promise<{ userId: string; emailNormalized: string; displayName: string; emailVerificationStatus: string }> {
+  async getUserById(userId: string): Promise<{
+    userId: string;
+    emailNormalized: string;
+    displayName: string;
+    emailVerificationStatus: string;
+  }> {
     const user = await this.models.User.findOne({ _id: userId }).lean();
     if (!user) throw unauthorized();
-    return { userId: user._id.toString(), emailNormalized: user.emailNormalized, displayName: user.displayName, emailVerificationStatus: user.emailVerificationStatus };
+    return {
+      userId: user._id.toString(),
+      emailNormalized: user.emailNormalized,
+      displayName: user.displayName,
+      emailVerificationStatus: user.emailVerificationStatus,
+    };
   }
 
-  async listUserSessions(userId: string): Promise<Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }>> {
-    const sessions = await this.models.MemberRefreshSession.find({ userId, status: "ACTIVE" }).lean();
-    return sessions.map(s => ({ sessionId: s.sessionId, issuedAt: s.issuedAt, lastUsedAt: s.lastUsedAt, expiresAt: s.expiresAt }));
+  async listUserSessions(
+    userId: string,
+  ): Promise<Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }>> {
+    const sessions = await this.models.MemberRefreshSession.find({
+      userId,
+      status: "ACTIVE",
+    }).lean();
+    return sessions.map((s) => ({
+      sessionId: s.sessionId,
+      issuedAt: s.issuedAt,
+      lastUsedAt: s.lastUsedAt,
+      expiresAt: s.expiresAt,
+    }));
   }
 
   async revokeSession(userId: string, sessionId: string, now = new Date()): Promise<void> {
     const databaseSession = await this.connection.startSession();
     try {
       await databaseSession.withTransaction(async () => {
-        const session = await this.models.MemberRefreshSession.findOne({ sessionId, userId }).session(databaseSession);
+        const session = await this.models.MemberRefreshSession.findOne({
+          sessionId,
+          userId,
+        }).session(databaseSession);
         if (!session) throw unauthorized();
-        const family = await this.models.MemberSessionFamily.findOne({ familyId: session.familyId, userId, status: "ACTIVE" }).session(databaseSession);
+        const family = await this.models.MemberSessionFamily.findOne({
+          familyId: session.familyId,
+          userId,
+          status: "ACTIVE",
+        }).session(databaseSession);
         if (family) {
-          await this.revokeFamily(family.familyId, family.userId, "SINGLE_SESSION_REVOKE", now, databaseSession, sessionId);
+          await this.revokeFamily(
+            family.familyId,
+            family.userId,
+            "SINGLE_SESSION_REVOKE",
+            now,
+            databaseSession,
+            sessionId,
+          );
         }
       });
     } finally {

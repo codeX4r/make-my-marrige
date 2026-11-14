@@ -8,19 +8,23 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 const createMockModels = () => ({
   User: {
     findOne: vi.fn().mockResolvedValue(null),
-    create: vi.fn().mockResolvedValue([{ _id: "mock-id", emailNormalized: "test@example.com", displayName: "Test" }]),
+    create: vi
+      .fn()
+      .mockResolvedValue([
+        { _id: "mock-id", emailNormalized: "test@example.com", displayName: "Test" },
+      ]),
   },
   EmailVerificationToken: {
     create: vi.fn().mockResolvedValue({}),
   },
 });
 
-const createMockConnection = (models: any) => ({
+const createMockConnection = (models: ReturnType<typeof createMockModels>) => ({
   startSession: vi.fn().mockResolvedValue({
-    withTransaction: vi.fn(async (cb: any) => cb()),
+    withTransaction: vi.fn(async (callback: () => Promise<unknown>) => callback()),
     endSession: vi.fn(),
   }),
-  models: models,
+  models,
   model: vi.fn(() => models.User),
 });
 
@@ -30,14 +34,14 @@ const createMockEmailAdapter = () => ({
 
 describe("RegistrationService", () => {
   let service: RegistrationService;
-  let mockConnection: any;
-  let mockModels: any;
+  let mockConnection: ReturnType<typeof createMockConnection>;
+  let mockModels: ReturnType<typeof createMockModels>;
 
   beforeEach(async () => {
     mockModels = createMockModels();
     mockConnection = createMockConnection(mockModels);
 
-    const module: TestingModule = await Test.createTestingModule({
+    const testingModule: TestingModule = await Test.createTestingModule({
       providers: [
         RegistrationService,
         PasswordHashService,
@@ -46,7 +50,7 @@ describe("RegistrationService", () => {
       ],
     }).compile();
 
-    service = module.get<RegistrationService>(RegistrationService);
+    service = testingModule.get<RegistrationService>(RegistrationService);
   });
 
   it("should reject invalid email format", async () => {

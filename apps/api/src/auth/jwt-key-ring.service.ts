@@ -10,7 +10,12 @@ export class JwtKeyRingService {
   readonly privateKey: KeyObject;
   private readonly publicKeys: ReadonlyMap<string, KeyObject>;
 
-  constructor(environment: Pick<ApiEnvironment, "AUTH_JWT_ACTIVE_KID" | "AUTH_JWT_PRIVATE_KEY_PEM" | "AUTH_JWT_PUBLIC_KEYS_JSON">) {
+  constructor(
+    environment: Pick<
+      ApiEnvironment,
+      "AUTH_JWT_ACTIVE_KID" | "AUTH_JWT_PRIVATE_KEY_PEM" | "AUTH_JWT_PUBLIC_KEYS_JSON"
+    >,
+  ) {
     this.activeKid = environment.AUTH_JWT_ACTIVE_KID;
     try {
       const configuredKeys = JSON.parse(environment.AUTH_JWT_PUBLIC_KEYS_JSON) as unknown;
@@ -37,6 +42,8 @@ function isPublicKeyConfiguration(value: unknown): value is PublicKeyConfigurati
     typeof value === "object" &&
     value !== null &&
     !Array.isArray(value) &&
-    Object.entries(value).every(([kid, pem]) => kid.length > 0 && typeof pem === "string" && pem.length > 0)
+    Object.entries(value).every(
+      ([kid, pem]) => kid.length > 0 && typeof pem === "string" && pem.length > 0,
+    )
   );
 }

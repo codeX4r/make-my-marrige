@@ -1,9 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { LoginService } from "./login.service.js";
-import { PasswordHashService } from "./password-hash.service.js";
-import { MemberSessionService } from "./member-session.service.js";
+import { Test } from "@nestjs/testing";
+import type { TestingModule } from "@nestjs/testing";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MONGO_CONNECTION } from "../database/database.module.js";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { LoginService } from "./login.service.js";
+import { MemberSessionService } from "./member-session.service.js";
+import { PasswordHashService } from "./password-hash.service.js";
 
 const createMockModels = () => ({
   User: {
@@ -15,14 +16,16 @@ const createMockModels = () => ({
   },
 });
 
-const createMockConnection = (models: any) => ({
-  models: models,
-  model: vi.fn((name: string) => models[name] || {}),
+type MockModels = ReturnType<typeof createMockModels>;
+
+const createMockConnection = (models: MockModels) => ({
+  models,
+  model: vi.fn((name: string) => models[name as keyof MockModels] ?? {}),
 });
 
 describe("LoginService", () => {
   let service: LoginService;
-  let mockModels: ReturnType<typeof createMockModels>;
+  let mockModels: MockModels;
   let mockPasswordHashService: Partial<PasswordHashService>;
   let mockMemberSessionService: Partial<MemberSessionService>;
 
@@ -32,7 +35,7 @@ describe("LoginService", () => {
     mockPasswordHashService = { verify: vi.fn() };
     mockMemberSessionService = { create: vi.fn() };
 
-    const module: TestingModule = await Test.createTestingModule({
+    const testingModule: TestingModule = await Test.createTestingModule({
       providers: [
         LoginService,
         { provide: MONGO_CONNECTION, useValue: mockConnection },
@@ -41,13 +44,13 @@ describe("LoginService", () => {
       ],
     }).compile();
 
-    service = module.get<LoginService>(LoginService);
+    service = testingModule.get<LoginService>(LoginService);
   });
 
   it("should reject empty email", async () => {
-    await expect(
-      service.login({ email: "", password: "password123456" }),
-    ).rejects.toThrow("Invalid email or password format.");
+    await expect(service.login({ email: "", password: "password123456" })).rejects.toThrow(
+      "Invalid email or password format.",
+    );
   });
 
   it("should reject unknown email", async () => {

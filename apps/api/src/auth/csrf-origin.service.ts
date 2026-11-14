@@ -17,7 +17,11 @@ export class CsrfOriginService {
     this.allowedOrigins = new Set(origins);
   }
 
-  async assertValid(sessionId: string, csrfToken: string | undefined, origin: string | undefined): Promise<void> {
+  async assertValid(
+    sessionId: string,
+    csrfToken: string | undefined,
+    origin: string | undefined,
+  ): Promise<void> {
     if (!csrfToken || !origin || !this.allowedOrigins.has(origin)) throw new ForbiddenException();
     if (!(await this.sessions.validateCsrf(sessionId, csrfToken))) throw new ForbiddenException();
   }
