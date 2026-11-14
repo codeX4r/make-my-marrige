@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +8,8 @@ import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
 import { validateDisplayName, validatePassword } from "@/lib/validation";
 import { useAuth } from "@/lib/auth-context";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AuthenticatedHeader } from "@/components/AuthenticatedHeader";
 
 interface ProfileFormData {
   displayName: string;
@@ -19,7 +20,7 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, refreshUser, isLoading: authLoading } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,9 +29,7 @@ export default function ProfilePage() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-    setError: setFieldError,
     clearErrors,
     reset,
   } = useForm<ProfileFormData>({
@@ -69,9 +68,8 @@ export default function ProfilePage() {
     },
   });
 
-  const newPassword = watch("newPassword");
-
-  const onSubmit = async (data: ProfileFormData) => {
+  const onSubmit = async (_data: ProfileFormData) => {
+    void _data;
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
@@ -126,18 +124,17 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="min-h-screen bg-background px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-text hover:text-primary transition-colors mb-6"
-          >
-            <span className="text-xl font-semibold tracking-tight">MakeMyMarrige</span>
-          </Link>
-          <h1 className="text-3xl font-semibold text-text">Profile & security</h1>
-          <p className="mt-2 text-muted">Manage your account settings and security preferences</p>
-        </header>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background flex flex-col">
+        <AuthenticatedHeader />
+        <main className="flex-1 px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl">
+            <header className="mb-8">
+              <h1 className="text-3xl font-semibold text-text">Profile & security</h1>
+              <p className="mt-2 text-muted">
+                Manage your account settings and security preferences
+              </p>
+            </header>
 
         <div className="bg-surface rounded-xl border border-border overflow-hidden">
           <nav className="flex border-b border-border" aria-label="Settings tabs">
@@ -269,5 +266,7 @@ export default function ProfilePage() {
         </div>
       </div>
     </main>
+  </div>
+</ProtectedRoute>
   );
 }

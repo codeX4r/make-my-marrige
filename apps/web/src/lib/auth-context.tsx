@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest, clearCsrfToken } from "@/lib/api-client";
 
 interface User {
   userId: string;
@@ -65,8 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await apiRequest("/auth/logout", { method: "POST" });
-    setUser(null);
+    try {
+      await apiRequest("/auth/logout", { method: "POST" });
+    } finally {
+      setUser(null);
+      clearCsrfToken();
+    }
   };
 
   const refreshSession = async () => {

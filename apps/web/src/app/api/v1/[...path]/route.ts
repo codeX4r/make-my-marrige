@@ -165,7 +165,7 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
       return jsonError(500, "BFF_CONFIGURATION_ERROR");
     }
     const csrfToken = request.headers.get("x-csrf-token");
-    const origin = request.headers.get("origin");
+    const origin = request.headers.get("origin") || request.nextUrl.origin;
     if (csrfToken) headers.set("x-csrf-token", csrfToken);
     if (origin) headers.set("origin", origin);
     if (policy.authentication === "refresh") {
@@ -232,7 +232,11 @@ async function forward(request: NextRequest, context: RouteContext): Promise<Res
     }
     responseHeaders.set("x-csrf-token", csrfToken);
   }
-  if (policy.authentication === "logout" && upstream.ok && cookieConfiguration) {
+  if (
+    policy.authentication === "logout" &&
+    (upstream.ok || upstream.status === 401) &&
+    cookieConfiguration
+  ) {
     for (const cookie of clearSessionCookieHeaders(cookieConfiguration)) {
       responseHeaders.append("set-cookie", cookie);
     }

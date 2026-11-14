@@ -9,6 +9,7 @@ import { TextField } from "@/components/ui/TextField";
 import { InlineBanner } from "@/components/ui/InlineBanner";
 import { validateEmail, validatePassword, validateDisplayName } from "@/lib/validation";
 import { useAuth } from "@/lib/auth-context";
+import { sanitizeReturnUrl } from "@/lib/route-protection";
 
 interface RegisterFormData {
   email: string;
@@ -26,6 +27,7 @@ function AuthPageContent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "login" ? "login" : "register";
   const [activeTab, setActiveTab] = useState<"register" | "login">(initialTab);
+  const isLoggedOut = searchParams.get("logged_out") === "true";
 
   const { login, register: registerUser, isLoading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +104,9 @@ function AuthPageContent() {
     clearLoginErrors();
     try {
       await login(data.email, data.password);
-      router.replace("/dashboard");
+      const redirectTo = searchParams.get("redirect");
+      const safeDestination = sanitizeReturnUrl(redirectTo) || "/dashboard";
+      router.replace(safeDestination);
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Invalid credentials. Please try again.";
@@ -335,11 +339,20 @@ function AuthPageContent() {
             </div>
           )}
 
+          {isLoggedOut && !error && (
+            <div className="mb-6">
+              <InlineBanner
+                type="info"
+                message="You have been successfully logged out."
+              />
+            </div>
+          )}
+
           {activeTab === "register" ? (
             <div>
               <div className="mb-6">
                 <h2 className="font-serif text-2xl font-semibold text-[#282522] mb-1">
-                  Start your family's wedding workspace.
+                  Start your family&apos;s wedding workspace.
                 </h2>
                 <p className="text-sm text-[#77716B]">
                   Create your account to begin bringing both families together.

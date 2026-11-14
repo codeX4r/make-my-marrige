@@ -142,6 +142,104 @@ describe("foundation BFF route policy", () => {
     expect(setCookies.length).toBe(0);
   });
 
+  describe("auth logout route policy", () => {
+    it("forwards authorization, origin, and csrf token, and clears session cookies on 200 OK", async () => {
+      vi.stubEnv("AUTH_COOKIE_MODE", "local");
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ message: "logged out" }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      const request = new NextRequest("http://web.local/api/v1/auth/logout", {
+        method: "POST",
+        headers: {
+          cookie: "mmm_access=valid-token",
+          "x-csrf-token": "csrf-token-123",
+          origin: "http://web.local",
+        },
+      });
+
+      const response = await POST(request, context(["auth", "logout"]));
+      expect(response.status).toBe(200);
+
+      // Verify forwarded headers to upstream
+      const upstreamCall = fetchMock.mock.calls[0];
+      expect(upstreamCall?.[0].toString()).toBe("http://api.internal/v1/auth/logout");
+      const upstreamHeaders = upstreamCall?.[1]?.headers as Headers;
+      expect(upstreamHeaders.get("authorization")).toBe("Bearer valid-token");
+      expect(upstreamHeaders.get("x-csrf-token")).toBe("csrf-token-123");
+      expect(upstreamHeaders.get("origin")).toBe("http://web.local");
+
+      // Verify clear session cookies were returned
+      const setCookies = response.headers.getSetCookie();
+      expect(setCookies.some((c) => c.includes("mmm_access=") && c.includes("Max-Age=0"))).toBe(
+        true,
+      );
+      expect(setCookies.some((c) => c.includes("mmm_refresh=") && c.includes("Max-Age=0"))).toBe(
+        true,
+      );
+    });
+
+    it("clears session cookies even when upstream returns 401 Unauthorized (expired/revoked session)", async () => {
+      vi.stubEnv("AUTH_COOKIE_MODE", "local");
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ error: { code: "UNAUTHORIZED" } }), {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      const request = new NextRequest("http://web.local/api/v1/auth/logout", {
+        method: "POST",
+        headers: {
+          cookie: "mmm_access=expired-token",
+          origin: "http://web.local",
+        },
+      });
+
+      const response = await POST(request, context(["auth", "logout"]));
+      expect(response.status).toBe(401);
+
+      // Verify cookies are still cleared so client is logged out locally
+      const setCookies = response.headers.getSetCookie();
+      expect(setCookies.some((c) => c.includes("mmm_access=") && c.includes("Max-Age=0"))).toBe(
+        true,
+      );
+      expect(setCookies.some((c) => c.includes("mmm_refresh=") && c.includes("Max-Age=0"))).toBe(
+        true,
+      );
+    });
+
+    it("does not clear session cookies when upstream fails with 500 error", async () => {
+      vi.stubEnv("AUTH_COOKIE_MODE", "local");
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response("internal failure", {
+          status: 500,
+          headers: { "content-type": "text/plain" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      const request = new NextRequest("http://web.local/api/v1/auth/logout", {
+        method: "POST",
+        headers: {
+          cookie: "mmm_access=valid-token",
+          origin: "http://web.local",
+        },
+      });
+
+      const response = await POST(request, context(["auth", "logout"]));
+      expect(response.status).toBe(500);
+
+      const setCookies = response.headers.getSetCookie();
+      expect(setCookies.length).toBe(0);
+    });
+  });
+
   it("sanitizes upstream server errors while preserving their status", async () => {
     vi.stubGlobal(
       "fetch",
