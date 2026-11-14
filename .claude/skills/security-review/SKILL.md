@@ -6,21 +6,13 @@ description: Review authentication, authorization, tenant isolation, sessions, A
 
 \---
 
-
-
 \# Security Review
-
-
 
 \## Objective
 
 Identify security weaknesses using evidence from the actual implementation.
 
-
-
 \## Review Areas
-
-
 
 \### Authentication
 
@@ -38,8 +30,6 @@ Identify security weaknesses using evidence from the actual implementation.
 
 \- Email verification.
 
-
-
 \### Authorization
 
 \- Role and permission enforcement.
@@ -51,8 +41,6 @@ Identify security weaknesses using evidence from the actual implementation.
 \- Cross-user access prevention.
 
 \- Tenant isolation.
-
-
 
 \### API Security
 
@@ -72,8 +60,6 @@ Identify security weaknesses using evidence from the actual implementation.
 
 \- Sensitive endpoint protection.
 
-
-
 \### Data Security
 
 \- Password and token storage.
@@ -86,8 +72,6 @@ Identify security weaknesses using evidence from the actual implementation.
 
 \- Data exposure in API responses.
 
-
-
 \### External Integrations
 
 \- API credential handling.
@@ -98,11 +82,7 @@ Identify security weaknesses using evidence from the actual implementation.
 
 \- Safe handling of external provider failures.
 
-
-
 \## Rules
-
-
 
 \- Inspect actual implementation, not assumptions.
 
@@ -118,11 +98,7 @@ Identify security weaknesses using evidence from the actual implementation.
 
 \- Avoid unrelated repository exploration.
 
-
-
 \## Severity
-
-
 
 \- Critical: Direct compromise or severe unauthorized access.
 
@@ -134,15 +110,9 @@ Identify security weaknesses using evidence from the actual implementation.
 
 \- Informational: Improvement opportunity.
 
-
-
 \## Output
 
-
-
 For every finding include:
-
-
 
 1\. Severity.
 
@@ -154,8 +124,6 @@ For every finding include:
 
 5\. Recommended remediation.
 
-
-
 Also report:
 
 \- Areas reviewed.
@@ -165,4 +133,3 @@ Also report:
 \- Tests performed.
 
 \- Remaining security uncertainties.
-

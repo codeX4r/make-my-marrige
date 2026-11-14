@@ -1,9 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  isPublicPathname,
-  normalizePathname,
-  buildLoginRedirectUrl,
-} from "./lib/route-protection";
+import { isPublicPathname, normalizePathname, buildLoginRedirectUrl } from "./lib/route-protection";
 
 const AUTH_COOKIE_NAMES = [
   "mmm_access",

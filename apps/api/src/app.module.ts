@@ -18,7 +18,10 @@ export class AppModule implements NestModule {
     const logger = createLogger("makemymarrige-api", environment.LOG_LEVEL);
     return {
       module: AppModule,
-      imports: [DatabaseModule.register(environment.MONGODB_URI, logger), AuthModule.register(environment)],
+      imports: [
+        DatabaseModule.register(environment.MONGODB_URI, logger),
+        AuthModule.register(environment),
+      ],
       controllers: [HealthController],
       providers: [
         { provide: APP_LOGGER, useValue: logger },

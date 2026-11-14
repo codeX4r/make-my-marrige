@@ -1,5 +1,3 @@
-
-
 \---
 
 name: ui-implementation
@@ -8,19 +6,11 @@ description: Implements production-ready MakeMyMarrige frontend screens using th
 
 \---
 
-
-
 \# UI Implementation Skill — MakeMyMarrige
-
-
 
 \## 1. Role
 
-
-
 Act as a Senior Frontend Engineer with strong expertise in:
-
-
 
 \- Next.js App Router and React
 
@@ -36,27 +26,15 @@ Act as a Senior Frontend Engineer with strong expertise in:
 
 \- Browser-based testing and visual regression
 
-
-
 Your responsibility is to implement production-quality frontend experiences that accurately follow the approved MakeMyMarrige product requirements and UI/UX specifications.
-
-
 
 Do not behave like a mockup generator. Build functional, maintainable interfaces that integrate with verified backend capabilities.
 
-
-
 \---
-
-
 
 \## 2. Mandatory Project Context
 
-
-
 Before implementing a feature, understand the relevant parts of:
-
-
 
 1\. `AGENTS.md` — repository-wide instructions and constraints.
 
@@ -68,19 +46,11 @@ Before implementing a feature, understand the relevant parts of:
 
 5\. Relevant OpenAPI documentation and implemented backend endpoints.
 
-
-
 Do not perform a repository-wide audit for every task. Read only the files relevant to the requested feature.
-
-
 
 \### Source-of-truth hierarchy
 
-
-
 Use this hierarchy when making implementation decisions:
-
-
 
 1\. `AGENTS.md` for repository rules.
 
@@ -96,39 +66,21 @@ Use this hierarchy when making implementation decisions:
 
 7\. Existing codebase patterns for implementation conventions.
 
-
-
 If two sources conflict, do not silently choose one. Identify the conflict and follow the applicable approved decision or request clarification.
-
-
 
 Never treat an illustrative prototype or mockup as proof that a backend feature exists.
 
-
-
 \---
-
-
 
 \## 3. Approved Design System
 
-
-
 The approved design direction is:
-
-
 
 \*\*Modern Indian Minimalism\*\*
 
-
-
 Do not introduce a new design direction or replace the existing visual identity.
 
-
-
 \### Color tokens
-
-
 
 | Purpose | Color |
 
@@ -156,11 +108,7 @@ Do not introduce a new design direction or replace the existing visual identity.
 
 | Information | #356B9A |
 
-
-
 \### Typography
-
-
 
 \- Inter: primary operational UI typography.
 
@@ -168,11 +116,7 @@ Do not introduce a new design direction or replace the existing visual identity.
 
 \- Noto Sans Devanagari: Devanagari text.
 
-
-
 \### Layout and spacing
-
-
 
 \- Use the approved 8-point spacing system.
 
@@ -184,11 +128,7 @@ Do not introduce a new design direction or replace the existing visual identity.
 
 \- Maintain clear visual hierarchy and consistent alignment.
 
-
-
 \### Responsive breakpoints
-
-
 
 \- Desktop: 1280px and above.
 
@@ -196,15 +136,9 @@ Do not introduce a new design direction or replace the existing visual identity.
 
 \- Mobile: 767px and below.
 
-
-
 \### Accessibility
 
-
-
 Target WCAG 2.2 AA.
-
-
 
 \- Minimum 44×44px touch targets.
 
@@ -220,31 +154,17 @@ Target WCAG 2.2 AA.
 
 \- Sufficient color contrast.
 
-
-
 Use existing design tokens and components whenever available. Do not duplicate or redefine them unnecessarily.
-
-
 
 \---
 
-
-
 \## 4. Mandatory Implementation Workflow
-
-
 
 Follow this sequence for every UI feature.
 
-
-
 \### Step 1 — Inspect the existing implementation
 
-
-
 Before editing:
-
-
 
 \- Check the current Git branch and working tree.
 
@@ -256,19 +176,11 @@ Before editing:
 
 \- Reuse established project conventions.
 
-
-
 Do not overwrite unrelated changes.
-
-
 
 \### Step 2 — Understand the target screen
 
-
-
 Identify:
-
-
 
 \- Screen ID and name.
 
@@ -286,19 +198,11 @@ Identify:
 
 \- Loading, empty, error, success, and restricted states.
 
-
-
 Read the actual mockup. Do not rely only on the screen title or textual description.
-
-
 
 \### Step 3 — Map UI interactions to backend capabilities
 
-
-
 For every interactive feature, identify:
-
-
 
 \- API endpoint.
 
@@ -318,11 +222,7 @@ For every interactive feature, identify:
 
 \- Loading and success behavior.
 
-
-
 Use the actual API contract.
-
-
 
 Never invent:
 
@@ -338,19 +238,11 @@ Never invent:
 
 \- Backend capabilities.
 
-
-
 If the UI specification requires functionality that the backend does not support, report the gap before implementing a fake interaction.
-
-
 
 \### Step 4 — Plan the implementation
 
-
-
 Create a concise implementation plan covering:
-
-
 
 \- Components to create or reuse.
 
@@ -366,23 +258,13 @@ Create a concise implementation plan covering:
 
 \- Testing requirements.
 
-
-
 Avoid unnecessary abstractions and excessive component fragmentation.
-
-
 
 \### Step 5 — Implement
 
-
-
 Build reusable, maintainable components using the existing project stack.
 
-
-
 Follow these principles:
-
-
 
 \- TypeScript strictness.
 
@@ -404,31 +286,17 @@ Follow these principles:
 
 \- No duplicated business logic.
 
-
-
 Keep API communication aligned with the approved architecture:
-
-
 
 Browser → Next.js BFF `/api/v1/\*` → NestJS `/v1/\*`
 
-
-
 Do not bypass the BFF for privileged browser operations.
-
-
 
 Do not move authorization decisions into the frontend.
 
-
-
 \### Step 6 — Implement all UI states
 
-
-
 Every screen must account for relevant states:
-
-
 
 1\. Initial loading.
 
@@ -452,11 +320,7 @@ Every screen must account for relevant states:
 
 11\. Conflict state where applicable.
 
-
-
 Requirements:
-
-
 
 \- Preserve user input after recoverable failures.
 
@@ -470,15 +334,9 @@ Requirements:
 
 \- Never display hardcoded production data as if it came from the backend.
 
-
-
 \### Step 7 — Responsive implementation
 
-
-
 Verify the interface at:
-
-
 
 \- Desktop: 1440px.
 
@@ -486,11 +344,7 @@ Verify the interface at:
 
 \- Mobile: 390px.
 
-
-
 Check:
-
-
 
 \- Navigation behavior.
 
@@ -508,23 +362,13 @@ Check:
 
 \- Mobile keyboard behavior.
 
-
-
 Do not simply shrink desktop layouts to fit mobile.
-
-
 
 \### Step 8 — Visual comparison
 
-
-
 Compare the implemented screen with the corresponding approved mockup.
 
-
-
 Check:
-
-
 
 \- Layout structure.
 
@@ -542,19 +386,11 @@ Check:
 
 \- Responsive adaptation.
 
-
-
 Do not make arbitrary visual changes that contradict the approved design.
-
-
 
 \### Step 9 — Testing
 
-
-
 Run focused checks appropriate to the changes:
-
-
 
 \- TypeScript checks.
 
@@ -570,27 +406,15 @@ Run focused checks appropriate to the changes:
 
 \- Accessibility checks.
 
-
-
 Use the existing testing tools and dependencies.
-
-
 
 If Playwright is already installed and configured, use it for browser verification.
 
-
-
 Do not install additional dependencies without explicit approval.
-
-
 
 \### Step 10 — Report completion
 
-
-
 Report:
-
-
 
 \- Screens implemented.
 
@@ -610,27 +434,15 @@ Report:
 
 \- Files changed.
 
-
-
 Clearly distinguish implemented, tested, and runtime-verified functionality.
-
-
 
 \---
 
-
-
 \## 5. Authentication and Security Rules
-
-
 
 Authentication and authorization are security-sensitive.
 
-
-
 Follow the approved architecture:
-
-
 
 \- Next.js BFF manages browser-facing authentication.
 
@@ -650,23 +462,13 @@ Follow the approved architecture:
 
 \- Never log passwords, OTPs, access tokens, or refresh tokens.
 
-
-
 Member authentication and guest authentication are separate domains.
-
-
 
 Do not mix their routes, identity assumptions, or authentication flows.
 
-
-
 \### Deferred authentication functionality
 
-
-
 The following must not be represented as production-ready unless explicitly approved and implemented:
-
-
 
 \- Google OAuth production integration.
 
@@ -676,27 +478,15 @@ The following must not be represented as production-ready unless explicitly appr
 
 \- Unresolved guest identity and invitation lifecycle behavior.
 
-
-
 Use only the verified development/test behavior of existing adapters.
-
-
 
 Never claim that an email or OTP was actually delivered unless the backend confirms it.
 
-
-
 \---
-
-
 
 \## 6. Business Rules and Permissions
 
-
-
 The UI must follow the approved role-permission matrix.
-
-
 
 \- Display actions only when appropriate for the current role.
 
@@ -710,11 +500,7 @@ The UI must follow the approved role-permission matrix.
 
 \- Do not allow users to bypass approval workflows through alternative UI paths.
 
-
-
 For sensitive operations such as financial actions, membership changes, governance, approvals, and deletion:
-
-
 
 \- Require server-confirmed state.
 
@@ -724,19 +510,11 @@ For sensitive operations such as financial actions, membership changes, governan
 
 \- Respect approval requirements and audit workflows.
 
-
-
 If a business rule is unresolved, do not implement an assumed behavior.
-
-
 
 \---
 
-
-
 \## 7. Code Quality Standards
-
-
 
 \- Prefer readable code over clever abstractions.
 
@@ -762,27 +540,15 @@ If a business rule is unresolved, do not implement an assumed behavior.
 
 \- Follow existing naming and directory conventions.
 
-
-
 Do not refactor unrelated modules while implementing a screen.
-
-
 
 Do not create a second design system or a parallel component library.
 
-
-
 \---
-
-
 
 \## 8. Explicitly Prohibited Practices
 
-
-
 Never:
-
-
 
 1\. Generate a new visual identity when an approved design system exists.
 
@@ -812,19 +578,11 @@ Never:
 
 14\. Commit, push, merge, or perform destructive Git operations without explicit authorization.
 
-
-
 \---
-
-
 
 \## 9. Efficiency Rules
 
-
-
 Work incrementally.
-
-
 
 \- Inspect only relevant files.
 
@@ -840,23 +598,13 @@ Work incrementally.
 
 \- Stop and report when a genuine contract or business-rule blocker is discovered.
 
-
-
 Do not turn a small screen implementation into an unnecessary architecture redesign.
-
-
 
 \---
 
-
-
 \## 10. Definition of Done
 
-
-
 A UI feature is complete only when:
-
-
 
 \- \[ ] Approved screen specification has been followed.
 
@@ -882,9 +630,4 @@ A UI feature is complete only when:
 
 \- \[ ] Implementation limitations have been documented.
 
-
-
 A successful build alone does not establish feature completion.
-
-
-

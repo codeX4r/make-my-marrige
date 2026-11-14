@@ -52,9 +52,7 @@ export class LoginService {
       throw new UnprocessableEntityException("Invalid email or password format.");
     }
 
-    const user = await this.models.User.findOne({ emailNormalized })
-      .select("+passwordHash")
-      .lean();
+    const user = await this.models.User.findOne({ emailNormalized }).select("+passwordHash").lean();
 
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException("Invalid email or password.");
@@ -68,14 +66,15 @@ export class LoginService {
       throw new ForbiddenException("Email address must be verified before login.");
     }
 
-    let parsedHash: { salt: string; hash: string } | null = null;
+    let parsedHash: { salt: string; hash: string };
+
     try {
       parsedHash = JSON.parse(user.passwordHash) as { salt: string; hash: string };
     } catch {
-      parsedHash = null;
+      throw new UnauthorizedException("Invalid email or password.");
     }
 
-    if (!parsedHash || !(await this.passwordHash.verify(input.password, parsedHash))) {
+    if (!(await this.passwordHash.verify(input.password, parsedHash))) {
       throw new UnauthorizedException("Invalid email or password.");
     }
 

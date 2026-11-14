@@ -48,7 +48,10 @@ export function validateOTP(otp: string, expectedLength = 6): { valid: boolean; 
   return { valid: true };
 }
 
-export function validateRequired(value: string, fieldName: string): { valid: boolean; error?: string } {
+export function validateRequired(
+  value: string,
+  fieldName: string,
+): { valid: boolean; error?: string } {
   if (!value?.trim()) {
     return { valid: false, error: `${fieldName} is required` };
   }

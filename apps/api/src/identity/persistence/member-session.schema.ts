@@ -14,7 +14,12 @@ export const MemberSessionFamilySchema = new Schema(
   {
     familyId: { type: String, required: true, immutable: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, immutable: true },
-    status: { type: String, required: true, enum: MEMBER_SESSION_FAMILY_STATUSES, default: "ACTIVE" },
+    status: {
+      type: String,
+      required: true,
+      enum: MEMBER_SESSION_FAMILY_STATUSES,
+      default: "ACTIVE",
+    },
     lastUsedAt: { type: Date, required: true, default: Date.now },
     revokedAt: { type: Date, default: null },
     revocationReason: { type: String, default: null, maxlength: 80 },
@@ -23,8 +28,14 @@ export const MemberSessionFamilySchema = new Schema(
   { collection: "memberSessionFamilies", ...commonOptions },
 );
 
-MemberSessionFamilySchema.index({ familyId: 1 }, { unique: true, name: "uq_member_session_families_id" });
-MemberSessionFamilySchema.index({ userId: 1, status: 1 }, { name: "ix_member_session_families_user_status" });
+MemberSessionFamilySchema.index(
+  { familyId: 1 },
+  { unique: true, name: "uq_member_session_families_id" },
+);
+MemberSessionFamilySchema.index(
+  { userId: 1, status: 1 },
+  { name: "ix_member_session_families_user_status" },
+);
 
 export const MemberRefreshSessionSchema = new Schema(
   {
@@ -50,7 +61,10 @@ export const MemberRefreshSessionSchema = new Schema(
   { collection: "memberRefreshSessions", ...commonOptions },
 );
 
-MemberRefreshSessionSchema.index({ sessionId: 1 }, { unique: true, name: "uq_member_refresh_sessions_id" });
+MemberRefreshSessionSchema.index(
+  { sessionId: 1 },
+  { unique: true, name: "uq_member_refresh_sessions_id" },
+);
 MemberRefreshSessionSchema.index(
   { refreshTokenHash: 1 },
   { unique: true, name: "uq_member_refresh_sessions_token_hash" },
@@ -76,7 +90,10 @@ export const AuthSessionAuditEventSchema = new Schema(
   { collection: "authSessionAuditEvents", ...commonOptions },
 );
 
-AuthSessionAuditEventSchema.index({ eventId: 1 }, { unique: true, name: "uq_auth_session_audit_events_id" });
+AuthSessionAuditEventSchema.index(
+  { eventId: 1 },
+  { unique: true, name: "uq_auth_session_audit_events_id" },
+);
 AuthSessionAuditEventSchema.index(
   { userId: 1, occurredAt: -1 },
   { name: "ix_auth_session_audit_events_user_time" },

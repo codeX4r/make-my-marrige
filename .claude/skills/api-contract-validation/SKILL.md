@@ -6,21 +6,13 @@ description: Validate NestJS API implementation against the approved OpenAPI 3.1
 
 \---
 
-
-
 \# API Contract Validation
-
-
 
 \## Objective
 
 Ensure API implementation and published API documentation remain consistent.
 
-
-
 \## Instructions
-
-
 
 1\. Read AGENTS.md and the relevant approved API documentation.
 
@@ -28,19 +20,19 @@ Ensure API implementation and published API documentation remain consistent.
 
 3\. Validate:
 
-&#x20;  - HTTP methods and endpoint paths.
+&#x20; - HTTP methods and endpoint paths.
 
-&#x20;  - Request parameters, DTOs and validation rules.
+&#x20; - Request parameters, DTOs and validation rules.
 
-&#x20;  - Response schemas and HTTP status codes.
+&#x20; - Response schemas and HTTP status codes.
 
-&#x20;  - Authentication and authorization requirements.
+&#x20; - Authentication and authorization requirements.
 
-&#x20;  - Error response formats.
+&#x20; - Error response formats.
 
-&#x20;  - Pagination and filtering conventions.
+&#x20; - Pagination and filtering conventions.
 
-&#x20;  - API versioning and naming conventions.
+&#x20; - API versioning and naming conventions.
 
 4\. Compare implementation against OpenAPI 3.1.
 
@@ -48,11 +40,7 @@ Ensure API implementation and published API documentation remain consistent.
 
 6\. Identify missing endpoints, undocumented behavior and contract mismatches.
 
-
-
 \## Rules
-
-
 
 \- The approved API contract is authoritative.
 
@@ -64,11 +52,7 @@ Ensure API implementation and published API documentation remain consistent.
 
 \- Avoid repository-wide exploration.
 
-
-
 \## Output
-
-
 
 Report:
 
@@ -84,7 +68,4 @@ Report:
 
 \- Recommended corrections.
 
-
-
 Classify findings by severity.
-

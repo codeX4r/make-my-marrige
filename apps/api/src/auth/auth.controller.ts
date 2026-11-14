@@ -67,9 +67,7 @@ export class AuthController {
 
   @Post("register")
   @HttpCode(201)
-  async register(
-    @Body() dto: RegisterDto,
-  ): Promise<{
+  async register(@Body() dto: RegisterDto): Promise<{
     data: {
       user: { userId: string; email: string; displayName: string; emailVerificationStatus: string };
     };
@@ -153,9 +151,7 @@ export class AuthController {
   @Get("me")
   @HttpCode(200)
   @UseGuards(AccessTokenAuthGuard)
-  async me(
-    @CurrentPrincipal() principal: AuthenticatedPrincipal,
-  ): Promise<{
+  async me(@CurrentPrincipal() principal: AuthenticatedPrincipal): Promise<{
     data: {
       user: { userId: string; email: string; displayName: string; emailVerificationStatus: string };
     };
@@ -176,9 +172,7 @@ export class AuthController {
   @Get("sessions")
   @HttpCode(200)
   @UseGuards(AccessTokenAuthGuard)
-  async listSessions(
-    @CurrentPrincipal() principal: AuthenticatedPrincipal,
-  ): Promise<{
+  async listSessions(@CurrentPrincipal() principal: AuthenticatedPrincipal): Promise<{
     data: {
       sessions: Array<{ sessionId: string; issuedAt: Date; lastUsedAt: Date; expiresAt: Date }>;
     };

@@ -23,7 +23,12 @@ export class BrevoEmailAdapter {
   private readonly senderName: string;
   private readonly baseUrl = "https://api.brevo.com/v3/smtp/email";
 
-  constructor(environment: Pick<ApiEnvironment, "EMAIL_BREVO_API_KEY" | "EMAIL_SENDER_EMAIL" | "EMAIL_SENDER_NAME">) {
+  constructor(
+    environment: Pick<
+      ApiEnvironment,
+      "EMAIL_BREVO_API_KEY" | "EMAIL_SENDER_EMAIL" | "EMAIL_SENDER_NAME"
+    >,
+  ) {
     this.apiKey = environment.EMAIL_BREVO_API_KEY;
     this.senderEmail = environment.EMAIL_SENDER_EMAIL;
     this.senderName = environment.EMAIL_SENDER_NAME;
@@ -78,9 +83,10 @@ export class BrevoEmailAdapter {
       }
 
       // Safely extract messageId from provider response
-      const messageId = typeof result === "object" && result !== null && "messageId" in result
-        ? String((result as Record<string, unknown>).messageId)
-        : undefined;
+      const messageId =
+        typeof result === "object" && result !== null && "messageId" in result
+          ? String((result as Record<string, unknown>).messageId)
+          : undefined;
 
       this.logger.debug({ messageId }, "brevo_verification_email_sent");
       return { accepted: true, messageId: messageId ?? "", providerResponse: result };
@@ -89,7 +95,11 @@ export class BrevoEmailAdapter {
       const name = error instanceof Error ? error.name : "UnknownError";
       // Do not log sensitive data (API key, token, email body)
       this.logger.error(
-        { errorName: name, errorMessage: message, timeout: error instanceof DOMException && name === "AbortError" },
+        {
+          errorName: name,
+          errorMessage: message,
+          timeout: error instanceof DOMException && name === "AbortError",
+        },
         "brevo_verification_email_exception",
       );
       return { accepted: false };

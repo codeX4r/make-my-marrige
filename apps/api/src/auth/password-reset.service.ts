@@ -34,13 +34,6 @@ function newPasswordResetToken(now: Date): PasswordResetTokenMaterial {
   };
 }
 
-interface TransactionResult {
-  shouldSend: boolean;
-  email?: string;
-  token?: string;
-  expiresAt?: Date;
-}
-
 @Injectable()
 export class PasswordResetService {
   private readonly models;
@@ -85,7 +78,7 @@ export class PasswordResetService {
           createdAt: { $gte: oneHourAgo },
         }).session(databaseSession);
 
-        if (recentRequests >= 3) {
+        if (recentRequests >= MAX_PASSWORD_RESET_REQUESTS_PER_HOUR) {
           throw new HttpException(
             "Too many password reset requests. Please try again later.",
             HttpStatus.TOO_MANY_REQUESTS,
@@ -141,7 +134,11 @@ export class PasswordResetService {
     }
   }
 
-  async resetPassword(token: string, newPassword: string, now = new Date()): Promise<{ reset: true }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+    now = new Date(),
+  ): Promise<{ reset: true }> {
     if (!token || typeof token !== "string") {
       throw new BadRequestException("Reset token is required.");
     }
@@ -221,7 +218,10 @@ export class PasswordResetService {
     const result = await this.emailAdapter.sendVerificationEmail(payload);
 
     if (!result.accepted) {
-      this.logger.error({ email, providerResponse: result.providerResponse }, "password_reset_email_delivery_failed");
+      this.logger.error(
+        { email, providerResponse: result.providerResponse },
+        "password_reset_email_delivery_failed",
+      );
     }
   }
 }

@@ -29,15 +29,18 @@ export class AccessTokenService {
     };
     const header: JwtHeader = { alg: ALGORITHM, kid: this.keyRing.activeKid, typ: "JWT" };
     const signingInput = `${encodeJson(header)}.${encodeJson(payload)}`;
-    const signature = sign("RSA-SHA256", Buffer.from(signingInput), this.keyRing.privateKey).toString(
-      "base64url",
-    );
+    const signature = sign(
+      "RSA-SHA256",
+      Buffer.from(signingInput),
+      this.keyRing.privateKey,
+    ).toString("base64url");
     return `${signingInput}.${signature}`;
   }
 
   verify(token: string, now = new Date()): AuthenticatedPrincipal {
     const [encodedHeader, encodedPayload, encodedSignature, ...remaining] = token.split(".");
-    if (!encodedHeader || !encodedPayload || !encodedSignature || remaining.length > 0) throw unauthorized();
+    if (!encodedHeader || !encodedPayload || !encodedSignature || remaining.length > 0)
+      throw unauthorized();
     const header = decodeJson<Partial<JwtHeader>>(encodedHeader);
     if (header?.alg !== ALGORITHM || header.typ !== "JWT" || typeof header.kid !== "string") {
       throw unauthorized();
@@ -82,18 +85,18 @@ function decodeJson<T>(value: string): T | undefined {
 function validClaims(value: Partial<AccessTokenClaims> | undefined): value is AccessTokenClaims {
   return Boolean(
     value &&
-      typeof value.sub === "string" &&
-      value.sub.length > 0 &&
-      typeof value.sid === "string" &&
-      value.sid.length > 0 &&
-      typeof value.iss === "string" &&
-      typeof value.aud === "string" &&
-      typeof value.iat === "number" &&
-      Number.isSafeInteger(value.iat) &&
-      typeof value.exp === "number" &&
-      Number.isSafeInteger(value.exp) &&
-      typeof value.jti === "string" &&
-      value.jti.length > 0,
+    typeof value.sub === "string" &&
+    value.sub.length > 0 &&
+    typeof value.sid === "string" &&
+    value.sid.length > 0 &&
+    typeof value.iss === "string" &&
+    typeof value.aud === "string" &&
+    typeof value.iat === "number" &&
+    Number.isSafeInteger(value.iat) &&
+    typeof value.exp === "number" &&
+    Number.isSafeInteger(value.exp) &&
+    typeof value.jti === "string" &&
+    value.jti.length > 0,
   );
 }
 

@@ -39,7 +39,7 @@ export function OTPInput({
         inputsRef.current[index + 1]?.focus();
       }
     },
-    [length, onChange, value]
+    [length, onChange, value],
   );
 
   const handleKeyDown = useCallback(
@@ -54,7 +54,7 @@ export function OTPInput({
         inputsRef.current[index + 1]?.focus();
       }
     },
-    [value, length]
+    [value, length],
   );
 
   const handlePaste = useCallback(
@@ -67,7 +67,7 @@ export function OTPInput({
         inputsRef.current[lastFilled]?.focus();
       }
     },
-    [length, onChange]
+    [length, onChange],
   );
 
   const handleInput = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,13 +81,14 @@ export function OTPInput({
       className="flex gap-2"
       role="group"
       aria-label="One-time password"
-      aria-invalid={error ? "true" : "false"}
       aria-describedby={error ? "otp-error" : undefined}
     >
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
-          ref={(el: HTMLInputElement | null) => { if (el) inputsRef.current[i] = el; }}
+          ref={(el: HTMLInputElement | null) => {
+            if (el) inputsRef.current[i] = el;
+          }}
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"

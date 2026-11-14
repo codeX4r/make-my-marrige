@@ -7,7 +7,9 @@ describe("centralized route protection middleware", () => {
     const request = new NextRequest("http://localhost:3000/");
     const response = middleware(request);
     expect(response.status).toBe(200);
-    expect(response.headers.get("x-middleware-rewrite") || response.headers.get("location")).toBeNull();
+    expect(
+      response.headers.get("x-middleware-rewrite") || response.headers.get("location"),
+    ).toBeNull();
   });
 
   it("allows centralized /auth page without credentials", () => {

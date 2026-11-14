@@ -18,19 +18,19 @@ MakeMyMarrige is a family-first wedding planning platform.
 
 ### Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js |
-| Backend | NestJS |
-| Language | TypeScript |
-| Database | MongoDB |
-| ODM | Mongoose, if established in the project |
-| Cache / Queue | Redis + BullMQ |
-| Object Storage | Cloudflare R2 |
-| Email | Brevo through an adapter |
-| API Documentation | OpenAPI 3.1 |
-| Testing | Jest / project-established testing tools |
-| Browser Testing | Playwright |
+| Layer             | Technology                               |
+| ----------------- | ---------------------------------------- |
+| Frontend          | Next.js                                  |
+| Backend           | NestJS                                   |
+| Language          | TypeScript                               |
+| Database          | MongoDB                                  |
+| ODM               | Mongoose, if established in the project  |
+| Cache / Queue     | Redis + BullMQ                           |
+| Object Storage    | Cloudflare R2                            |
+| Email             | Brevo through an adapter                 |
+| API Documentation | OpenAPI 3.1                              |
+| Testing           | Jest / project-established testing tools |
+| Browser Testing   | Playwright                               |
 
 Do not replace approved technologies without explicit authorization.
 
@@ -279,14 +279,14 @@ The interface must feel like a coherent, polished wedding planning product.
 
 Use installed skills selectively:
 
-| Skill | Purpose |
-|---|---|
-| frontend-design | UI design and implementation |
-| modern-web-design | Design patterns and accessibility |
-| motion-framer | Appropriate interface animations |
-| animated-component-libraries | Reusable animated UI components |
-| context7 | Current framework documentation |
-| playwright | Browser-based functional testing |
+| Skill                        | Purpose                           |
+| ---------------------------- | --------------------------------- |
+| frontend-design              | UI design and implementation      |
+| modern-web-design            | Design patterns and accessibility |
+| motion-framer                | Appropriate interface animations  |
+| animated-component-libraries | Reusable animated UI components   |
+| context7                     | Current framework documentation   |
+| playwright                   | Browser-based functional testing  |
 
 Do not use 3D libraries or elaborate animation systems unless explicitly required by the product feature.
 
@@ -470,24 +470,31 @@ A task is complete only when:
 Every implementation response must contain:
 
 ### Changes
+
 What was implemented.
 
 ### Files Modified
+
 Important files created, changed or deleted.
 
 ### Architecture
+
 Relevant implementation decisions and trade-offs.
 
 ### Tests & Verification
+
 Actual commands executed and their results.
 
 ### Security
+
 Relevant security considerations and checks.
 
 ### Failures & Blockers
+
 Existing failures, newly discovered failures and environment limitations.
 
 ### Next Action
+
 Remaining work or the next logical implementation step.
 
 Never claim success without evidence.

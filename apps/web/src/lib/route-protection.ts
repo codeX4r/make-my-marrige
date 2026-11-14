@@ -14,10 +14,7 @@ export const PUBLIC_AUTH_WORKFLOW_ROUTES = [
   "/auth/reset-password",
 ] as const;
 
-export const LEGACY_AUTH_ROUTES = [
-  "/auth/login",
-  "/auth/register",
-] as const;
+export const LEGACY_AUTH_ROUTES = ["/auth/login", "/auth/register"] as const;
 
 /**
  * Normalizes a pathname: trims whitespace, removes trailing slash (unless root '/'),
@@ -41,9 +38,7 @@ export function isPublicPathname(pathname: string): boolean {
     return true;
   }
   if (
-    PUBLIC_AUTH_WORKFLOW_ROUTES.includes(
-      normalized as (typeof PUBLIC_AUTH_WORKFLOW_ROUTES)[number],
-    )
+    PUBLIC_AUTH_WORKFLOW_ROUTES.includes(normalized as (typeof PUBLIC_AUTH_WORKFLOW_ROUTES)[number])
   ) {
     return true;
   }

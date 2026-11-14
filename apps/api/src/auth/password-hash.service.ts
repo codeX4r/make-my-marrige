@@ -19,10 +19,16 @@ export type PasswordHash = {
 async function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
   // scrypt options need to be passed via callback-based API due to TypeScript signature limitations
   return new Promise<Buffer>((resolve, reject) => {
-    scrypt(password, salt, KEY_LENGTH, { N: SCRYPT_N, r: SCRYPT_R, p: SCRYPT_P }, (err, derivedKey) => {
-      if (err) reject(err);
-      else resolve(derivedKey);
-    });
+    scrypt(
+      password,
+      salt,
+      KEY_LENGTH,
+      { N: SCRYPT_N, r: SCRYPT_R, p: SCRYPT_P },
+      (err, derivedKey) => {
+        if (err) reject(err);
+        else resolve(derivedKey);
+      },
+    );
   });
 }
 
@@ -47,7 +53,9 @@ export class PasswordHashService {
   async hash(password: string): Promise<PasswordHash> {
     if (typeof password !== "string") throw new Error("Password must be a string.");
     if (password.length < PASSWORD_MIN_LENGTH || password.length > PASSWORD_MAX_LENGTH) {
-      throw new Error(`Password must be between ${PASSWORD_MIN_LENGTH} and ${PASSWORD_MAX_LENGTH} characters.`);
+      throw new Error(
+        `Password must be between ${PASSWORD_MIN_LENGTH} and ${PASSWORD_MAX_LENGTH} characters.`,
+      );
     }
     const salt = randomBytes(SALT_BYTES);
     const derivedKey = await deriveKey(password, salt);

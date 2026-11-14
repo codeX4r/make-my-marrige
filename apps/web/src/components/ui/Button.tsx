@@ -29,14 +29,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyles = {
       primary:
         "bg-primary text-white hover:bg-primary-hover active:bg-primary-active border border-primary",
-      secondary:
-        "bg-accent text-white hover:bg-accent-hover active:bg-accent border border-accent",
+      secondary: "bg-accent text-white hover:bg-accent-hover active:bg-accent border border-accent",
       outline:
         "bg-transparent border-2 border-primary text-primary hover:bg-primary/10 active:bg-primary/20",
-      ghost:
-        "bg-transparent text-primary hover:bg-primary/10 active:bg-primary/20",
-      danger:
-        "bg-danger text-white hover:bg-danger/90 active:bg-danger border border-danger",
+      ghost: "bg-transparent text-primary hover:bg-primary/10 active:bg-primary/20",
+      danger: "bg-danger text-white hover:bg-danger/90 active:bg-danger border border-danger",
     };
 
     const sizeStyles = {

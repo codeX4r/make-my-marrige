@@ -159,12 +159,19 @@ export class RegistrationService {
     }
   }
 
-  private async sendVerificationEmail(email: string, token: string, expiresAt: Date): Promise<void> {
+  private async sendVerificationEmail(
+    email: string,
+    token: string,
+    expiresAt: Date,
+  ): Promise<void> {
     const payload: VerificationEmailPayload = { to: email, token, expiresAt };
     const result = await this.emailAdapter.sendVerificationEmail(payload);
 
     if (!result.accepted) {
-      this.logger.error({ email, providerResponse: result.providerResponse }, "verification_email_delivery_failed");
+      this.logger.error(
+        { email, providerResponse: result.providerResponse },
+        "verification_email_delivery_failed",
+      );
     }
   }
 

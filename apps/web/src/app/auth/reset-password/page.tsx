@@ -27,7 +27,6 @@ function ResetPasswordPageContent() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
     setError: setFieldError,
     clearErrors,
@@ -46,8 +45,6 @@ function ResetPasswordPageContent() {
       return { values, errors: {} };
     },
   });
-
-  const password = watch("password");
 
   const onSubmit = async (data: ResetFormData) => {
     if (!token) {
@@ -125,7 +122,7 @@ function ResetPasswordPageContent() {
   );
 
   if (!token) {
-    return <div />;
+    return renderInvalidToken();
   }
 
   return (

@@ -20,13 +20,12 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
     return (
       <div className={`${fullWidth ? "w-full" : ""} ${className}`}>
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-text mb-1.5"
-        >
+        <label htmlFor={inputId} className="block text-sm font-medium text-text mb-1.5">
           {label}
           {required && (
-            <span className="text-danger ml-1" aria-hidden="true">*</span>
+            <span className="text-danger ml-1" aria-hidden="true">
+              *
+            </span>
           )}
         </label>
         <input

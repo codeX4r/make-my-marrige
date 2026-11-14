@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm, type FieldErrors } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
@@ -15,8 +14,7 @@ interface ResendFormData {
 }
 
 export default function ResendVerificationPage() {
-  const router = useRouter();
-  const { resendVerification, isLoading: authLoading } = useAuth();
+  const { resendVerification } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,14 +89,14 @@ export default function ResendVerificationPage() {
             </div>
             <h1 className="text-2xl font-semibold text-text">Email sent!</h1>
             <p className="mt-2 text-muted">
-              We've sent a new verification link to your email address. Please check your inbox (and
-              spam folder) and click the link to verify your account.
+              We&apos;ve sent a new verification link to your email address. Please check your inbox
+              (and spam folder) and click the link to verify your account.
             </p>
           </div>
 
           <div className="space-y-4">
             <p className="text-sm text-muted">
-              Didn't receive the email?{" "}
+              Didn&apos;t receive the email?{" "}
               <button
                 onClick={() => setSuccess(false)}
                 className="font-medium text-primary hover:text-primary-hover"
@@ -136,7 +134,7 @@ export default function ResendVerificationPage() {
           <div className="text-center mb-8">
             <h1 className="text-2xl font-semibold text-text">Resend verification</h1>
             <p className="mt-2 text-muted">
-              Enter your email address and we'll send a new verification link.
+              Enter your email address and we&apos;ll send a new verification link.
             </p>
           </div>
 

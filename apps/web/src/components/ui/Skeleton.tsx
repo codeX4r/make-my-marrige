@@ -23,7 +23,13 @@ export function Skeleton({ className = "", variant = "text", width, height }: Sk
   );
 }
 
-export function SkeletonText({ lines = 3, className = "" }: { lines?: number; className?: string }) {
+export function SkeletonText({
+  lines = 3,
+  className = "",
+}: {
+  lines?: number;
+  className?: string;
+}) {
   return (
     <div className={`space-y-3 ${className}`}>
       {Array.from({ length: lines }).map((_, i) => (

@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { apiRequest, clearCsrfToken } from "@/lib/api-client";
 
 interface User {
@@ -23,7 +24,9 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   refreshUser: () => Promise<void>;
-  listSessions: () => Promise<Array<{ sessionId: string; issuedAt: string; lastUsedAt: string; expiresAt: string }>>;
+  listSessions: () => Promise<
+    Array<{ sessionId: string; issuedAt: string; lastUsedAt: string; expiresAt: string }>
+  >;
   revokeSession: (sessionId: string) => Promise<void>;
 }
 
@@ -43,7 +46,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    refreshUser().finally(() => setIsLoading(false));
+    let isMounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        await refreshUser();
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // The state update occurs after the asynchronous session check completes.
+    void initializeAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -111,7 +131,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const listSessions = async () => {
-    const data = await apiRequest<{ data: { sessions: Array<{ sessionId: string; issuedAt: string; lastUsedAt: string; expiresAt: string }> } }>("/auth/sessions");
+    const data = await apiRequest<{
+      data: {
+        sessions: Array<{
+          sessionId: string;
+          issuedAt: string;
+          lastUsedAt: string;
+          expiresAt: string;
+        }>;
+      };
+    }>("/auth/sessions");
     return data.data.sessions;
   };
 

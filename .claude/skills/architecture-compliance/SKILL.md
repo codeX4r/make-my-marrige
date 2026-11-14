@@ -6,21 +6,13 @@ description: Check implementation against approved product requirements, archite
 
 \---
 
-
-
 \# Architecture Compliance
-
-
 
 \## Objective
 
 Ensure implementation follows the approved MakeMyMarrige architecture and product decisions.
 
-
-
 \## Documentation Authority
-
-
 
 Use:
 
@@ -38,19 +30,11 @@ Use:
 
 7\. Relevant business workflows
 
-
-
 Distinguish approved decisions from proposals and unresolved decisions.
-
-
 
 \## Validation Areas
 
-
-
 Check:
-
-
 
 \- Monorepo and package boundaries.
 
@@ -72,11 +56,7 @@ Check:
 
 \- Error handling and audit requirements.
 
-
-
 \## Rules
-
-
 
 \- Never invent business requirements.
 
@@ -90,15 +70,9 @@ Check:
 
 \- Preserve existing implementation and user changes.
 
-
-
 \## Output
 
-
-
 Provide:
-
-
 
 1\. Compliance status.
 
@@ -112,7 +86,4 @@ Provide:
 
 6\. Recommended corrections.
 
-
-
 Clearly distinguish verified violations from potential concerns.
-

@@ -5,10 +5,6 @@ export const metadata: Metadata = {
   description: "Sign in or create your MakeMyMarrige account",
 };
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

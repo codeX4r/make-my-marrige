@@ -315,19 +315,21 @@ function AuthPageContent() {
           <div className="grid grid-cols-2 bg-[#FAF2ED] p-1 rounded-xl mb-8 border border-[#EAE4DA]">
             <button
               onClick={() => switchTab("register")}
-              className={`py-3 text-sm font-medium rounded-lg transition-all ${activeTab === "register"
+              className={`py-3 text-sm font-medium rounded-lg transition-all ${
+                activeTab === "register"
                   ? "bg-[#7A2E42] text-white shadow-sm"
                   : "text-[#77716B] hover:text-[#282522]"
-                }`}
+              }`}
             >
               Create Workspace
             </button>
             <button
               onClick={() => switchTab("login")}
-              className={`py-3 text-sm font-medium rounded-lg transition-all ${activeTab === "login"
+              className={`py-3 text-sm font-medium rounded-lg transition-all ${
+                activeTab === "login"
                   ? "bg-[#7A2E42] text-white shadow-sm"
                   : "text-[#77716B] hover:text-[#282522]"
-                }`}
+              }`}
             >
               Sign In
             </button>
@@ -341,10 +343,7 @@ function AuthPageContent() {
 
           {isLoggedOut && !error && (
             <div className="mb-6">
-              <InlineBanner
-                type="info"
-                message="You have been successfully logged out."
-              />
+              <InlineBanner type="info" message="You have been successfully logged out." />
             </div>
           )}
 
