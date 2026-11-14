@@ -102,7 +102,7 @@ function AuthPageContent() {
     clearLoginErrors();
     try {
       await login(data.email, data.password);
-      router.push("/");
+      router.replace("/dashboard");
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Invalid credentials. Please try again.";
@@ -311,21 +311,19 @@ function AuthPageContent() {
           <div className="grid grid-cols-2 bg-[#FAF2ED] p-1 rounded-xl mb-8 border border-[#EAE4DA]">
             <button
               onClick={() => switchTab("register")}
-              className={`py-3 text-sm font-medium rounded-lg transition-all ${
-                activeTab === "register"
+              className={`py-3 text-sm font-medium rounded-lg transition-all ${activeTab === "register"
                   ? "bg-[#7A2E42] text-white shadow-sm"
                   : "text-[#77716B] hover:text-[#282522]"
-              }`}
+                }`}
             >
               Create Workspace
             </button>
             <button
               onClick={() => switchTab("login")}
-              className={`py-3 text-sm font-medium rounded-lg transition-all ${
-                activeTab === "login"
+              className={`py-3 text-sm font-medium rounded-lg transition-all ${activeTab === "login"
                   ? "bg-[#7A2E42] text-white shadow-sm"
                   : "text-[#77716B] hover:text-[#282522]"
-              }`}
+                }`}
             >
               Sign In
             </button>
